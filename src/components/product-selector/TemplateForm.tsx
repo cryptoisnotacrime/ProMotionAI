@@ -263,7 +263,6 @@ export function TemplateForm({
               >
                 <option value="9:16">TikTok/Reels (9:16 vertical)</option>
                 <option value="16:9">YouTube (16:9 landscape)</option>
-                <option value="1:1">Instagram Feed (1:1 square)</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
                 Select the platform where you'll use this video

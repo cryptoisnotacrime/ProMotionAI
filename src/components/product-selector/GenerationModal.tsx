@@ -77,7 +77,6 @@ export function GenerationModal({
     const aspectRatioMap: Record<string, string> = {
       '9:16': '9:16',
       '16:9': '16:9',
-      '1:1': '1:1',
     };
     const aspectRatio = aspectRatioMap[templateInputs.platform || '9:16'] || '9:16';
 
