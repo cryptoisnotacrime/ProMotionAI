@@ -130,11 +130,36 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan }: PricingPl
         </div>
       </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-        <p className="text-sm text-yellow-800 text-center">
-          <strong>Development Note:</strong> Payment processing integration with Stripe/Shopify Billing is in progress.
-          Plan upgrades are currently instant for testing purposes.
-        </p>
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6">
+        <div className="max-w-3xl mx-auto">
+          <h4 className="text-lg font-bold text-gray-900 mb-3 text-center">How Pricing Works</h4>
+          <div className="space-y-2 text-sm text-gray-700">
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-blue-600">1</span>
+              </div>
+              <div>
+                <strong>Monthly Subscription:</strong> Pay a flat monthly fee for your plan tier and included credits
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-blue-600">2</span>
+              </div>
+              <div>
+                <strong>Usage Charges:</strong> When you generate videos beyond your included credits, you pay per-video usage fees
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-blue-600">3</span>
+              </div>
+              <div>
+                <strong>Usage Cap:</strong> Usage charges are capped monthly, so you never pay more than your tier's maximum
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -203,6 +228,21 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
         {isFree && (
           <p className="text-sm text-gray-500 mt-2">Perfect to get started</p>
         )}
+
+        {/* Hybrid Pricing Display */}
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="text-sm space-y-1">
+            <div className="flex items-center justify-between text-gray-600">
+              <span>Per-video usage:</span>
+              <span className="font-semibold text-gray-900">
+                {isFree ? '$0.50' : plan.plan_name === 'basic' ? '$0.30' : '$0.20'}/video
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">
+              Max ${isFree ? '5' : plan.plan_name === 'basic' ? '50' : '100'}/month in usage fees
+            </div>
+          </div>
+        </div>
       </div>
 
       <button
