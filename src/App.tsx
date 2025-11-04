@@ -86,6 +86,7 @@ function App() {
     const embedded = params.get('embedded') === '1' || !!host;
     const hmac = params.get('hmac');
     const sessionToken = params.get('session');
+    const chargeId = params.get('charge_id');
 
     setIsEmbedded(embedded);
 
@@ -96,9 +97,38 @@ function App() {
       installed,
       hmac: !!hmac,
       sessionToken: !!sessionToken,
+      chargeId: !!chargeId,
       allParams: Object.fromEntries(params.entries()),
       fullUrl: window.location.href
     });
+
+    // Handle billing confirmation callback
+    if (shop && chargeId) {
+      console.log('Handling billing confirmation for charge:', chargeId);
+      try {
+        await SubscriptionService.confirmSubscription(shop, chargeId);
+        console.log('Subscription confirmed successfully');
+
+        // Reload store data to get updated subscription status
+        const existingStore = await ShopifyAuthService.getStoreByDomain(shop);
+        if (existingStore) {
+          setStore(existingStore);
+          await loadStoreData(existingStore.id, shop, existingStore.access_token || '');
+        }
+
+        // Clean up URL
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('charge_id');
+        window.history.replaceState({}, '', cleanUrl.toString());
+
+        // Navigate to billing view to show success
+        setCurrentView('billing');
+        return;
+      } catch (error) {
+        console.error('Failed to confirm subscription:', error);
+        alert('Failed to confirm subscription. Please try again or contact support.');
+      }
+    }
 
     if (shop) {
       try {

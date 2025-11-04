@@ -113,4 +113,89 @@ export class SubscriptionService {
       throw new Error(`Failed to renew subscription: ${error.message}`);
     }
   }
+
+  static async confirmSubscription(shop: string, chargeId: string): Promise<void> {
+    const { data: store, error: storeError } = await supabase
+      .from('stores')
+      .select('id, access_token, plan_name')
+      .eq('shop_domain', shop)
+      .maybeSingle();
+
+    if (storeError || !store || !store.access_token) {
+      throw new Error('Store not found or missing access token');
+    }
+
+    const query = `
+      query {
+        node(id: "${chargeId}") {
+          ... on AppSubscription {
+            id
+            name
+            status
+            currentPeriodEnd
+            lineItems {
+              id
+              plan {
+                pricingDetails {
+                  __typename
+                  ... on AppRecurringPricing {
+                    price {
+                      amount
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await fetch(`https://${shop}/admin/api/2024-01/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': store.access_token,
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    const result = await response.json();
+
+    if (result.errors) {
+      throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+    }
+
+    const subscription = result.data?.node;
+    if (!subscription || subscription.status !== 'ACTIVE') {
+      throw new Error('Subscription not active');
+    }
+
+    const plan = await this.getPlanByName(store.plan_name);
+    if (!plan) {
+      throw new Error('Plan not found');
+    }
+
+    const now = new Date();
+    const cycleEnd = new Date(subscription.currentPeriodEnd || now);
+    cycleEnd.setMonth(cycleEnd.getMonth() + 1);
+
+    const { error } = await supabase
+      .from('stores')
+      .update({
+        shopify_subscription_id: chargeId,
+        subscription_status: 'active',
+        subscription_confirmed_at: now.toISOString(),
+        billing_cycle_start: now.toISOString(),
+        billing_cycle_end: cycleEnd.toISOString(),
+        credits_remaining: plan.credits_per_cycle,
+        credits_total: plan.credits_per_cycle,
+        updated_at: now.toISOString(),
+      })
+      .eq('id', store.id);
+
+    if (error) {
+      throw new Error(`Failed to update subscription: ${error.message}`);
+    }
+  }
 }

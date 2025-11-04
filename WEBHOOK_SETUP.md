@@ -11,27 +11,38 @@ https://zbiuevrxbupsvmpfuqpq.supabase.co/functions/v1/shopify-webhooks
 
 ## Required Webhooks
 
-You must register these four webhooks to comply with Shopify App Store requirements:
+You must register these webhooks to comply with Shopify App Store requirements:
 
-### 1. App Uninstalled
+### GDPR & Lifecycle Webhooks (Required)
+
+#### 1. App Uninstalled
 - **Topic:** `app/uninstalled`
 - **Purpose:** Notifies when a merchant uninstalls your app
 - **Action:** Cancels subscription and removes access token
 
-### 2. Customer Data Request (GDPR)
+#### 2. Customer Data Request (GDPR)
 - **Topic:** `customers/data_request`
 - **Purpose:** GDPR compliance - merchant requests customer data
 - **Action:** Returns all customer data (videos, transactions, store info)
 
-### 3. Customer Data Erasure (GDPR)
+#### 3. Customer Data Erasure (GDPR)
 - **Topic:** `customers/redact`
 - **Purpose:** GDPR compliance - customer requests data deletion
 - **Action:** Deletes customer-specific videos and transactions
 
-### 4. Shop Data Erasure (GDPR)
+#### 4. Shop Data Erasure (GDPR)
 - **Topic:** `shop/redact`
 - **Purpose:** GDPR compliance - delete all store data after 48 hours
 - **Action:** Deletes all store data including videos, transactions, preferences, and business DNA
+
+### Billing Webhooks (Recommended for Subscription Apps)
+
+#### 5. Subscription Update
+- **Topic:** `app_subscriptions/update`
+- **Purpose:** Notifies when subscription status changes
+- **Action:** Updates subscription status in database
+
+**Note:** These webhooks are automatically handled by the same endpoint. The handler routes each webhook to the appropriate action based on the `X-Shopify-Topic` header.
 
 ## Registration Methods
 
@@ -84,6 +95,7 @@ Repeat for each topic:
 - `CUSTOMERS_DATA_REQUEST`
 - `CUSTOMERS_REDACT`
 - `SHOP_REDACT`
+- `APP_SUBSCRIPTIONS_UPDATE` (optional but recommended)
 
 ## Webhook Verification
 
