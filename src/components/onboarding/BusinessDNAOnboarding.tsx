@@ -13,11 +13,7 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
 
   // Get custom domain, skip .myshopify.com domains
   const getDefaultWebsite = () => {
-    // Check shopify_domain first (from OAuth)
-    if (store.shopify_domain && !store.shopify_domain.includes('.myshopify.com')) {
-      return `https://${store.shopify_domain}`;
-    }
-    // Fallback to shop_domain
+    // Check shop_domain (from OAuth)
     if (store.shop_domain && !store.shop_domain.includes('.myshopify.com')) {
       return `https://${store.shop_domain}`;
     }

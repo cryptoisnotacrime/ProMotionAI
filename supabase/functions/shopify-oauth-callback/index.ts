@@ -100,12 +100,6 @@ Deno.serve(async (req: Request) => {
     const shopData = await shopResponse.json();
     const shopInfo = shopData.shop;
 
-    // Get the primary/custom domain (not .myshopify.com)
-    let customDomain = shopInfo.domain || null;
-    if (customDomain && customDomain.includes('.myshopify.com')) {
-      customDomain = null;
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -118,7 +112,6 @@ Deno.serve(async (req: Request) => {
         shopify_store_id: shopInfo.id.toString(),
         store_name: shopInfo.name,
         email: shopInfo.email,
-        shopify_domain: customDomain,
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'shop_domain'

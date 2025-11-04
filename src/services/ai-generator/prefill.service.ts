@@ -40,11 +40,11 @@ export function prefillFromStoreSettings(store: Store, product: ShopifyProduct):
   const productInsights = extractProductInsights(product);
 
   const brandName = store.default_brand_name ||
-                    (store.shopify_domain ? store.shopify_domain.split('.')[0] : '');
+                    (store.shop_domain ? store.shop_domain.split('.')[0] : '');
 
   let callToAction = store.default_call_to_action;
-  if (!callToAction && store.shopify_domain) {
-    const cleanDomain = store.shopify_domain.replace('.myshopify.com', '');
+  if (!callToAction && store.shop_domain) {
+    const cleanDomain = store.shop_domain.replace('.myshopify.com', '');
     if (store.instagram_handle) {
       callToAction = `Shop now @${store.instagram_handle}`;
     } else if (store.tiktok_handle) {

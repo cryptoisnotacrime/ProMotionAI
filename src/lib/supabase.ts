@@ -43,7 +43,6 @@ export function getAuthenticatedClient(): SupabaseClient {
 export type Store = {
   id: string;
   shop_domain: string;
-  shopify_domain?: string;
   access_token?: string;
   shopify_store_id?: string;
   store_name?: string;
