@@ -43,14 +43,26 @@ function App() {
   useEffect(() => {
     if (!store) return;
 
-    const hasProcessingVideos = videos.some(
+    const processingVideos = videos.filter(
       (v) => v.generation_status === 'processing' || v.generation_status === 'pending'
     );
 
-    if (!hasProcessingVideos) return;
+    if (processingVideos.length === 0) return;
 
     const intervalId = setInterval(async () => {
       try {
+        // Poll each processing video to check if Veo job is complete
+        for (const video of processingVideos) {
+          if (video.veo_job_id) {
+            try {
+              await VideoGenerationService.pollVideoStatus(video.id);
+            } catch (error) {
+              console.error(`Failed to poll video ${video.id}:`, error);
+            }
+          }
+        }
+
+        // Refresh videos list
         const updatedVideos = await VideoGenerationService.getVideosByStore(store.id);
         setVideos(updatedVideos);
 

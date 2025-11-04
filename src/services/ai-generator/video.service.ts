@@ -215,4 +215,21 @@ export class VideoGenerationService {
 
     console.log('Successfully deleted video:', videoId);
   }
+
+  static async pollVideoStatus(videoId: string): Promise<void> {
+    const apiUrl = `${import.meta.env.VITE_Bolt_Database_URL}/functions/v1/poll-video-status`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_Bolt_Database_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ videoId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Failed to poll video status' }));
+      throw new Error(errorData.error || 'Failed to poll video status');
+    }
+  }
 }
