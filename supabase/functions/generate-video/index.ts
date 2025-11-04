@@ -194,6 +194,14 @@ Deno.serve(async (req: Request) => {
     const location = "us-central1";
     const veoEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${gcpProjectId}/locations/${location}/publishers/google/models/${veoModel}:predictLongRunning`;
 
+    // Map aspect ratios - Veo only supports 16:9 and 9:16
+    // 1:1 (square) is not supported, so we map it to 9:16
+    let veoAspectRatio = aspectRatio || "9:16";
+    if (veoAspectRatio === "1:1") {
+      veoAspectRatio = "9:16"; // Map square to vertical
+      console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
+    }
+
     const veoRequestBody = {
       instances: [
         {
@@ -206,7 +214,7 @@ Deno.serve(async (req: Request) => {
       ],
       parameters: {
         durationSeconds: durationSeconds,
-        aspectRatio: aspectRatio || "9:16",
+        aspectRatio: veoAspectRatio,
         personGeneration: "allow_adult",
         generateAudio: false,
       },
