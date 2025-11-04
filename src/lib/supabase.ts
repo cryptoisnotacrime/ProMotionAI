@@ -1,9 +1,9 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { setShopifyHeaders } from '../utils/shopify-session';
 
 function decodeBase64EnvVar(envVar: string | undefined): string | undefined {
   if (!envVar) return undefined;
   try {
-    // If it's base64 encoded, decode it
     if (envVar.startsWith('base64:')) {
       return atob(envVar.substring(7));
     }
@@ -25,10 +25,20 @@ function getSupabaseClient(): SupabaseClient {
     throw new Error('Missing Supabase environment variables. Please configure VITE_Bolt_Database_URL and VITE_Bolt_Database_ANON_KEY');
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
+  const headers = setShopifyHeaders();
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers
+    }
+  });
 }
 
 export const supabase = getSupabaseClient();
+
+export function getAuthenticatedClient(): SupabaseClient {
+  return getSupabaseClient();
+}
 
 export type Store = {
   id: string;
