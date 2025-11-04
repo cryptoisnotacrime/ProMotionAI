@@ -102,16 +102,25 @@ export class ShopifyAuthService {
   }
 
   static async getStoreByDomain(shop: string) {
-    const { data, error } = await supabase
-      .from('stores')
-      .select('*')
-      .eq('shop_domain', shop)
-      .maybeSingle();
+    const supabaseUrl = import.meta.env.VITE_Bolt_Database_URL;
+    const supabaseAnonKey = import.meta.env.VITE_Bolt_Database_ANON_KEY;
 
-    if (error) {
-      throw new Error(`Failed to fetch store: ${error.message}`);
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/stores?shop_domain=eq.${encodeURIComponent(shop)}&select=*`,
+      {
+        headers: {
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey,
+          'x-shopify-shop': shop,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch store: ${response.statusText}`);
     }
 
-    return data;
+    const data = await response.json();
+    return data.length > 0 ? data[0] : null;
   }
 }
