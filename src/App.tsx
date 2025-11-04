@@ -330,17 +330,41 @@ function App() {
     if (!store) return;
 
     try {
-      await SubscriptionService.upgradePlan(store.id, planName, billingCycle);
-      const updatedStore = await CreditsService.getStoreInfo(store.id);
-      if (updatedStore) {
-        setStore(updatedStore);
+      const shop = sessionStorage.getItem('shopify_shop') || store.shop_domain;
+
+      const supabaseUrl = import.meta.env.VITE_Bolt_Database_URL?.startsWith('base64:')
+        ? atob(import.meta.env.VITE_Bolt_Database_URL.substring(7))
+        : import.meta.env.VITE_Bolt_Database_URL;
+      const supabaseAnonKey = import.meta.env.VITE_Bolt_Database_ANON_KEY?.startsWith('base64:')
+        ? atob(import.meta.env.VITE_Bolt_Database_ANON_KEY.substring(7))
+        : import.meta.env.VITE_Bolt_Database_ANON_KEY;
+
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/create-subscription`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ shop, planName })
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
       }
-      alert('Plan upgraded successfully!');
-      // Switch to dashboard view to show the updated plan
-      setCurrentView('dashboard');
+
+      if (result.confirmationUrl) {
+        window.top!.location.href = result.confirmationUrl;
+      } else {
+        throw new Error('No confirmation URL received');
+      }
     } catch (error) {
-      console.error('Failed to upgrade plan:', error);
-      alert('Failed to upgrade plan. Please try again.');
+      console.error('Failed to create subscription:', error);
+      alert('Failed to create subscription. Please try again.');
     }
   };
 

@@ -467,6 +467,78 @@ async function refundCredits(
   console.log(`Refunded ${amount} credits successfully`);
 }
 
+async function chargeUsage(
+  supabase: any,
+  storeId: string,
+  videoId: string,
+  durationSeconds: number,
+  shopDomain: string,
+  accessToken: string
+): Promise<void> {
+  try {
+    console.log("Fetching store plan and subscription details...");
+    const { data: store } = await supabase
+      .from("stores")
+      .select("plan_name, shopify_subscription_id")
+      .eq("id", storeId)
+      .single();
+
+    if (!store || !store.shopify_subscription_id) {
+      console.log("No subscription ID found, skipping usage charge");
+      return;
+    }
+
+    const rates: Record<string, number> = {
+      free: 0.5,
+      basic: 0.3,
+      pro: 0.2,
+    };
+
+    const rate = rates[store.plan_name] || 0.5;
+    const amount = durationSeconds * rate;
+
+    console.log(`Creating usage charge: $${amount.toFixed(2)} for ${durationSeconds}s video`);
+
+    const response = await fetch(
+      `https://${shopDomain}/admin/api/2024-01/recurring_application_charges/${store.shopify_subscription_id}/usage_charges.json`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": accessToken,
+        },
+        body: JSON.stringify({
+          usage_charge: {
+            description: `${durationSeconds}s video generation`,
+            price: amount.toFixed(2),
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to create usage charge:", errorText);
+      return;
+    }
+
+    const charge = await response.json();
+    console.log("Usage charge created:", charge.usage_charge?.id);
+
+    await supabase.from("usage_charges").insert({
+      store_id: storeId,
+      video_id: videoId,
+      charge_amount: amount,
+      charge_description: `${durationSeconds}s video generation`,
+      shopify_charge_id: charge.usage_charge?.id,
+    });
+
+    console.log("Usage charge recorded in database");
+  } catch (error) {
+    console.error("Error charging usage:", error);
+  }
+}
+
 async function pollVeoJob(
   operationName: string,
   serviceAccountJson: string,
@@ -600,6 +672,17 @@ async function pollVeoJob(
           updated_at: new Date().toISOString(),
         })
         .eq("id", videoId);
+
+      console.log("Charging usage to Shopify...");
+      const { data: videoData } = await supabase
+        .from("generated_videos")
+        .select("duration_seconds, store_id")
+        .eq("id", videoId)
+        .single();
+
+      if (videoData) {
+        await chargeUsage(supabase, videoData.store_id, videoId, videoData.duration_seconds, shop_domain, access_token);
+      }
 
       console.log("Video generation completed successfully!");
       return;

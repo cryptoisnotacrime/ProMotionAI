@@ -206,17 +206,23 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
       </div>
 
       <button
-        onClick={() => onSelect(plan.plan_name, billingCycle)}
+        onClick={() => {
+          if (!isFree) {
+            onSelect(plan.plan_name, billingCycle);
+          }
+        }}
         disabled={isCurrentPlan}
         className={`w-full py-3 rounded-xl font-semibold transition-all mb-6 ${
           isCurrentPlan
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
             : isPro
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg hover:scale-105'
+            : isFree
+            ? 'bg-gray-200 text-gray-700'
             : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg'
         }`}
       >
-        {isCurrentPlan ? 'Current Plan' : isFree ? 'Get Started Free' : 'Upgrade Now'}
+        {isCurrentPlan ? 'Current Plan' : isFree ? 'Default Plan' : 'Subscribe Now'}
       </button>
 
       <div className="space-y-3 border-t pt-6">
