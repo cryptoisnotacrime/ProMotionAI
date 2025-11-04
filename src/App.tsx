@@ -102,9 +102,10 @@ function App() {
       fullUrl: window.location.href
     });
 
-    // Handle billing confirmation callback
+    // Handle billing confirmation callback from Shopify
     if (shop && chargeId) {
       console.log('Handling billing confirmation for charge:', chargeId);
+      setIsLoading(true);
       try {
         await SubscriptionService.confirmSubscription(shop, chargeId);
         console.log('Subscription confirmed successfully');
@@ -123,9 +124,11 @@ function App() {
 
         // Navigate to billing view to show success
         setCurrentView('billing');
+        setIsLoading(false);
         return;
       } catch (error) {
         console.error('Failed to confirm subscription:', error);
+        setIsLoading(false);
         alert('Failed to confirm subscription. Please try again or contact support.');
       }
     }
@@ -393,20 +396,43 @@ function App() {
         }
       );
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('HTTP error from create-subscription:', response.status, errorText);
+        throw new Error(`Server error: ${response.status}. ${errorText}`);
+      }
+
       const result = await response.json();
+      console.log('Create subscription result:', result);
 
       if (result.error) {
-        throw new Error(result.error);
+        console.error('Subscription creation error:', result.error);
+        throw new Error(typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
+      }
+
+      // Handle free plan response
+      if (result.success && planName === 'free') {
+        console.log('Successfully switched to free plan');
+        // Reload store data
+        const updatedStore = await CreditsService.getStoreInfo(store.id);
+        if (updatedStore) {
+          setStore(updatedStore);
+        }
+        alert('Successfully switched to Free plan!');
+        return;
       }
 
       if (result.confirmationUrl) {
+        console.log('Redirecting to Shopify billing confirmation:', result.confirmationUrl);
         window.top!.location.href = result.confirmationUrl;
       } else {
-        throw new Error('No confirmation URL received');
+        console.error('No confirmation URL in result:', result);
+        throw new Error('No confirmation URL received from server');
       }
     } catch (error) {
       console.error('Failed to create subscription:', error);
-      alert('Failed to create subscription. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Failed to create subscription: ${errorMessage}`);
     }
   };
 
