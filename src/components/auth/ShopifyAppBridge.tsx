@@ -13,10 +13,22 @@ export function ShopifyAppBridge({ children, apiKey }: ShopifyAppBridgeProps) {
     const params = new URLSearchParams(window.location.search);
     const host = params.get('host');
     const shop = params.get('shop');
+    const embedded = params.get('embedded');
 
-    console.log('ShopifyAppBridge initializing with:', { host, shop, url: window.location.href });
+    console.log('ShopifyAppBridge initializing with:', {
+      host,
+      shop,
+      embedded,
+      isTopFrame: window.self === window.top,
+      url: window.location.href
+    });
 
-    if (host && shop && apiKey) {
+    // Only initialize App Bridge if we have a host parameter AND we're in an iframe
+    // Legacy install flow opens in new tab (not iframe) and has no host parameter
+    const isInIframe = window.self !== window.top;
+    const shouldInitialize = host && shop && apiKey && (isInIframe || embedded === '1');
+
+    if (shouldInitialize) {
       const config = {
         apiKey: apiKey,
         host: host,
@@ -25,7 +37,8 @@ export function ShopifyAppBridge({ children, apiKey }: ShopifyAppBridgeProps) {
 
       console.log('Creating Shopify App with config:', {
         apiKey: config.apiKey ? 'present' : 'missing',
-        host: config.host ? 'present' : 'missing'
+        host: config.host ? 'present' : 'missing',
+        isInIframe
       });
 
       try {
@@ -38,7 +51,13 @@ export function ShopifyAppBridge({ children, apiKey }: ShopifyAppBridgeProps) {
         setIsReady(true);
       }
     } else {
-      console.log('Not running in Shopify embedded context or missing apiKey');
+      console.log('Not running in Shopify embedded context - skipping App Bridge initialization', {
+        host: !!host,
+        shop: !!shop,
+        apiKey: !!apiKey,
+        isInIframe,
+        embedded
+      });
       setIsReady(true);
     }
   }, [apiKey]);
