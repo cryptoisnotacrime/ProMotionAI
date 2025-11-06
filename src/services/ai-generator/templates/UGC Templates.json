@@ -1,0 +1,212 @@
+[
+  {
+    "template_name": "Hand-Off Reveal",
+    "description": "A creator’s hand passes {{product_name}} toward camera using {{product_image_url}}, quick focus pull from hand to product.",
+    "visual_style": "authentic handheld, phone-camera realism",
+    "camera": "POV handheld push-in",
+    "main_subject": "creator hand + {{product_name}}",
+    "background": "real indoor room with natural daylight",
+    "lighting_mood": "bright, real sunlight through window",
+    "color_palette": "neutral skin tones, bright whites",
+    "hook": "hand enters frame instantly at beat 0",
+    "finale": "freeze on product, subtle sparkle overlay",
+    "keywords": ["UGC","handheld","reveal","natural"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Basic",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Quick Unbox",
+    "description": "Rapid jump-cuts of a user opening {{product_name}} box from {{product_image_url}} — rip seal, lift lid, reveal product.",
+    "visual_style": "fast-paced, phone POV unboxing",
+    "camera": "static tripod with jump-cut edits",
+    "main_subject": "{{product_name}} package and hands",
+    "background": "tabletop with ambient daylight",
+    "lighting_mood": "clean soft light, realistic shadows",
+    "color_palette": "warm neutrals, light wood tones",
+    "hook": "first rip motion synced visually to beat",
+    "finale": "product displayed cleanly with subtle glow",
+    "keywords": ["UGC","unboxing","fast","POV"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Free",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Before After Swipe",
+    "description": "Split-screen or swipe transition showing before and after using {{product_name}} from {{product_image_url}}.",
+    "visual_style": "mobile-style transformation clip",
+    "camera": "locked phone cam with digital swipe transition",
+    "main_subject": "creator face or product use demo",
+    "background": "same location both shots for realism",
+    "lighting_mood": "consistent daylight between takes",
+    "color_palette": "balanced skin tone palette",
+    "hook": "fast 'before' shot then swipe transition",
+    "finale": "after shot freeze with call-to-action text overlay",
+    "keywords": ["beforeafter","transition","UGC"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Basic",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Quick Testimonial Cut",
+    "description": "Creator holds {{product_name}} near face using {{product_image_url}}, smiling and gesturing naturally.",
+    "visual_style": "authentic selfie-style vlog realism",
+    "camera": "front-facing handheld slight movement",
+    "main_subject": "creator talking + holding product",
+    "background": "casual bedroom or studio corner",
+    "lighting_mood": "ring-light glow, natural tones",
+    "color_palette": "soft pastel skin tones",
+    "hook": "creator begins speaking or smiling instantly",
+    "finale": "smile + product close-up freeze",
+    "keywords": ["testimonial","selfie","UGC","vlog"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Basic",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Drop and Glow",
+    "description": "A creator drops {{product_name}} onto a surface from frame top using {{product_image_url}}; it lands, light flashes on impact.",
+    "visual_style": "slow-mo impact reveal, stylized realism",
+    "camera": "close low-angle with slow-motion playback",
+    "main_subject": "falling product impact moment",
+    "background": "neutral gradient backdrop",
+    "lighting_mood": "spotlight flash synced to impact",
+    "color_palette": "contrasty metallic tones",
+    "hook": "impact timed exactly at second 1",
+    "finale": "product glowing, logo fade in",
+    "keywords": ["slowmo","impact","UGC","reveal"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Pro",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Swipe Caption Callout",
+    "description": "{{product_name}} slides into frame using {{product_image_url}} with floating text captions styled like social media overlays.",
+    "visual_style": "native-social overlay motion",
+    "camera": "static center-frame with swipe-in animation",
+    "main_subject": "{{product_name}} center + text callouts",
+    "background": "solid color or blurred room",
+    "lighting_mood": "bright even lighting",
+    "color_palette": "brand colors from {{color_palette}}",
+    "hook": "text caption appears instantly with visual cue",
+    "finale": "call-to-action caption: 'Shop Now!'",
+    "keywords": ["caption","social","UGC","trend"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Free",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Flash Trend Transition",
+    "description": "Creator snaps fingers or covers lens; instant flash cut to {{product_name}} glamour shot using {{product_image_url}}.",
+    "visual_style": "TikTok trend transition, motion sync",
+    "camera": "handheld close-up to tripod glamour cut",
+    "main_subject": "creator face → product reveal",
+    "background": "consistent space with lighting shift",
+    "lighting_mood": "flash pop then glow",
+    "color_palette": "contrasty highlight tones",
+    "hook": "snap motion at frame 10 triggers transition",
+    "finale": "slow pan around final product",
+    "keywords": ["transition","trend","UGC","flash"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Pro",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Try-On Quick Mirror",
+    "description": "Creator films in mirror trying {{product_name}} using {{product_image_url}}, quick outfit change or product demo.",
+    "visual_style": "handheld mirror-style selfie realism",
+    "camera": "mirror POV slight shake",
+    "main_subject": "creator wearing or using {{product_name}}",
+    "background": "bedroom or dressing room mirror",
+    "lighting_mood": "natural daylight from window",
+    "color_palette": "neutral skin tones + wardrobe colors",
+    "hook": "mirror tap triggers outfit change",
+    "finale": "pose + logo overlay bottom center",
+    "keywords": ["fashion","mirror","UGC","tryon"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Basic",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Product POV Reach",
+    "description": "Camera from product’s POV as creator reaches for {{product_name}} using {{product_image_url}}, grabs it, smiles.",
+    "visual_style": "unique perspective, immersive realism",
+    "camera": "product POV static then motion-follow",
+    "main_subject": "creator hand reaching in",
+    "background": "bright kitchen or desk setup",
+    "lighting_mood": "soft morning daylight",
+    "color_palette": "natural beige and white tones",
+    "hook": "hand reach at second 0",
+    "finale": "focus on smile with product in hand",
+    "keywords": ["POV","reach","UGC","creative"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Basic",
+      "category": "UGC"
+    }
+  },
+  {
+    "template_name": "Looped Product Spin",
+    "description": "{{product_image_url}} rotates in creator’s hand or on surface, looping 360 motion synced to subtle visual beat.",
+    "visual_style": "clean minimal motion loop",
+    "camera": "slow orbit or handheld spin",
+    "main_subject": "{{product_name}} center frame rotation",
+    "background": "neutral or branded color backdrop",
+    "lighting_mood": "soft diffused even light",
+    "color_palette": "bright whites or brand color",
+    "hook": "rotation starts immediately on frame 0",
+    "finale": "loop resets perfectly, seamless visual repeat",
+    "keywords": ["loop","rotation","UGC","product"],
+    "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+    "meta": {
+      "platform": "{{platform}}",
+      "duration": "{{duration}}",
+      "aspect_ratio": "{{aspect_ratio}}",
+      "tier": "Free",
+      "category": "UGC"
+    }
+  }
+]
