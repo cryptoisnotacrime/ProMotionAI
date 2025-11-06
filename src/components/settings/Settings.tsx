@@ -851,7 +851,7 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
             <p className="text-sm text-gray-600 mb-4">
               Visual references from your brand identity help AI generate on-brand UGC and lifestyle videos. Full Instagram integration coming soon.
             </p>
-            {store.brand_images && store.brand_images.length > 0 ? (
+            {store.brand_images && store.brand_images.length > 0 && !store.brand_images[0]?.includes('cdn.shopify.com') ? (
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
                   <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer">
@@ -866,10 +866,17 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
             ) : (
               <div className="bg-white rounded-lg p-6 text-center border border-purple-200">
                 <Instagram className="w-12 h-12 text-purple-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 mb-2">No brand reference photos loaded</p>
-                <p className="text-xs text-gray-500">
-                  Complete Brand DNA onboarding to import visual references
+                <p className="text-sm font-semibold text-gray-700 mb-2">Connect Instagram</p>
+                <p className="text-xs text-gray-600 mb-4">
+                  Import photos from your Instagram feed to help AI create on-brand content
                 </p>
+                <button
+                  onClick={() => alert('Instagram OAuth integration coming soon! This will allow you to import your actual Instagram photos for brand reference.')}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium text-sm flex items-center gap-2 mx-auto"
+                >
+                  <Instagram className="w-4 h-4" />
+                  Connect Instagram Account
+                </button>
               </div>
             )}
           </div>

@@ -282,27 +282,39 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
         </div>
       </div>
 
-      <div className="p-3 space-y-2">
+      <div className="p-2.5 space-y-2">
         <div>
-          <h3 className="font-medium text-gray-900 text-sm line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-sm line-clamp-1">
             {video.product_title || 'Untitled'}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-            <span>{templateName}</span>
-            <span>•</span>
-            <span>{new Date(video.created_at).toLocaleDateString()}</span>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {templateName}
+            </span>
+            <span className="text-xs text-gray-500">{new Date(video.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            {video.metadata?.tone && (
+              <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                {video.metadata.tone}
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1.5 text-xs">
           {getStatusIcon(video.generation_status)}
           <span className={
-            video.generation_status === 'completed' ? 'text-green-600 font-medium' :
-            video.generation_status === 'failed' ? 'text-red-600 font-medium' :
-            'text-blue-600 font-medium'
+            video.generation_status === 'completed' ? 'text-green-600 font-semibold' :
+            video.generation_status === 'failed' ? 'text-red-600 font-semibold' :
+            'text-blue-600 font-semibold'
           }>
             {getStatusText(video.generation_status)}
           </span>
+          {video.credits_used && (
+            <>
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-600 font-medium">{video.credits_used} credits</span>
+            </>
+          )}
         </div>
 
         {isCompleted && (
