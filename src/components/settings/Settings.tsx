@@ -849,7 +849,7 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
               <span className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Recent posts from your Instagram feed help AI understand your visual brand style for UGC and lifestyle videos
+              Visual references from your brand identity help AI generate on-brand UGC and lifestyle videos. Full Instagram integration coming soon.
             </p>
             {store.brand_images && store.brand_images.length > 0 ? (
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">

@@ -80,6 +80,28 @@ Deno.serve(async (req: Request) => {
     let extractedFonts: string[] = [];
     let logoUrl: string | undefined;
     let websiteImages: string[] = [];
+    let instagramImages: string[] = [];
+
+    // Try to fetch Instagram images if Instagram URL provided
+    if (instagramUrl) {
+      try {
+        console.log("Attempting to fetch Instagram images from:", instagramUrl);
+        // Extract username from Instagram URL
+        const instagramMatch = instagramUrl.match(/instagram\.com\/([^\/\?]+)/);
+        if (instagramMatch && instagramMatch[1]) {
+          const username = instagramMatch[1].replace('@', '');
+          // Note: Instagram's public API requires authentication
+          // This is a placeholder - in production, you'd need to:
+          // 1. Use Instagram Basic Display API with proper OAuth
+          // 2. Use a third-party service like RapidAPI
+          // 3. Have users upload Instagram images during onboarding
+          console.log(`Instagram username: ${username} - API integration needed`);
+          // For now, websiteImages will be used instead
+        }
+      } catch (error) {
+        console.error("Instagram fetch error:", error);
+      }
+    }
 
     if (websiteUrl) {
       try {
@@ -299,7 +321,8 @@ Respond ONLY with valid JSON, no other text.`;
         primary: extractedFonts[0] || "Inter",
         secondary: extractedFonts[1] || "Georgia",
       },
-      brand_images: websiteImages.slice(0, 12),
+      // Prefer Instagram images if available, otherwise use website images
+      brand_images: instagramImages.length > 0 ? instagramImages.slice(0, 12) : websiteImages.slice(0, 12),
       brand_tagline: parsedAnalysis.tagline,
       brand_values: parsedAnalysis.brand_values || [],
       brand_aesthetic: parsedAnalysis.brand_aesthetic || [],

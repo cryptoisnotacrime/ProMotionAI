@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Wand2, AlertCircle, Sparkles, Clock } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
-import { VideoTemplate, TemplateInput, fetchTemplates, generateVeoPrompt } from '../../services/ai-generator/template.service';
+import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
+import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
 import { Store } from '../../lib/supabase';
 
@@ -28,8 +29,8 @@ export function GenerationModal({
   onClose,
   isGenerating,
 }: GenerationModalProps) {
-  const [templates, setTemplates] = useState<VideoTemplate[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<VideoTemplate | null>(null);
+  const [templates, setTemplates] = useState<DetailedTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<DetailedTemplate | null>(null);
   const [duration, setDuration] = useState(maxDuration >= 6 ? 6 : 4);
   const [templateInputs, setTemplateInputs] = useState<TemplateInput>({
     product_name: product.title,
@@ -47,7 +48,7 @@ export function GenerationModal({
   const loadTemplates = async () => {
     try {
       setIsLoadingTemplates(true);
-      const fetchedTemplates = await fetchTemplates(planName);
+      const fetchedTemplates = getTemplatesByTier(planName);
       setTemplates(fetchedTemplates);
       if (fetchedTemplates.length > 0) {
         setSelectedTemplate(fetchedTemplates[0]);
@@ -70,8 +71,20 @@ export function GenerationModal({
       return;
     }
 
-    const generatedPrompt = generateVeoPrompt(selectedTemplate, templateInputs);
-    const promptText = generatedPrompt.description || JSON.stringify(generatedPrompt);
+    // Build variables map from template inputs and store data
+    const variables: Record<string, string> = {
+      product_name: product.title,
+      product_image_url: imageUrl,
+      brand_name: templateInputs.brand_name || store.default_brand_name || '',
+      platform: templateInputs.platform || '9:16',
+      duration: `${duration}s`,
+      aspect_ratio: templateInputs.platform || '9:16',
+      background_style: templateInputs.background_style || 'studio',
+      color_palette: store.brand_colors?.map((c: any) => c.hex).join(', ') || 'brand colors',
+    };
+
+    // Fill template variables to create comprehensive prompt
+    const promptText = fillTemplateVariables(selectedTemplate, variables);
 
     // Convert platform format to aspect ratio for Veo API
     const aspectRatioMap: Record<string, string> = {
@@ -84,8 +97,8 @@ export function GenerationModal({
       promptText,
       duration,
       aspectRatio,
-      selectedTemplate.id,
-      { ...templateInputs, generated_prompt: generatedPrompt }
+      selectedTemplate.template_name,
+      { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category }
     );
   };
 

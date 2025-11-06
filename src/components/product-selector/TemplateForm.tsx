@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Info } from 'lucide-react';
-import { VideoTemplate, TemplateInput, getDefaultInputsForProductType } from '../../services/ai-generator/template.service';
+import { TemplateInput, getDefaultInputsForProductType } from '../../services/ai-generator/template.service';
+import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { Store } from '../../lib/supabase';
 import { prefillFromStoreSettings } from '../../services/ai-generator/prefill.service';
 
 interface TemplateFormProps {
-  templates: VideoTemplate[];
-  selectedTemplate: VideoTemplate | null;
-  onTemplateSelect: (template: VideoTemplate) => void;
+  templates: DetailedTemplate[];
+  selectedTemplate: DetailedTemplate | null;
+  onTemplateSelect: (template: DetailedTemplate) => void;
   product: ShopifyProduct;
   productImageUrl: string;
   store: Store;
@@ -90,28 +91,39 @@ export function TemplateForm({
       <div>
         <h3 className="text-base font-semibold text-gray-900 mb-4">Select Template</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {templates.map((template) => (
+          {templates.map((template, index) => (
             <button
-              key={template.id}
+              key={`${template.template_name}-${index}`}
               onClick={() => onTemplateSelect(template)}
               className={`p-4 border-2 rounded-xl text-left transition-all ${
-                selectedTemplate?.id === template.id
+                selectedTemplate?.template_name === template.template_name
                   ? 'border-blue-600 bg-blue-50 shadow-md'
                   : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-sm'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-gray-900">{template.name}</h4>
+                <h4 className="font-semibold text-gray-900 text-sm">{template.template_name}</h4>
                 <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                  template.tier === 'free' ? 'bg-gray-100 text-gray-700' :
-                  template.tier === 'basic' ? 'bg-blue-100 text-blue-700' :
+                  template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-100 text-gray-700' :
+                  template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-100 text-blue-700' :
                   'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700'
                 }`}>
-                  {template.tier.toUpperCase()}
+                  {template.meta.tier.toUpperCase()}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">{template.description}</p>
-              <p className="text-xs text-gray-500 mt-2">Category: {template.category}</p>
+              <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+                {template.description.substring(0, template.description.indexOf('{{') > 0 ? template.description.indexOf('{{') : 100)}...
+              </p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-gray-500">Category: {template.meta.category}</p>
+                <div className="flex gap-1">
+                  {template.keywords.slice(0, 3).map((keyword, ki) => (
+                    <span key={ki} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </button>
           ))}
         </div>
