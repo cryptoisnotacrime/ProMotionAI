@@ -35,6 +35,7 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEmbedded, setIsEmbedded] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [filteredProductId, setFilteredProductId] = useState<string | null>(null);
 
   useEffect(() => {
     initializeApp();
@@ -515,8 +516,8 @@ function App() {
               isLoading={isLoading}
               videos={videos}
               onViewVideos={(productId) => {
+                setFilteredProductId(productId);
                 setCurrentView('library');
-                // Could add filtering by product ID in the future
               }}
             />
           </div>
@@ -529,6 +530,8 @@ function App() {
             onRefresh={handleRefreshVideos}
             onAddToShopify={handleAddToShopify}
             planName={store.plan_name}
+            filteredProductId={filteredProductId}
+            onClearFilter={() => setFilteredProductId(null)}
           />
         )}
 

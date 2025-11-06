@@ -107,6 +107,7 @@ export function Settings({ store, onSave, onRestartOnboarding }: SettingsProps) 
             <VideoSettings
               settings={settings}
               onSettingsChange={setSettings}
+              store={store}
             />
           )}
         </div>
@@ -338,6 +339,7 @@ function BillingSettings({ store }: BillingSettingsProps) {
 interface VideoSettingsProps {
   settings: any;
   onSettingsChange: (settings: any) => void;
+  store: Store;
 }
 
 interface BrandDNASettingsProps {
@@ -699,40 +701,6 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
           </div>
         )}
 
-        {/* Instagram Photo Stream */}
-        {store.instagram_handle && (
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 md:col-span-2 border border-purple-200">
-            <div className="flex items-center gap-2 mb-4">
-              <Instagram className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900">Instagram Feed</h3>
-              <span className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Recent posts from your Instagram feed help AI understand your visual brand style
-            </p>
-            {store.brand_images && store.brand_images.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform">
-                    <img
-                      src={imageUrl}
-                      alt={`Instagram post ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg p-6 text-center border border-purple-200">
-                <Instagram className="w-12 h-12 text-purple-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 mb-2">No Instagram photos loaded</p>
-                <p className="text-xs text-gray-500">
-                  Complete Brand DNA onboarding to import photos from @{store.instagram_handle}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {hasChanges && (
@@ -766,7 +734,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
   );
 }
 
-function VideoSettings({ settings, onSettingsChange }: VideoSettingsProps) {
+function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -870,6 +838,43 @@ function VideoSettings({ settings, onSettingsChange }: VideoSettingsProps) {
           </div>
         </div>
       </div>
+
+      {/* Instagram Feed - Brand Visual Reference */}
+      {store.instagram_handle && (
+        <div className="pt-6 border-t">
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Instagram className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-gray-900">Instagram Feed</h3>
+              <span className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Recent posts from your Instagram feed help AI understand your visual brand style for UGC and lifestyle videos
+            </p>
+            {store.brand_images && store.brand_images.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
+                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                    <img
+                      src={imageUrl}
+                      alt={`Brand reference ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg p-6 text-center border border-purple-200">
+                <Instagram className="w-12 h-12 text-purple-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-600 mb-2">No brand reference photos loaded</p>
+                <p className="text-xs text-gray-500">
+                  Complete Brand DNA onboarding to import visual references
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,8 @@ interface VideoLibraryProps {
   onRefresh: () => void;
   onAddToShopify: (videoId: string) => Promise<void>;
   planName: string;
+  filteredProductId?: string | null;
+  onClearFilter?: () => void;
 }
 
 type ViewMode = 'grid' | 'list';
@@ -39,7 +41,7 @@ function getStatusText(status: GeneratedVideo['generation_status']): string {
   }
 }
 
-export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, planName }: VideoLibraryProps) {
+export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, planName, filteredProductId, onClearFilter }: VideoLibraryProps) {
   const [selectedVideo, setSelectedVideo] = useState<GeneratedVideo | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -48,6 +50,11 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
 
   // Filter and sort videos
   let filteredVideos = videos.filter((video) => {
+    // Product ID filter (from "View Videos" button)
+    if (filteredProductId && video.product_id !== filteredProductId) {
+      return false;
+    }
+
     // Status filter
     if (filterStatus !== 'all' && video.generation_status !== filterStatus) {
       return false;
@@ -95,7 +102,7 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Video Library</h2>
           <p className="text-sm text-gray-500 mt-1">
-            {stats.total} total \u2022 {stats.completed} completed \u2022 {stats.processing} processing \u2022 {stats.failed} failed
+            {stats.total} total • {stats.completed} completed • {stats.processing} processing • {stats.failed} failed
           </p>
         </div>
         <button
@@ -105,6 +112,24 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
           Refresh
         </button>
       </div>
+
+      {/* Product filter notification */}
+      {filteredProductId && onClearFilter && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-900">
+              Showing videos for: {filteredVideos[0]?.product_title || 'selected product'}
+            </span>
+          </div>
+          <button
+            onClick={onClearFilter}
+            className="text-sm text-blue-700 hover:text-blue-900 font-medium"
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
 
       {/* Search and filters */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -264,7 +289,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
           </h3>
           <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
             <span>{templateName}</span>
-            <span>\u2022</span>
+            <span>•</span>
             <span>{new Date(video.created_at).toLocaleDateString()}</span>
           </div>
         </div>
@@ -415,9 +440,9 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
                 {getStatusText(video.generation_status)}
               </span>
             </div>
-            <span>\u2022</span>
+            <span>•</span>
             <span>{templateName}</span>
-            <span>\u2022</span>
+            <span>•</span>
             <span>{new Date(video.created_at).toLocaleDateString()}</span>
           </div>
         </div>

@@ -336,14 +336,28 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
             <Eye className="w-3 h-3" />
             Preview
           </button>
-          <a
-            href={video.video_url}
-            download
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch(video.video_url);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${video.product_title || 'video'}-${video.duration_seconds}s.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              } catch (error) {
+                console.error('Download failed:', error);
+              }
+            }}
             className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
           >
             <Download className="w-3 h-3" />
             Download
-          </a>
+          </button>
           {!video.attached_to_product && (
             <button
               disabled={!isPro}

@@ -213,6 +213,28 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
           {product.title}
         </h3>
 
+        {product.images && product.images.length > 1 && (
+          <div className="flex gap-0.5 mt-1.5 mb-1.5 overflow-x-auto">
+            {product.images.slice(1, 4).map((img, idx) => (
+              <div
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectImage(img.src);
+                }}
+                className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded border border-gray-200 overflow-hidden cursor-pointer hover:ring-1 hover:ring-blue-500 transition-all"
+              >
+                <img src={img.src} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+            {product.images.length > 4 && (
+              <div className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-500">
+                +{product.images.length - 4}
+              </div>
+            )}
+          </div>
+        )}
+
         {videoCount > 0 && onViewVideos && (
           <button
             onClick={() => onViewVideos(product.id.toString())}
