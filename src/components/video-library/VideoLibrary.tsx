@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ExternalLink, Trash2, Video, Clock, CheckCircle2, AlertCircle, Loader2, Upload, Eye } from 'lucide-react';
+import { Download, ExternalLink, Trash2, Video, Clock, CheckCircle2, AlertCircle, Loader2, Upload, Eye, Search, Filter, SortAsc, Grid3x3, List } from 'lucide-react';
 import { GeneratedVideo } from '../../lib/supabase';
 
 interface VideoLibraryProps {
@@ -9,6 +9,10 @@ interface VideoLibraryProps {
   onAddToShopify: (videoId: string) => Promise<void>;
   planName: string;
 }
+
+type ViewMode = 'grid' | 'list';
+type SortMode = 'newest' | 'oldest' | 'duration-asc' | 'duration-desc';
+type FilterStatus = 'all' | 'completed' | 'processing' | 'failed';
 
 function getStatusIcon(status: GeneratedVideo['generation_status']) {
   switch (status) {
@@ -37,11 +41,63 @@ function getStatusText(status: GeneratedVideo['generation_status']): string {
 
 export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, planName }: VideoLibraryProps) {
   const [selectedVideo, setSelectedVideo] = useState<GeneratedVideo | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+
+  // Filter and sort videos
+  let filteredVideos = videos.filter((video) => {
+    // Status filter
+    if (filterStatus !== 'all' && video.generation_status !== filterStatus) {
+      return false;
+    }
+
+    // Search filter (searches in product title and prompt)
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesTitle = video.product_title?.toLowerCase().includes(searchLower);
+      const matchesPrompt = video.prompt?.toLowerCase().includes(searchLower);
+      const matchesTemplate = video.metadata?.template_name?.toLowerCase().includes(searchLower);
+      return matchesTitle || matchesPrompt || matchesTemplate;
+    }
+
+    return true;
+  });
+
+  // Sort videos
+  filteredVideos = [...filteredVideos].sort((a, b) => {
+    switch (sortMode) {
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'duration-asc':
+        return a.duration_seconds - b.duration_seconds;
+      case 'duration-desc':
+        return b.duration_seconds - a.duration_seconds;
+      default:
+        return 0;
+    }
+  });
+
+  const stats = {
+    total: videos.length,
+    completed: videos.filter(v => v.generation_status === 'completed').length,
+    processing: videos.filter(v => v.generation_status === 'processing' || v.generation_status === 'pending').length,
+    failed: videos.filter(v => v.generation_status === 'failed').length,
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Header with stats */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Video Library</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Video Library</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {stats.total} total \u2022 {stats.completed} completed \u2022 {stats.processing} processing \u2022 {stats.failed} failed
+          </p>
+        </div>
         <button
           onClick={onRefresh}
           className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -50,18 +106,100 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
         </button>
       </div>
 
-      {videos.length === 0 ? (
+      {/* Search and filters */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by product, template, or prompt details..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Filters and View */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="all">All ({stats.total})</option>
+              <option value="completed">Completed ({stats.completed})</option>
+              <option value="processing">Processing ({stats.processing})</option>
+              <option value="failed">Failed ({stats.failed})</option>
+            </select>
+
+            <SortAsc className="w-4 h-4 text-gray-500 ml-2" />
+            <select
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value as SortMode)}
+              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="duration-desc">Longest First</option>
+              <option value="duration-asc">Shortest First</option>
+            </select>
+
+            <div className="border-l border-gray-300 pl-2 flex gap-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="Grid view"
+              >
+                <Grid3x3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {filteredVideos.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-xl">
           <Video className="mx-auto w-16 h-16 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No videos yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {searchTerm || filterStatus !== 'all' ? 'No videos match your filters' : 'No videos yet'}
+          </h3>
           <p className="text-gray-500">
-            Generate your first product video to get started
+            {searchTerm || filterStatus !== 'all'
+              ? 'Try adjusting your search or filters'
+              : 'Generate your first product video to get started'}
           </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video) => (
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredVideos.map((video) => (
             <VideoCard
+              key={video.id}
+              video={video}
+              onView={() => setSelectedVideo(video)}
+              onDelete={onDelete}
+              onAddToShopify={onAddToShopify}
+              planName={planName}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredVideos.map((video) => (
+            <VideoListItem
               key={video.id}
               video={video}
               onView={() => setSelectedVideo(video)}
@@ -92,9 +230,10 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
   const [isUploading, setIsUploading] = useState(false);
   const isCompleted = video.generation_status === 'completed';
   const isPro = planName === 'pro';
+  const templateName = video.metadata?.template_name || 'Custom';
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
       <div className="aspect-video bg-gray-100 relative group cursor-pointer" onClick={onView}>
         {isCompleted && video.video_url ? (
           <video
@@ -118,29 +257,31 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-2">
         <div>
-          <h3 className="font-medium text-gray-900 line-clamp-1">
+          <h3 className="font-medium text-gray-900 text-sm line-clamp-1">
             {video.product_title || 'Untitled'}
           </h3>
-          <p className="text-sm text-gray-500 line-clamp-2 mt-1">
-            {video.prompt || 'No description'}
-          </p>
+          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+            <span>{templateName}</span>
+            <span>\u2022</span>
+            <span>{new Date(video.created_at).toLocaleDateString()}</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-xs">
           {getStatusIcon(video.generation_status)}
           <span className={
-            video.generation_status === 'completed' ? 'text-green-600' :
-            video.generation_status === 'failed' ? 'text-red-600' :
-            'text-blue-600'
+            video.generation_status === 'completed' ? 'text-green-600 font-medium' :
+            video.generation_status === 'failed' ? 'text-red-600 font-medium' :
+            'text-blue-600 font-medium'
           }>
             {getStatusText(video.generation_status)}
           </span>
         </div>
 
         {isCompleted && (
-          <div className="space-y-2">
+          <div className="space-y-1.5 pt-2 border-t">
             {!video.attached_to_product && (
               isPro ? (
                 <button
@@ -157,51 +298,51 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                     }
                   }}
                   disabled={isUploading}
-                  className="w-full px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Adding to Shopify...
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Adding...
                     </>
                   ) : (
                     <>
-                      <Upload className="w-4 h-4" />
+                      <Upload className="w-3.5 h-3.5" />
                       Add to Shopify
                     </>
                   )}
                 </button>
               ) : (
-                <div className="w-full px-3 py-2 text-sm font-bold text-blue-700 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center gap-2 border-2 border-blue-200">
-                  <Upload className="w-4 h-4" />
+                <div className="w-full px-3 py-1.5 text-xs font-bold text-blue-700 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center gap-1.5 border border-blue-200">
+                  <Upload className="w-3.5 h-3.5" />
                   PRO ONLY
                 </div>
               )
             )}
             {video.attached_to_product && (
-              <div className="w-full px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="w-full px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 Added to Product
               </div>
             )}
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onView();
                 }}
-                className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center justify-center gap-1"
               >
-                <Eye className="w-4 h-4" />
+                <Eye className="w-3.5 h-3.5" />
                 View
               </button>
               <a
                 href={video.video_url}
                 download
                 onClick={(e) => e.stopPropagation()}
-                className="flex-1 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 Download
               </a>
               <button
@@ -211,9 +352,9 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                     onDelete(video.id);
                   }
                 }}
-                className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -223,6 +364,103 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
           <p className="text-xs text-red-600 bg-red-50 p-2 rounded">
             {video.error_message || 'Generation failed'}
           </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface VideoListItemProps {
+  video: GeneratedVideo;
+  onView: () => void;
+  onDelete: (videoId: string) => void;
+  onAddToShopify: (videoId: string) => Promise<void>;
+  planName: string;
+}
+
+function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: VideoListItemProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const isCompleted = video.generation_status === 'completed';
+  const isPro = planName === 'pro';
+  const templateName = video.metadata?.template_name || 'Custom';
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all">
+      <div className="flex items-center gap-4">
+        {/* Thumbnail */}
+        <div className="w-24 h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all relative" onClick={onView}>
+          {isCompleted && video.video_url ? (
+            <video src={video.video_url} poster={video.thumbnail_url} className="w-full h-full object-cover" />
+          ) : (
+            <img src={video.source_image_url} alt={video.product_title || 'Product'} className="w-full h-full object-cover" />
+          )}
+          <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-black bg-opacity-75 rounded text-white text-xs">
+            {video.duration_seconds}s
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">
+            {video.product_title || 'Untitled'}
+          </h3>
+          <div className="flex items-center gap-3 text-xs text-gray-600">
+            <div className="flex items-center gap-1">
+              {getStatusIcon(video.generation_status)}
+              <span className={
+                video.generation_status === 'completed' ? 'text-green-600 font-medium' :
+                video.generation_status === 'failed' ? 'text-red-600 font-medium' :
+                'text-blue-600 font-medium'
+              }>
+                {getStatusText(video.generation_status)}
+              </span>
+            </div>
+            <span>\u2022</span>
+            <span>{templateName}</span>
+            <span>\u2022</span>
+            <span>{new Date(video.created_at).toLocaleDateString()}</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        {isCompleted && (
+          <div className="flex items-center gap-2">
+            <button onClick={onView} className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              View
+            </button>
+            <a href={video.video_url} download className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1">
+              <Download className="w-3.5 h-3.5" />
+              Download
+            </a>
+            {!video.attached_to_product && isPro && (
+              <button
+                onClick={async () => {
+                  setIsUploading(true);
+                  try {
+                    await onAddToShopify(video.id);
+                  } catch (error) {
+                    alert('Failed to add video to Shopify');
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                disabled={isUploading}
+                className="px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-1"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                Add to Shopify
+              </button>
+            )}
+            <button
+              onClick={() => {
+                if (confirm('Delete this video?')) onDelete(video.id);
+              }}
+              className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -274,7 +512,7 @@ function VideoModal({ video, onClose }: VideoModalProps) {
           <div className="space-y-4">
             <div>
               <h3 className="font-medium text-gray-900 mb-1">Prompt</h3>
-              <p className="text-gray-600">{video.prompt}</p>
+              <p className="text-gray-600 text-sm">{video.prompt}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -297,35 +535,6 @@ function VideoModal({ video, onClose }: VideoModalProps) {
                 </span>
               </div>
             </div>
-
-            {isCompleted && video.video_url && video.attached_to_product && (
-              <div className="pt-4 border-t space-y-2">
-                <button
-                  onClick={() => {
-                    const embedCode = `<video src="${video.video_url}" controls loop muted autoplay playsinline style="width:100%;height:auto;"></video>`;
-                    navigator.clipboard.writeText(embedCode);
-                    alert('Embed code copied to clipboard!');
-                  }}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Copy Embed Code
-                </button>
-                <button
-                  onClick={() => {
-                    if (video.video_url) {
-                      navigator.clipboard.writeText(video.video_url);
-                      alert('Video URL copied to clipboard!');
-                    }
-                  }}
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                >
-                  Copy Video URL
-                </button>
-                <p className="text-xs text-gray-500 text-center pt-1">
-                  Video hosted on Shopify CDN
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>

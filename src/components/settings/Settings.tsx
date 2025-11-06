@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X, Plus, Instagram } from 'lucide-react';
 import { Store } from '../../lib/supabase';
 import { BrandDNAService } from '../../services/onboarding/brand-dna.service';
 
@@ -357,6 +357,10 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
   });
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [newValueInput, setNewValueInput] = useState('');
+  const [newAestheticInput, setNewAestheticInput] = useState('');
+  const [newToneInput, setNewToneInput] = useState('');
+  const [instagramPhotos, setInstagramPhotos] = useState<string[]>([]);
 
   const handleColorChange = (index: number, newColor: string) => {
     const newColors = [...brandDNA.brand_colors];
@@ -521,55 +525,163 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
         )}
 
         {/* Brand Values */}
-        {brandDNA.brand_values && brandDNA.brand_values.length > 0 && (
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Brand Values</h3>
-            <div className="flex flex-wrap gap-2">
-              {brandDNA.brand_values.map((value: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-700"
+        <div className="bg-gray-50 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-3">Brand Values</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {brandDNA.brand_values && brandDNA.brand_values.map((value: string, index: number) => (
+              <span
+                key={index}
+                className="group px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-700 flex items-center gap-2 hover:border-red-300 transition-colors"
+              >
+                {value}
+                <button
+                  onClick={() => {
+                    const newValues = brandDNA.brand_values.filter((_: string, i: number) => i !== index);
+                    setBrandDNA({ ...brandDNA, brand_values: newValues });
+                    setHasChanges(true);
+                  }}
+                  className="w-4 h-4 rounded-full bg-gray-200 group-hover:bg-red-500 text-gray-600 group-hover:text-white flex items-center justify-center transition-colors"
                 >
-                  {value}
-                </span>
-              ))}
-            </div>
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
           </div>
-        )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newValueInput}
+              onChange={(e) => setNewValueInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newValueInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
+                  setNewValueInput('');
+                  setHasChanges(true);
+                }
+              }}
+              placeholder="Add a value (e.g., Quality, Innovation)"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={() => {
+                if (newValueInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
+                  setNewValueInput('');
+                  setHasChanges(true);
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
         {/* Brand Aesthetic */}
-        {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.length > 0 && (
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Brand Aesthetic</h3>
-            <div className="flex flex-wrap gap-2">
-              {brandDNA.brand_aesthetic.map((aesthetic: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+        <div className="bg-gray-50 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-3">Brand Aesthetic</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.map((aesthetic: string, index: number) => (
+              <span
+                key={index}
+                className="group px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2 hover:bg-blue-200 transition-colors"
+              >
+                {aesthetic}
+                <button
+                  onClick={() => {
+                    const newAesthetic = brandDNA.brand_aesthetic.filter((_: string, i: number) => i !== index);
+                    setBrandDNA({ ...brandDNA, brand_aesthetic: newAesthetic });
+                    setHasChanges(true);
+                  }}
+                  className="w-4 h-4 rounded-full bg-blue-200 group-hover:bg-red-500 text-blue-700 group-hover:text-white flex items-center justify-center transition-colors"
                 >
-                  {aesthetic}
-                </span>
-              ))}
-            </div>
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
           </div>
-        )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newAestheticInput}
+              onChange={(e) => setNewAestheticInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newAestheticInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
+                  setNewAestheticInput('');
+                  setHasChanges(true);
+                }
+              }}
+              placeholder="Add aesthetic (e.g., Modern, Minimalist)"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={() => {
+                if (newAestheticInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
+                  setNewAestheticInput('');
+                  setHasChanges(true);
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
         {/* Tone of Voice */}
-        {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.length > 0 && (
-          <div className="bg-gray-50 rounded-xl p-5 md:col-span-2">
-            <h3 className="font-semibold text-gray-900 mb-3">Tone of Voice</h3>
-            <div className="flex flex-wrap gap-2">
-              {brandDNA.brand_tone_of_voice.map((tone: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+        <div className="bg-gray-50 rounded-xl p-5 md:col-span-2">
+          <h3 className="font-semibold text-gray-900 mb-3">Tone of Voice</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.map((tone: string, index: number) => (
+              <span
+                key={index}
+                className="group px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center gap-2 hover:bg-purple-200 transition-colors"
+              >
+                {tone}
+                <button
+                  onClick={() => {
+                    const newTone = brandDNA.brand_tone_of_voice.filter((_: string, i: number) => i !== index);
+                    setBrandDNA({ ...brandDNA, brand_tone_of_voice: newTone });
+                    setHasChanges(true);
+                  }}
+                  className="w-4 h-4 rounded-full bg-purple-200 group-hover:bg-red-500 text-purple-700 group-hover:text-white flex items-center justify-center transition-colors"
                 >
-                  {tone}
-                </span>
-              ))}
-            </div>
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
           </div>
-        )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newToneInput}
+              onChange={(e) => setNewToneInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newToneInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
+                  setNewToneInput('');
+                  setHasChanges(true);
+                }
+              }}
+              placeholder="Add tone (e.g., Friendly, Professional)"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={() => {
+                if (newToneInput.trim()) {
+                  setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
+                  setNewToneInput('');
+                  setHasChanges(true);
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
         {/* Business Overview */}
         {brandDNA.business_overview && (
@@ -584,6 +696,41 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows={3}
             />
+          </div>
+        )}
+
+        {/* Instagram Photo Stream */}
+        {store.instagram_handle && (
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 md:col-span-2 border border-purple-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Instagram className="w-5 h-5 text-purple-600" />
+              <h3 className="font-semibold text-gray-900">Instagram Feed</h3>
+              <span className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Recent posts from your Instagram feed help AI understand your visual brand style
+            </p>
+            {store.brand_images && store.brand_images.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
+                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform">
+                    <img
+                      src={imageUrl}
+                      alt={`Instagram post ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg p-6 text-center border border-purple-200">
+                <Instagram className="w-12 h-12 text-purple-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-600 mb-2">No Instagram photos loaded</p>
+                <p className="text-xs text-gray-500">
+                  Complete Brand DNA onboarding to import photos from @{store.instagram_handle}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { CreditCard, Video, TrendingUp, Clock, ShoppingBag, Eye, Download, ArrowRight, ExternalLink, Play, Package } from 'lucide-react';
+import { CreditCard, Video, TrendingUp, Clock, ShoppingBag, Eye, Download, ArrowRight, ExternalLink, Play, Package, X } from 'lucide-react';
 import { Store, GeneratedVideo } from '../../lib/supabase';
 import { useState } from 'react';
 
@@ -259,8 +259,14 @@ interface RecentActivityItemProps {
   isPro: boolean;
 }
 
+interface VideoPreviewModalProps {
+  video: GeneratedVideo;
+  onClose: () => void;
+}
+
 function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
   const [showPrompt, setShowPrompt] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const statusConfig = {
     completed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Completed' },
@@ -323,15 +329,13 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
       </div>
       {video.generation_status === 'completed' && (
         <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
-          <a
-            href={video.video_url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setShowPreview(true)}
             className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
           >
             <Eye className="w-3 h-3" />
             Preview
-          </a>
+          </button>
           <a
             href={video.video_url}
             download
@@ -351,6 +355,47 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
           )}
         </div>
       )}
+      {showPreview && video.video_url && (
+        <VideoPreviewModal video={video} onClose={() => setShowPreview(false)} />
+      )}
+    </div>
+  );
+}
+
+function VideoPreviewModal({ video, onClose }: VideoPreviewModalProps) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50" onClick={onClose}>
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{video.product_title || 'Video Preview'}</h3>
+            <p className="text-xs text-gray-500 mt-0.5">{video.duration_seconds}s • {new Date(video.created_at).toLocaleDateString()}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-5">
+          <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-4">
+            <video
+              src={video.video_url}
+              controls
+              autoPlay
+              loop
+              className="w-full h-full"
+            />
+          </div>
+          {video.prompt && (
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs font-medium text-gray-700 mb-1">Generation Prompt:</p>
+              <p className="text-sm text-gray-600">{video.prompt}</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
