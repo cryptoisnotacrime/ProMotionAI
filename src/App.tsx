@@ -487,6 +487,7 @@ function App() {
         currentView={currentView}
         onNavigate={(view) => setCurrentView(view as View)}
         creditsRemaining={store.credits_remaining}
+        creditsTotal={store.credits_total}
       />
 
       <main className={currentView === 'billing' ? 'py-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>

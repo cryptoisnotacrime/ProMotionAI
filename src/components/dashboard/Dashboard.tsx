@@ -323,14 +323,23 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
       </div>
       {video.generation_status === 'completed' && (
         <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
-          <button className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1">
+          <a
+            href={video.video_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
+          >
             <Eye className="w-3 h-3" />
             Preview
-          </button>
-          <button className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1">
+          </a>
+          <a
+            href={video.video_url}
+            download
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
+          >
             <Download className="w-3 h-3" />
             Download
-          </button>
+          </a>
           {!video.attached_to_product && (
             <button
               disabled={!isPro}

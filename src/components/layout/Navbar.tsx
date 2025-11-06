@@ -1,12 +1,15 @@
-import { Sparkles, LayoutDashboard, Package, Video, CreditCard, Settings } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Package, Video, CreditCard, Settings, AlertTriangle } from 'lucide-react';
 
 interface NavbarProps {
   currentView: string;
   onNavigate: (view: string) => void;
   creditsRemaining: number;
+  creditsTotal?: number;
 }
 
-export function Navbar({ currentView, onNavigate, creditsRemaining }: NavbarProps) {
+export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal = 100 }: NavbarProps) {
+  const videosRemaining = Math.floor(creditsRemaining / 4);
+  const isLowCredits = videosRemaining <= 3 && videosRemaining > 0;
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Products', icon: Package },
@@ -45,12 +48,32 @@ export function Navbar({ currentView, onNavigate, creditsRemaining }: NavbarProp
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">
-                {creditsRemaining} credits
-              </span>
-            </div>
+            <button
+              onClick={() => onNavigate('billing')}
+              className={`rounded-lg px-4 py-2 flex items-center gap-2 transition-all hover:shadow-md ${
+                isLowCredits
+                  ? 'bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 animate-pulse'
+                  : 'bg-blue-50 border border-blue-200 hover:bg-blue-100'
+              }`}
+            >
+              {isLowCredits ? (
+                <AlertTriangle className="w-4 h-4 text-orange-600" />
+              ) : (
+                <CreditCard className="w-4 h-4 text-blue-600" />
+              )}
+              <div className="flex flex-col items-start">
+                <span className={`text-sm font-bold ${
+                  isLowCredits ? 'text-orange-900' : 'text-blue-900'
+                }`}>
+                  {creditsRemaining} credits
+                </span>
+                {isLowCredits && (
+                  <span className="text-xs text-orange-700 font-medium">
+                    {videosRemaining} video{videosRemaining !== 1 ? 's' : ''} left
+                  </span>
+                )}
+              </div>
+            </button>
             <button
               onClick={() => onNavigate('settings')}
               className={`p-2 rounded-lg transition-colors ${
@@ -66,12 +89,12 @@ export function Navbar({ currentView, onNavigate, creditsRemaining }: NavbarProp
       </div>
 
       <div className="md:hidden border-t border-gray-200">
-        <div className="flex">
+        <div className="flex overflow-x-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 min-w-[80px] ${
                 currentView === item.id ? 'text-blue-600' : 'text-gray-600'
               }`}
             >
@@ -79,6 +102,16 @@ export function Navbar({ currentView, onNavigate, creditsRemaining }: NavbarProp
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           ))}
+          <button
+            onClick={() => onNavigate('billing')}
+            className="flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-200 bg-blue-50 min-w-[100px]"
+          >
+            <div className="flex items-center gap-1">
+              {isLowCredits && <AlertTriangle className="w-4 h-4 text-orange-600" />}
+              <CreditCard className="w-4 h-4 text-blue-600" />
+            </div>
+            <span className="text-xs font-bold text-blue-900">{creditsRemaining}</span>
+          </button>
         </div>
       </div>
     </nav>
