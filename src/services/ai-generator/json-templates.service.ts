@@ -37,19 +37,8 @@ const allTemplates: DetailedTemplate[] = [
 ];
 
 export function getTemplatesByTier(userTier: string): DetailedTemplate[] {
-  const tierHierarchy: Record<string, number> = {
-    'free': 0,
-    'basic': 1,
-    'pro': 2
-  };
-
-  const userLevel = tierHierarchy[userTier.toLowerCase()] || 0;
-
-  return allTemplates.filter(template => {
-    const templateTier = template.meta.tier.toLowerCase();
-    const templateLevel = tierHierarchy[templateTier] || 0;
-    return templateLevel <= userLevel;
-  });
+  // Return ALL templates so users can see what's available with upgrades
+  return allTemplates;
 }
 
 export function getTemplatesByCategory(category: string, userTier?: string): DetailedTemplate[] {
@@ -82,6 +71,12 @@ export function getTemplateByName(name: string): DetailedTemplate | undefined {
 }
 
 export function fillTemplateVariables(template: DetailedTemplate, variables: Record<string, string>): string {
+  // Helper function to remove URLs from text
+  const removeUrls = (text: string): string => {
+    // Remove all URLs (http://, https://, ftp://, etc.)
+    return text.replace(/https?:\/\/[^\s)]+/gi, '').replace(/\s+/g, ' ').trim();
+  };
+
   // Build comprehensive Veo 3 prompt from template structure
   const parts: string[] = [];
 
@@ -90,8 +85,7 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   Object.entries(variables).forEach(([key, value]) => {
     description = description.replace(new RegExp(`{{${key}}}`, 'g'), value);
   });
-
-  parts.push(description);
+  parts.push(removeUrls(description));
 
   // Visual style
   parts.push(`Visual style: ${template.visual_style}`);
@@ -104,14 +98,14 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   Object.entries(variables).forEach(([key, value]) => {
     mainSubject = mainSubject.replace(new RegExp(`{{${key}}}`, 'g'), value);
   });
-  parts.push(`Main subject: ${mainSubject}`);
+  parts.push(`Main subject: ${removeUrls(mainSubject)}`);
 
   // Background
   let background = template.background;
   Object.entries(variables).forEach(([key, value]) => {
     background = background.replace(new RegExp(`{{${key}}}`, 'g'), value);
   });
-  parts.push(`Background: ${background}`);
+  parts.push(`Background: ${removeUrls(background)}`);
 
   // Lighting
   parts.push(`Lighting: ${template.lighting_mood}`);
@@ -128,14 +122,14 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   Object.entries(variables).forEach(([key, value]) => {
     hook = hook.replace(new RegExp(`{{${key}}}`, 'g'), value);
   });
-  parts.push(`Opening: ${hook}`);
+  parts.push(`Opening: ${removeUrls(hook)}`);
 
   // Finale - what happens at the end
   let finale = template.finale;
   Object.entries(variables).forEach(([key, value]) => {
     finale = finale.replace(new RegExp(`{{${key}}}`, 'g'), value);
   });
-  parts.push(`Ending: ${finale}`);
+  parts.push(`Ending: ${removeUrls(finale)}`);
 
   // Important constraints
   parts.push('CRITICAL: This is a silent video with NO AUDIO, NO SPEECH, NO DIALOGUE, NO VOICEOVER');

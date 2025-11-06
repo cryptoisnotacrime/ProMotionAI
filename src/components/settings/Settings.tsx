@@ -840,7 +840,7 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
       </div>
 
       {/* Instagram Feed - Brand Visual Reference */}
-      {store.instagram_handle && (
+      {store.instagram_handle && store.brand_dna_updated_at && (
         <div className="pt-6 border-t">
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-200">
             <div className="flex items-center gap-2 mb-3">
