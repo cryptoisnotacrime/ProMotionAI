@@ -4,7 +4,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, x-shopify-shop",
 };
 
 interface BrandDNARequest {
@@ -113,7 +113,6 @@ Deno.serve(async (req: Request) => {
           const colorMatches = html.match(/#[0-9A-Fa-f]{6}|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)/g) || [];
           const uniqueColors = [...new Set(colorMatches)];
 
-          // Filter out whites, blacks, and grays
           const filteredColors = uniqueColors
             .map(color => color.startsWith("#") ? color : rgbToHex(color))
             .filter(hex => {
@@ -121,21 +120,15 @@ Deno.serve(async (req: Request) => {
               const g = parseInt(hex.slice(3, 5), 16);
               const b = parseInt(hex.slice(5, 7), 16);
 
-              // Calculate luminance
               const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
-              // Calculate saturation
               const max = Math.max(r, g, b);
               const min = Math.min(r, g, b);
               const saturation = max === 0 ? 0 : (max - min) / max;
 
-              // Filter out colors that are too white (luminance > 0.9)
-              // or too black (luminance < 0.1)
-              // or too gray (saturation < 0.2)
               return luminance < 0.9 && luminance > 0.1 && saturation > 0.2;
             });
 
-          // Limit to 3-4 colors
           extractedColors = filteredColors.slice(0, 4).map((hex, i) => ({
             name: `Color ${i + 1}`,
             hex,
