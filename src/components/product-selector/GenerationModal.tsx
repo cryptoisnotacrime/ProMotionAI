@@ -97,7 +97,7 @@ export function GenerationModal({
       promptText,
       duration,
       aspectRatio,
-      selectedTemplate.template_name,
+      undefined,
       { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category }
     );
   };

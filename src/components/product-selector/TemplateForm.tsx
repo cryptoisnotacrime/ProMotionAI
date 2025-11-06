@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Info } from 'lucide-react';
+import { Sparkles, Info, Film, Heart, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { TemplateInput, getDefaultInputsForProductType } from '../../services/ai-generator/template.service';
 import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
 import { ShopifyProduct } from '../../services/shopify/products.service';
@@ -17,6 +17,18 @@ interface TemplateFormProps {
   userTier: string;
 }
 
+const categoryIcons: Record<string, any> = {
+  'Cinematic Reveal': Film,
+  'Lifestyle Connection': Heart,
+  'UGC': Users,
+};
+
+const categoryDescriptions: Record<string, string> = {
+  'Cinematic Reveal': 'Premium, high-end product reveals with dramatic lighting and camera movements',
+  'Lifestyle Connection': 'Natural, authentic scenes showing your product in everyday use',
+  'UGC': 'User-generated content style videos that feel personal and relatable',
+};
+
 export function TemplateForm({
   templates,
   selectedTemplate,
@@ -28,6 +40,7 @@ export function TemplateForm({
   userTier,
 }: TemplateFormProps) {
   const prefillData = prefillFromStoreSettings(store, product);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Cinematic Reveal']));
 
   const [formData, setFormData] = useState<TemplateInput>({
     product_name: product.title,
@@ -76,6 +89,27 @@ export function TemplateForm({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const groupedTemplates = templates.reduce((acc, template) => {
+    const category = template.meta.category || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(template);
+    return acc;
+  }, {} as Record<string, DetailedTemplate[]>);
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
   const productTypes = [
     'Fashion', 'Tech', 'Food', 'Jewelry', 'Cosmetics',
     'Home Decor', 'Fitness', 'Other'
@@ -89,43 +123,76 @@ export function TemplateForm({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-gray-900 mb-4">Select Template</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {templates.map((template, index) => (
-            <button
-              key={`${template.template_name}-${index}`}
-              onClick={() => onTemplateSelect(template)}
-              className={`p-4 border-2 rounded-xl text-left transition-all ${
-                selectedTemplate?.template_name === template.template_name
-                  ? 'border-blue-600 bg-blue-50 shadow-md'
-                  : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-sm'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 text-sm">{template.template_name}</h4>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                  template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-100 text-gray-700' :
-                  template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-100 text-blue-700' :
-                  'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700'
-                }`}>
-                  {template.meta.tier.toUpperCase()}
-                </span>
+        <h3 className="text-base font-semibold text-gray-900 mb-2">Select Template</h3>
+        <p className="text-sm text-gray-600 mb-4">Choose a style that best fits your product and brand</p>
+
+        <div className="space-y-3">
+          {Object.entries(groupedTemplates).map(([category, categoryTemplates]) => {
+            const Icon = categoryIcons[category] || Film;
+            const isExpanded = expandedCategories.has(category);
+
+            return (
+              <div key={category} className="border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 text-gray-700" />
+                    <div className="text-left">
+                      <h4 className="font-semibold text-gray-900 text-sm">{category}</h4>
+                      <p className="text-xs text-gray-600 mt-0.5">{categoryDescriptions[category]}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 font-medium">{categoryTemplates.length} templates</span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    )}
+                  </div>
+                </button>
+
+                {isExpanded && (
+                  <div className="p-3 bg-white grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {categoryTemplates.map((template, index) => (
+                      <button
+                        key={`${template.template_name}-${index}`}
+                        onClick={() => onTemplateSelect(template)}
+                        className={`p-3 border-2 rounded-lg text-left transition-all ${
+                          selectedTemplate?.template_name === template.template_name
+                            ? 'border-blue-600 bg-blue-50 shadow-sm'
+                            : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-sm'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-1.5">
+                          <h5 className="font-semibold text-gray-900 text-sm">{template.template_name}</h5>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ml-2 ${
+                            template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-100 text-gray-700' :
+                            template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700'
+                          }`}>
+                            {template.meta.tier.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 leading-relaxed line-clamp-2 mb-2">
+                          {template.description.substring(0, template.description.indexOf('{{') > 0 ? template.description.indexOf('{{') : 100)}...
+                        </p>
+                        <div className="flex gap-1 flex-wrap">
+                          {template.keywords.slice(0, 3).map((keyword, ki) => (
+                            <span key={ki} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                {template.description.substring(0, template.description.indexOf('{{') > 0 ? template.description.indexOf('{{') : 100)}...
-              </p>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-xs text-gray-500">Category: {template.meta.category}</p>
-                <div className="flex gap-1">
-                  {template.keywords.slice(0, 3).map((keyword, ki) => (
-                    <span key={ki} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </button>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -134,8 +201,8 @@ export function TemplateForm({
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex gap-3">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
-              <p className="font-semibold mb-1">Fill in the details below</p>
-              <p className="text-blue-700">Your inputs will be merged into the template to create a cinematic prompt.</p>
+              <p className="font-semibold mb-1">Customize your video</p>
+              <p className="text-blue-700">Fill in the details below to personalize the {selectedTemplate.template_name} template.</p>
             </div>
           </div>
 
@@ -308,7 +375,7 @@ export function TemplateForm({
             <textarea
               value={formData.custom_notes}
               onChange={(e) => updateField('custom_notes', e.target.value)}
-              placeholder={prefillData.custom_notes || 'e.g., Include subtle sparkle particles around the product'}
+              placeholder={prefillData.custom_notes || 'e.g., Emphasize premium quality and elegant presentation'}
               rows={3}
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />
