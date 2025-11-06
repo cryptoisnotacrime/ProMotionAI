@@ -495,6 +495,8 @@ function App() {
             store={store}
             videos={videos}
             onUpgrade={() => setCurrentView('billing')}
+            onNavigateToProducts={() => setCurrentView('products')}
+            onNavigateToVideoLibrary={() => setCurrentView('library')}
           />
         )}
 
@@ -510,6 +512,11 @@ function App() {
               products={products}
               onSelectProduct={handleProductSelect}
               isLoading={isLoading}
+              videos={videos}
+              onViewVideos={(productId) => {
+                setCurrentView('library');
+                // Could add filtering by product ID in the future
+              }}
             />
           </div>
         )}

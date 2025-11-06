@@ -91,92 +91,98 @@ export function GenerationModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Generate Video</h2>
-            <p className="text-sm text-gray-600 mt-1">{product.title}</p>
+            <h2 className="text-lg font-semibold text-gray-900">Generate Video</h2>
+            <p className="text-xs text-gray-600 mt-0.5 truncate max-w-xl">{product.title}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          <div>
-            <h3 className="font-medium text-gray-900 mb-3">Product Image</h3>
-            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden max-w-md">
-              <img
-                src={imageUrl}
-                alt={product.title}
-                className="w-full h-full object-contain"
-              />
+        <div className="p-5 space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-1">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Product Image</h3>
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt={product.title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-5 h-5 text-gray-700" />
-              <label className="block text-base font-semibold text-gray-900">
-                Video Duration
-              </label>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {[4, 6, 8].map((seconds) => {
-                const isDisabled = seconds > maxDuration;
-                const isSelected = duration === seconds;
-                const getTierBadge = () => {
-                  if (seconds === 4) return null;
-                  if (seconds === 6) return planName.toLowerCase() === 'free' ? 'Basic' : null;
-                  if (seconds === 8) return planName.toLowerCase() !== 'pro' ? 'Pro' : null;
-                  return null;
-                };
-                const badge = getTierBadge();
+            <div className="lg:col-span-2 space-y-5">
 
-                return (
-                  <button
-                    key={seconds}
-                    type="button"
-                    onClick={() => setDuration(seconds)}
-                    disabled={isDisabled}
-                    className={`relative px-6 py-4 rounded-xl font-semibold transition-all border-2 ${
-                      isSelected
-                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg'
-                        : isDisabled
-                        ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                    }`}
-                  >
-                    <div className="text-2xl font-bold">{seconds}s</div>
-                    <div className="text-xs mt-1 opacity-90">{seconds} credits</div>
-                    {badge && (
-                      <div className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                        {badge}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-gray-700" />
+                  <label className="block text-sm font-medium text-gray-900">
+                    Video Duration
+                  </label>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[4, 6, 8].map((seconds) => {
+                    const isDisabled = seconds > maxDuration;
+                    const isSelected = duration === seconds;
+                    const getTierBadge = () => {
+                      if (seconds === 4) return null;
+                      if (seconds === 6) return planName.toLowerCase() === 'free' ? 'Basic' : null;
+                      if (seconds === 8) return planName.toLowerCase() !== 'pro' ? 'Pro' : null;
+                      return null;
+                    };
+                    const badge = getTierBadge();
+
+                    return (
+                      <button
+                        key={seconds}
+                        type="button"
+                        onClick={() => setDuration(seconds)}
+                        disabled={isDisabled}
+                        className={`relative px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
+                          isSelected
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                            : isDisabled
+                            ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                        }`}
+                      >
+                        <div className="text-xl font-bold">{seconds}s</div>
+                        <div className="text-xs mt-0.5 opacity-90">{seconds} credits</div>
+                        {badge && (
+                          <div className="absolute -top-1.5 -right-1.5 bg-gray-900 text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
+                            {badge}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  <span className="font-medium">{planName.toUpperCase()}</span> plan • Max {maxDuration}s
+                </p>
+              </div>
+
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Your plan: <span className="font-medium">{planName}</span> • Max duration: {maxDuration}s
-            </p>
           </div>
 
           {isLoadingTemplates ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           ) : templates.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-yellow-900 mb-1">No Templates Available</p>
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm font-medium text-yellow-900 mb-0.5">No Templates Available</p>
+                  <p className="text-xs text-yellow-700">
                     Please contact support to add video templates to your account.
                   </p>
                 </div>
@@ -195,60 +201,61 @@ export function GenerationModal({
                 userTier={planName}
               />
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
-                  <h4 className="font-medium text-gray-900">Generation Summary</h4>
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <h4 className="text-sm font-semibold text-gray-900">Generation Summary</h4>
                 </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Template:</span>
-                    <span className="font-medium text-gray-900">
-                      {selectedTemplate?.name || 'None selected'}
-                    </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white rounded-lg p-2.5">
+                    <p className="text-xs text-gray-600 mb-0.5">Template</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {selectedTemplate?.name || 'None'}
+                    </p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Duration:</span>
-                    <span className="font-medium text-gray-900">{creditCost}s</span>
+                  <div className="bg-white rounded-lg p-2.5">
+                    <p className="text-xs text-gray-600 mb-0.5">Duration</p>
+                    <p className="text-sm font-semibold text-gray-900">{creditCost}s</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Credit Cost:</span>
-                    <span className="text-2xl font-bold text-blue-600">{creditCost}</span>
+                  <div className="bg-white rounded-lg p-2.5">
+                    <p className="text-xs text-gray-600 mb-0.5">Credit Cost</p>
+                    <p className="text-lg font-bold text-blue-600">{creditCost}</p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-blue-200">
-                    <span className="text-gray-600">Available Credits:</span>
-                    <span className={creditsAvailable >= creditCost ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                  <div className="bg-white rounded-lg p-2.5">
+                    <p className="text-xs text-gray-600 mb-0.5">Available</p>
+                    <p className={`text-lg font-bold ${creditsAvailable >= creditCost ? 'text-green-600' : 'text-red-600'}`}>
                       {creditsAvailable}
-                    </span>
+                    </p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">After generation:</span>
-                    <span className="font-medium text-gray-900">
-                      {Math.max(0, creditsAvailable - creditCost)} credits
+                </div>
+                <div className="mt-3 pt-3 border-t border-blue-200">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-700">After generation:</span>
+                    <span className="font-bold text-gray-900">
+                      {Math.max(0, creditsAvailable - creditCost)} credits remaining
                     </span>
                   </div>
                 </div>
               </div>
 
               {creditsAvailable < creditCost && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-red-900 mb-1">Insufficient Credits</p>
-                      <p className="text-sm text-red-700">
-                        You need {creditCost - creditsAvailable} more credits to generate this video.
-                        Please upgrade your plan or reduce the video duration.
+                      <p className="text-sm font-medium text-red-900 mb-0.5">Insufficient Credits</p>
+                      <p className="text-xs text-red-700">
+                        You need {creditCost - creditsAvailable} more credits. Upgrade your plan or reduce duration.
                       </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 pt-4 border-t border-gray-200">
                 <button
                   onClick={onClose}
-                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   disabled={isGenerating}
                 >
                   Cancel
@@ -256,17 +263,17 @@ export function GenerationModal({
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || creditsAvailable < creditCost || !selectedTemplate}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                       Generating...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-5 h-5" />
-                      Generate Video
+                      <Wand2 className="w-4 h-4" />
+                      Generate Video ({creditCost} credits)
                     </>
                   )}
                 </button>

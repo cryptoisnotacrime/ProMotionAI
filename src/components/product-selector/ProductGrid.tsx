@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { Search, Package } from 'lucide-react';
+import { Search, Package, Video, CheckCircle } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
+import { GeneratedVideo } from '../../lib/supabase';
 
 interface ProductGridProps {
   products: ShopifyProduct[];
   onSelectProduct: (product: ShopifyProduct, imageUrl: string) => void;
   isLoading?: boolean;
+  videos?: GeneratedVideo[];
+  onViewVideos?: (productId: string) => void;
 }
 
-export function ProductGrid({ products, onSelectProduct, isLoading }: ProductGridProps) {
+export function ProductGrid({ products, onSelectProduct, isLoading, videos = [], onViewVideos }: ProductGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredProducts = products.filter((product) =>
@@ -48,13 +51,20 @@ export function ProductGrid({ products, onSelectProduct, isLoading }: ProductGri
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelectImage={(imageUrl) => onSelectProduct(product, imageUrl)}
-            />
-          ))}
+          {filteredProducts.map((product) => {
+            const productVideos = videos.filter(v => v.product_id === product.id.toString());
+            const completedVideos = productVideos.filter(v => v.generation_status === 'completed');
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelectImage={(imageUrl) => onSelectProduct(product, imageUrl)}
+                videoCount={productVideos.length}
+                completedVideoCount={completedVideos.length}
+                onViewVideos={onViewVideos}
+              />
+            );
+          })}
         </div>
       )}
     </div>
@@ -64,14 +74,23 @@ export function ProductGrid({ products, onSelectProduct, isLoading }: ProductGri
 interface ProductCardProps {
   product: ShopifyProduct;
   onSelectImage: (imageUrl: string) => void;
+  videoCount?: number;
+  completedVideoCount?: number;
+  onViewVideos?: (productId: string) => void;
 }
 
-function ProductCard({ product, onSelectImage }: ProductCardProps) {
+function ProductCard({ product, onSelectImage, videoCount = 0, completedVideoCount = 0, onViewVideos }: ProductCardProps) {
   const mainImage = product.images[0];
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       <div className="aspect-square bg-gray-100 relative group">
+        {videoCount > 0 && (
+          <div className="absolute top-2 right-2 z-10 bg-white rounded-full px-2 py-1 shadow-sm flex items-center gap-1">
+            <Video className="w-3 h-3 text-blue-600" />
+            <span className="text-xs font-medium text-gray-900">{completedVideoCount}</span>
+          </div>
+        )}
         {mainImage ? (
           <img
             src={mainImage.src}
@@ -96,6 +115,15 @@ function ProductCard({ product, onSelectImage }: ProductCardProps) {
       </div>
       <div className="p-4">
         <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">{product.title}</h3>
+        {videoCount > 0 && (
+          <button
+            onClick={() => onViewVideos?.(product.id.toString())}
+            className="mb-3 w-full px-3 py-1.5 bg-green-50 text-green-700 rounded text-xs font-medium hover:bg-green-100 transition-colors flex items-center justify-center gap-1"
+          >
+            <CheckCircle className="w-3 h-3" />
+            {completedVideoCount} video{completedVideoCount !== 1 ? 's' : ''} created
+          </button>
+        )}
         {product.images.length > 1 && (
           <div className="flex gap-2 mt-3">
             {product.images.slice(1, 4).map((image) => (
