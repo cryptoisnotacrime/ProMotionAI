@@ -90,13 +90,94 @@ Deno.serve(async (req: Request) => {
         const instagramMatch = instagramUrl.match(/instagram\.com\/([^\/\?]+)/);
         if (instagramMatch && instagramMatch[1]) {
           const username = instagramMatch[1].replace('@', '');
-          // Note: Instagram's public API requires authentication
-          // This is a placeholder - in production, you'd need to:
-          // 1. Use Instagram Basic Display API with proper OAuth
-          // 2. Use a third-party service like RapidAPI
-          // 3. Have users upload Instagram images during onboarding
-          console.log(`Instagram username: ${username} - API integration needed`);
-          // For now, websiteImages will be used instead
+          console.log(`Fetching Instagram profile for: ${username}`);
+
+          // Method 1: Try to scrape public Instagram page
+          try {
+            const instagramResponse = await fetch(`https://www.instagram.com/${username}/?__a=1&__d=dis`, {
+              headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "application/json",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://www.instagram.com/",
+                "X-Requested-With": "XMLHttpRequest",
+              },
+            });
+
+            if (instagramResponse.ok) {
+              const data = await instagramResponse.json();
+
+              // Try to extract images from response
+              let images: string[] = [];
+
+              // Instagram's structure may vary, try multiple paths
+              if (data?.graphql?.user?.edge_owner_to_timeline_media?.edges) {
+                images = data.graphql.user.edge_owner_to_timeline_media.edges
+                  .slice(0, 12)
+                  .map((edge: any) => edge.node?.display_url)
+                  .filter(Boolean);
+              } else if (data?.items) {
+                images = data.items
+                  .slice(0, 12)
+                  .map((item: any) => item.image_versions2?.candidates?.[0]?.url)
+                  .filter(Boolean);
+              }
+
+              if (images.length > 0) {
+                instagramImages = images;
+                console.log(`Successfully fetched ${images.length} Instagram images`);
+              } else {
+                console.log("Instagram response structure unknown, trying alternate method");
+              }
+            } else {
+              console.log(`Instagram fetch failed with status: ${instagramResponse.status}`);
+            }
+          } catch (scrapeError) {
+            console.error("Instagram scraping error:", scrapeError);
+
+            // Fallback: Try fetching the public profile page and parsing HTML
+            try {
+              const htmlResponse = await fetch(`https://www.instagram.com/${username}/`, {
+                headers: {
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                },
+              });
+
+              if (htmlResponse.ok) {
+                const html = await htmlResponse.text();
+
+                // Try to extract image URLs from embedded JSON in HTML
+                const jsonMatch = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s);
+                if (jsonMatch) {
+                  try {
+                    const jsonData = JSON.parse(jsonMatch[1]);
+                    if (jsonData?.mainEntityofPage?.image) {
+                      instagramImages = [jsonData.mainEntityofPage.image];
+                      console.log("Extracted profile image from HTML");
+                    }
+                  } catch {}
+                }
+
+                // Try to extract from shared data
+                const sharedDataMatch = html.match(/window\._sharedData = (.*?);<\/script>/);
+                if (sharedDataMatch && instagramImages.length === 0) {
+                  try {
+                    const sharedData = JSON.parse(sharedDataMatch[1]);
+                    const userMedia = sharedData?.entry_data?.ProfilePage?.[0]?.graphql?.user?.edge_owner_to_timeline_media?.edges;
+                    if (userMedia) {
+                      instagramImages = userMedia
+                        .slice(0, 12)
+                        .map((edge: any) => edge.node?.display_url)
+                        .filter(Boolean);
+                      console.log(`Extracted ${instagramImages.length} images from HTML`);
+                    }
+                  } catch {}
+                }
+              }
+            } catch (htmlError) {
+              console.error("HTML parsing error:", htmlError);
+            }
+          }
         }
       } catch (error) {
         console.error("Instagram fetch error:", error);
