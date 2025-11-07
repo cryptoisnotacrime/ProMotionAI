@@ -16,7 +16,7 @@
             "authentic",
             "human"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -42,7 +42,7 @@
             "softlight",
             "home"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -68,7 +68,7 @@
             "warm",
             "handheld"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -94,7 +94,7 @@
             "clean",
             "productivity"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -120,7 +120,7 @@
             "warm",
             "authentic"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -146,7 +146,7 @@
             "relaxed",
             "cozy"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -172,7 +172,7 @@
             "motion",
             "authentic"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -198,7 +198,7 @@
             "natural",
             "lifestyle"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -224,7 +224,7 @@
             "warm",
             "real"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
@@ -250,7 +250,7 @@
             "warm",
             "home"
         ],
-        "negative_prompt": "no watermarks, no stock logos, no subtitles, no unwanted text",
+        "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
         "meta": {
             "platform": "{{platform}}",
             "duration": "{{duration}}",
