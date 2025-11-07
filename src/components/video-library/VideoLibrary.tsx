@@ -255,9 +255,9 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
   const [isUploading, setIsUploading] = useState(false);
   const isCompleted = video.generation_status === 'completed';
   const isPro = planName === 'pro';
-  const templateName = video.metadata?.template_name || video.template_id || null;
+  const templateName = video.metadata?.template_name || null;
   const category = video.metadata?.category;
-  const aspectRatio = video.metadata?.aspect_ratio || (video.duration_seconds <= 5 ? '9:16' : null);
+  const aspectRatio = video.metadata?.aspect_ratio;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
@@ -284,22 +284,12 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
         </div>
       </div>
 
-      <div className="p-2.5 space-y-2">
+      <div className="p-3 space-y-2">
         <div>
-          <h3 className="font-semibold text-gray-900 text-sm line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-sm line-clamp-1 mb-1.5">
             {video.product_title || 'Untitled'}
           </h3>
-          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-            {templateName && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {templateName}
-              </span>
-            )}
-            {category && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                {category}
-              </span>
-            )}
+          <div className="flex items-center gap-1.5 flex-wrap">
             {aspectRatio && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                 {aspectRatio}
@@ -312,22 +302,33 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
         <div className="flex items-center gap-1.5 text-xs">
           {getStatusIcon(video.generation_status)}
           <span className={
-            video.generation_status === 'completed' ? 'text-green-600 font-semibold' :
-            video.generation_status === 'failed' ? 'text-red-600 font-semibold' :
-            'text-blue-600 font-semibold'
+            video.generation_status === 'completed' ? 'text-green-600 font-medium' :
+            video.generation_status === 'failed' ? 'text-red-600 font-medium' :
+            'text-blue-600 font-medium'
           }>
             {getStatusText(video.generation_status)}
           </span>
-          {video.credits_used && (
-            <>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-600 font-medium">{video.credits_used} credits</span>
-            </>
-          )}
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-600">{video.credits_used} credits</span>
         </div>
 
+        {(templateName || category) && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {templateName && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                {templateName}
+              </span>
+            )}
+            {category && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                {category}
+              </span>
+            )}
+          </div>
+        )}
+
         {isCompleted && (
-          <div className="space-y-1.5 pt-2 border-t">
+          <div className="space-y-2 pt-2 border-t">
             {!video.attached_to_product && (
               isPro ? (
                 <button
@@ -344,7 +345,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                     }
                   }}
                   disabled={isUploading}
-                  className="w-full px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="w-full px-3 py-2 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
                     <>
@@ -359,25 +360,25 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                   )}
                 </button>
               ) : (
-                <div className="w-full px-3 py-1.5 text-xs font-bold text-blue-700 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center gap-1.5 border border-blue-200">
+                <div className="w-full px-3 py-2 text-xs font-bold text-blue-700 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center gap-1.5 border border-blue-200">
                   <Upload className="w-3.5 h-3.5" />
                   PRO ONLY
                 </div>
               )
             )}
             {video.attached_to_product && (
-              <div className="w-full px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg flex items-center justify-center gap-1.5">
+              <div className="w-full px-3 py-2 text-xs font-medium text-green-700 bg-green-50 rounded-lg flex items-center justify-center gap-1.5 border border-green-200">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Added to Product
               </div>
             )}
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onView();
                 }}
-                className="flex-1 px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                className="flex-1 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-blue-200"
               >
                 <Eye className="w-3.5 h-3.5" />
                 View
@@ -386,7 +387,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                 href={video.video_url}
                 download
                 onClick={(e) => e.stopPropagation()}
-                className="flex-1 px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-gray-200"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download
@@ -398,7 +399,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                     onDelete(video.id);
                   }
                 }}
-                className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                className="px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -428,32 +429,32 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
   const [isUploading, setIsUploading] = useState(false);
   const isCompleted = video.generation_status === 'completed';
   const isPro = planName === 'pro';
-  const templateName = video.metadata?.template_name || video.template_id || null;
+  const templateName = video.metadata?.template_name || null;
   const category = video.metadata?.category;
-  const aspectRatio = video.metadata?.aspect_ratio || (video.duration_seconds <= 5 ? '9:16' : null);
+  const aspectRatio = video.metadata?.aspect_ratio;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-all">
       <div className="flex items-center gap-4">
         {/* Thumbnail */}
-        <div className="w-24 h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all relative" onClick={onView}>
+        <div className="w-32 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all relative" onClick={onView}>
           {isCompleted && video.video_url ? (
             <video src={video.video_url} poster={video.thumbnail_url} className="w-full h-full object-cover" />
           ) : (
             <img src={video.source_image_url} alt={video.product_title || 'Product'} className="w-full h-full object-cover" />
           )}
-          <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-black bg-opacity-75 rounded text-white text-xs">
+          <div className="absolute top-1.5 right-1.5 px-2 py-0.5 bg-black bg-opacity-75 rounded text-white text-xs font-medium">
             {video.duration_seconds}s
           </div>
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">
+          <h3 className="font-semibold text-gray-900 text-base line-clamp-1 mb-1.5">
             {video.product_title || 'Untitled'}
           </h3>
           <div className="flex items-center gap-2 text-xs flex-wrap">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {getStatusIcon(video.generation_status)}
               <span className={
                 video.generation_status === 'completed' ? 'text-green-600 font-medium' :
@@ -463,37 +464,37 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
                 {getStatusText(video.generation_status)}
               </span>
             </div>
+            {aspectRatio && (
+              <>
+                <span className="text-gray-300">•</span>
+                <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">{aspectRatio}</span>
+              </>
+            )}
             {templateName && (
               <>
-                <span className="text-gray-400">•</span>
-                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium">{templateName}</span>
+                <span className="text-gray-300">•</span>
+                <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium border border-blue-200">{templateName}</span>
               </>
             )}
             {category && (
               <>
-                <span className="text-gray-400">•</span>
-                <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-medium">{category}</span>
+                <span className="text-gray-300">•</span>
+                <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-medium border border-purple-200">{category}</span>
               </>
             )}
-            {aspectRatio && (
-              <>
-                <span className="text-gray-400">•</span>
-                <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">{aspectRatio}</span>
-              </>
-            )}
-            <span className="text-gray-400">•</span>
-            <span className="text-gray-600">{new Date(video.created_at).toLocaleDateString()}</span>
+            <span className="text-gray-300">•</span>
+            <span className="text-gray-600">{new Date(video.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
 
         {/* Actions */}
         {isCompleted && (
-          <div className="flex items-center gap-2">
-            <button onClick={onView} className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={onView} className="px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1.5 border border-blue-200">
               <Eye className="w-3.5 h-3.5" />
               View
             </button>
-            <a href={video.video_url} download className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1">
+            <a href={video.video_url} download className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1.5 border border-gray-200">
               <Download className="w-3.5 h-3.5" />
               Download
             </a>
@@ -510,7 +511,7 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
                   }
                 }}
                 disabled={isUploading}
-                className="px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-1"
+                className="px-3 py-2 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-1.5 disabled:bg-gray-300"
               >
                 <Upload className="w-3.5 h-3.5" />
                 Add to Shopify
@@ -520,7 +521,7 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
               onClick={() => {
                 if (confirm('Delete this video?')) onDelete(video.id);
               }}
-              className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+              className="px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
