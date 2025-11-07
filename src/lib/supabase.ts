@@ -97,6 +97,8 @@ export type GeneratedVideo = {
   expires_at?: string;
   attached_to_product?: boolean;
   shopify_media_id?: string;
+  template_id?: string;
+  template_inputs?: Record<string, any>;
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;

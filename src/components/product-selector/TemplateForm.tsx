@@ -150,20 +150,20 @@ export function TemplateForm({
     });
   };
 
-  // Clean description - remove template variables and show full sentence
+  // Clean description - remove template variables and show readable description
   const getCleanDescription = (template: DetailedTemplate): string => {
     let desc = template.description;
-    // Remove everything from first {{ onwards
-    const varIndex = desc.indexOf('{{');
-    if (varIndex > 0) {
-      desc = desc.substring(0, varIndex).trim();
-    }
-    // Get first sentence or first 150 chars
-    const sentenceEnd = desc.match(/[.!?]\s/);
-    if (sentenceEnd && sentenceEnd.index) {
-      return desc.substring(0, sentenceEnd.index + 1);
-    }
-    return desc.substring(0, 150) + (desc.length > 150 ? '...' : '');
+
+    // Remove all {{variable}} placeholders completely
+    desc = desc.replace(/using\s+\{\{[^}]+\}\}/g, '');
+    desc = desc.replace(/from\s+\{\{[^}]+\}\}/g, '');
+    desc = desc.replace(/\{\{[^}]+\}\}/g, 'the product');
+
+    // Clean up extra spaces and punctuation
+    desc = desc.replace(/\s+/g, ' ').trim();
+    desc = desc.replace(/\s+([,.])/g, '$1');
+
+    return desc;
   };
 
   const productTypes = [

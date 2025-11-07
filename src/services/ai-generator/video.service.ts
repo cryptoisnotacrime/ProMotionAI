@@ -93,6 +93,17 @@ export class VideoGenerationService {
     request: VideoGenerationRequest
   ): Promise<GeneratedVideo> {
     const durationSeconds = request.durationSeconds || 5;
+
+    // Extract metadata from template inputs for easy querying
+    const metadata: Record<string, any> = {
+      template_name: request.templateInputs?.template_name,
+      category: request.templateInputs?.category,
+      aspect_ratio: request.aspectRatio,
+      tone: request.templateInputs?.tone,
+      background_style: request.templateInputs?.background_style,
+      ...request.templateInputs,
+    };
+
     const { data, error } = await supabase
       .from('generated_videos')
       .insert({
@@ -109,6 +120,7 @@ export class VideoGenerationService {
         api_cost_usd: durationSeconds * 0.15, // Veo 3.1 preview pricing
         template_id: request.templateId,
         template_inputs: request.templateInputs,
+        metadata,
       })
       .select()
       .single();

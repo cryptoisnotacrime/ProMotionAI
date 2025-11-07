@@ -255,7 +255,9 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
   const [isUploading, setIsUploading] = useState(false);
   const isCompleted = video.generation_status === 'completed';
   const isPro = planName === 'pro';
-  const templateName = video.metadata?.template_name || 'Custom';
+  const templateName = video.metadata?.template_name || video.template_id || null;
+  const category = video.metadata?.category;
+  const aspectRatio = video.metadata?.aspect_ratio || (video.duration_seconds <= 5 ? '9:16' : null);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
@@ -288,15 +290,22 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
             {video.product_title || 'Untitled'}
           </h3>
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {templateName}
-            </span>
-            <span className="text-xs text-gray-500">{new Date(video.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-            {video.metadata?.tone && (
-              <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
-                {video.metadata.tone}
+            {templateName && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {templateName}
               </span>
             )}
+            {category && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                {category}
+              </span>
+            )}
+            {aspectRatio && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                {aspectRatio}
+              </span>
+            )}
+            <span className="text-xs text-gray-500">{new Date(video.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
           </div>
         </div>
 
@@ -419,7 +428,9 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
   const [isUploading, setIsUploading] = useState(false);
   const isCompleted = video.generation_status === 'completed';
   const isPro = planName === 'pro';
-  const templateName = video.metadata?.template_name || 'Custom';
+  const templateName = video.metadata?.template_name || video.template_id || null;
+  const category = video.metadata?.category;
+  const aspectRatio = video.metadata?.aspect_ratio || (video.duration_seconds <= 5 ? '9:16' : null);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all">
@@ -441,7 +452,7 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
           <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">
             {video.product_title || 'Untitled'}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-gray-600">
+          <div className="flex items-center gap-2 text-xs flex-wrap">
             <div className="flex items-center gap-1">
               {getStatusIcon(video.generation_status)}
               <span className={
@@ -452,10 +463,26 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
                 {getStatusText(video.generation_status)}
               </span>
             </div>
-            <span>•</span>
-            <span>{templateName}</span>
-            <span>•</span>
-            <span>{new Date(video.created_at).toLocaleDateString()}</span>
+            {templateName && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium">{templateName}</span>
+              </>
+            )}
+            {category && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-medium">{category}</span>
+              </>
+            )}
+            {aspectRatio && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">{aspectRatio}</span>
+              </>
+            )}
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-600">{new Date(video.created_at).toLocaleDateString()}</span>
           </div>
         </div>
 
