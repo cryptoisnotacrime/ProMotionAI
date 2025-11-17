@@ -221,9 +221,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Generate proxy URL for CORS-compliant video access
-    const videoPath = `videos/${videoId}.mp4`;
-    const videoUrl = `${supabaseUrl}/functions/v1/video-proxy?path=${encodeURIComponent(videoPath)}`;
+    // Generate public URL for direct access
+    const { data: urlData } = supabase.storage
+      .from("generated-videos")
+      .getPublicUrl(`videos/${videoId}.mp4`);
+
+    const videoUrl = urlData?.publicUrl || "";
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 

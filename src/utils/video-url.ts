@@ -1,27 +1,24 @@
-import { supabase } from '../lib/supabase';
-
 export function getProxiedVideoUrl(videoUrl: string | null | undefined): string {
   if (!videoUrl) return '';
 
-  // If it's already a proxy URL, return as is
-  if (videoUrl.includes('/functions/v1/video-proxy')) {
-    return videoUrl;
-  }
-
-  // If it's a Supabase storage URL, convert to proxy
-  if (videoUrl.includes('/storage/v1/object/')) {
+  // If it's a Supabase storage signed URL, convert to public URL
+  if (videoUrl.includes('/storage/v1/object/sign/')) {
     const url = new URL(videoUrl);
-    const pathMatch = url.pathname.match(/\/storage\/v1\/object\/(sign|public)\/generated-videos\/(.+)/);
+    const pathMatch = url.pathname.match(/\/storage\/v1\/object\/sign\/generated-videos\/(.+)/);
 
     if (pathMatch) {
-      const videoPath = pathMatch[2];
+      const videoPath = pathMatch[1];
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      return `${supabaseUrl}/functions/v1/video-proxy?path=${encodeURIComponent(videoPath)}`;
+      return `${supabaseUrl}/storage/v1/object/public/generated-videos/${videoPath}`;
     }
   }
 
-  // For Shopify CDN URLs or other external URLs, return as is
-  // (These won't work due to ORB, but we can't proxy external URLs)
+  // If it's already a public URL, return as is
+  if (videoUrl.includes('/storage/v1/object/public/')) {
+    return videoUrl;
+  }
+
+  // For other URLs (Shopify CDN, etc), return as is
   return videoUrl;
 }
 
