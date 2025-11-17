@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, CheckCircle, RotateCw, Save, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 import { GeneratedVideo } from '../../lib/supabase';
 import { ShopifyProduct } from '../../services/shopify/products.service';
+import { getProxiedVideoUrl } from '../../utils/video-url';
 
 interface VideoPreviewModalProps {
   video: GeneratedVideo;
@@ -113,7 +114,7 @@ export function VideoPreviewModal({
               <h3 className="text-sm font-medium text-gray-700 mb-3">Generated Video</h3>
               <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
                 <video
-                  src={video.video_url}
+                  src={getProxiedVideoUrl(video.video_url)}
                   controls
                   autoPlay
                   loop

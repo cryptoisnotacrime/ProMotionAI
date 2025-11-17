@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, ExternalLink, Trash2, Video, Clock, CheckCircle2, AlertCircle, Loader2, Upload, Eye, Search, Filter, SortAsc, Grid3x3, List } from 'lucide-react';
 import { GeneratedVideo } from '../../lib/supabase';
+import { getProxiedVideoUrl } from '../../utils/video-url';
 
 interface VideoLibraryProps {
   videos: GeneratedVideo[];
@@ -264,7 +265,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
       <div className="aspect-video bg-gray-100 relative group cursor-pointer" onClick={onView}>
         {isCompleted && video.video_url ? (
           <video
-            src={video.video_url}
+            src={getProxiedVideoUrl(video.video_url)}
             poster={video.thumbnail_url}
             className="w-full h-full object-cover"
           />
@@ -384,7 +385,7 @@ function VideoCard({ video, onView, onDelete, onAddToShopify, planName }: VideoC
                 View
               </button>
               <a
-                href={video.video_url}
+                href={getProxiedVideoUrl(video.video_url)}
                 download
                 onClick={(e) => e.stopPropagation()}
                 className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-gray-200"
@@ -439,7 +440,7 @@ function VideoListItem({ video, onView, onDelete, onAddToShopify, planName }: Vi
         {/* Thumbnail */}
         <div className="w-32 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all relative" onClick={onView}>
           {isCompleted && video.video_url ? (
-            <video src={video.video_url} poster={video.thumbnail_url} className="w-full h-full object-cover" />
+            <video src={getProxiedVideoUrl(video.video_url)} poster={video.thumbnail_url} className="w-full h-full object-cover" />
           ) : (
             <img src={video.source_image_url} alt={video.product_title || 'Product'} className="w-full h-full object-cover" />
           )}
@@ -559,7 +560,7 @@ function VideoModal({ video, onClose }: VideoModalProps) {
           <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-6">
             {isCompleted && video.video_url ? (
               <video
-                src={video.video_url}
+                src={getProxiedVideoUrl(video.video_url)}
                 controls
                 autoPlay
                 loop

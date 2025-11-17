@@ -647,17 +647,9 @@ async function pollVeoJob(
 
       console.log("Video saved to storage:", uploadData.path);
 
-      // Generate a signed URL (7 days expiration) for secure access
-      const { data: urlData, error: urlError } = await supabase.storage
-        .from("generated-videos")
-        .createSignedUrl(`videos/${videoId}.mp4`, 604800);
-
-      if (urlError) {
-        console.error("Failed to create signed URL:", urlError);
-        throw new Error(`Failed to create signed URL: ${urlError.message}`);
-      }
-
-      const videoUrl = urlData?.signedUrl || "";
+      // Generate proxy URL for CORS-compliant video access
+      const videoPath = `videos/${videoId}.mp4`;
+      const videoUrl = `${supabaseUrl}/functions/v1/video-proxy?path=${encodeURIComponent(videoPath)}`;
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
