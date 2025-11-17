@@ -221,11 +221,26 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { data: urlData } = supabase.storage
+    // Generate a signed URL (7 days expiration) for secure access
+    const { data: urlData, error: urlError } = await supabase.storage
       .from("generated-videos")
-      .getPublicUrl(`videos/${videoId}.mp4`);
+      .createSignedUrl(`videos/${videoId}.mp4`, 604800);
 
-    const videoUrl = urlData?.publicUrl || "";
+    if (urlError) {
+      console.error("Failed to create signed URL:", urlError);
+      return new Response(
+        JSON.stringify({
+          status: "failed",
+          error: `Failed to create signed URL: ${urlError.message}`,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const videoUrl = urlData?.signedUrl || "";
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 

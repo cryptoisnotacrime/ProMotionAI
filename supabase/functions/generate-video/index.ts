@@ -647,11 +647,17 @@ async function pollVeoJob(
 
       console.log("Video saved to storage:", uploadData.path);
 
-      const { data: urlData } = supabase.storage
+      // Generate a signed URL (7 days expiration) for secure access
+      const { data: urlData, error: urlError } = await supabase.storage
         .from("generated-videos")
-        .getPublicUrl(`videos/${videoId}.mp4`);
+        .createSignedUrl(`videos/${videoId}.mp4`, 604800);
 
-      const videoUrl = urlData?.publicUrl || "";
+      if (urlError) {
+        console.error("Failed to create signed URL:", urlError);
+        throw new Error(`Failed to create signed URL: ${urlError.message}`);
+      }
+
+      const videoUrl = urlData?.signedUrl || "";
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
