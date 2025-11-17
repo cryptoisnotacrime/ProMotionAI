@@ -40,7 +40,6 @@ Deno.serve(async (req: Request) => {
 
     console.log("Polling video status for:", videoId);
 
-    // Get video record
     const { data: video, error: videoError } = await supabase
       .from("generated_videos")
       .select("id, veo_job_id, generation_status, store_id, stores!inner(shop_domain, access_token)")
@@ -57,7 +56,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // If already completed or failed, return current status
     if (video.generation_status === "completed" || video.generation_status === "failed") {
       return new Response(
         JSON.stringify({
@@ -82,10 +80,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Generate access token
     const accessToken = await getAccessToken(gcpServiceAccountJson);
 
-    // Parse operation name to get project ID and location
     const match = operationName.match(/projects\/([^\/]+)\/locations\/([^\/]+)\/publishers\/google\/models\/([^\/]+)/);
     if (!match) {
       console.error('Could not parse operation name:', operationName);
@@ -100,7 +96,6 @@ Deno.serve(async (req: Request) => {
 
     const [, projectId, location, modelId] = match;
 
-    // Check job status
     const checkUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:fetchPredictOperation`;
     const checkResponse = await fetch(checkUrl, {
       method: 'POST',
@@ -128,7 +123,6 @@ Deno.serve(async (req: Request) => {
     const jobStatus = await checkResponse.json();
     console.log('Job status:', jobStatus.done ? 'done' : 'processing');
 
-    // If not done, return processing status
     if (!jobStatus.done) {
       return new Response(
         JSON.stringify({
@@ -142,7 +136,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Job is done - check for errors
     if (jobStatus.error) {
       console.error("Job completed with error:", jobStatus.error);
       await supabase
@@ -166,7 +159,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Extract video data
     const videoBase64 = jobStatus.response?.videos?.[0]?.bytesBase64Encoded;
     if (!videoBase64) {
       console.error("No video data in completed response");
@@ -191,7 +183,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Convert base64 to binary
     console.log("Converting video from base64...");
     const binaryString = atob(videoBase64);
     const bytes = new Uint8Array(binaryString.length);
@@ -199,7 +190,6 @@ Deno.serve(async (req: Request) => {
       bytes[i] = binaryString.charCodeAt(i);
     }
 
-    // Upload to Supabase storage
     console.log("Uploading video to storage...");
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("generated-videos")
@@ -231,16 +221,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Generate signed URL
-    const { data: urlData } = await supabase.storage
+    const { data: urlData } = supabase.storage
       .from("generated-videos")
-      .createSignedUrl(`videos/${videoId}.mp4`, 604800);
+      .getPublicUrl(`videos/${videoId}.mp4`);
 
-    const videoUrl = urlData?.signedUrl || "";
+    const videoUrl = urlData?.publicUrl || "";
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    // Update video record
     console.log("Updating video record...");
     await supabase
       .from("generated_videos")

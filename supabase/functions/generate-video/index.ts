@@ -186,19 +186,13 @@ Deno.serve(async (req: Request) => {
     const accessToken = await getAccessToken(gcpServiceAccountJson);
     console.log("Access token generated, length:", accessToken.length);
 
-    // Using Veo 3.1 Fast Generate Preview (currently available model)
-    // Note: veo-3-fast-generate not yet available in Vertex AI API
-    // This preview model supports up to 1080p video generation
-    // IMPORTANT: generateAudio is set to false for video-only output (no audio track)
     const veoModel = "veo-3.1-fast-generate-preview";
     const location = "us-central1";
     const veoEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${gcpProjectId}/locations/${location}/publishers/google/models/${veoModel}:predictLongRunning`;
 
-    // Map aspect ratios - Veo only supports 16:9 and 9:16
-    // 1:1 (square) is not supported, so we map it to 9:16
     let veoAspectRatio = aspectRatio || "9:16";
     if (veoAspectRatio === "1:1") {
-      veoAspectRatio = "9:16"; // Map square to vertical
+      veoAspectRatio = "9:16";
       console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
     }
 
@@ -633,14 +627,12 @@ async function pollVeoJob(
 
       console.log("Saving video to Supabase storage...");
 
-      // Convert base64 to binary
       const binaryString = atob(videoBase64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
 
-      // Upload to Supabase storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("generated-videos")
         .upload(`videos/${videoId}.mp4`, bytes, {
@@ -655,12 +647,11 @@ async function pollVeoJob(
 
       console.log("Video saved to storage:", uploadData.path);
 
-      // Generate a public URL (valid for 7 days)
-      const { data: urlData } = await supabase.storage
+      const { data: urlData } = supabase.storage
         .from("generated-videos")
-        .createSignedUrl(`videos/${videoId}.mp4`, 604800);
+        .getPublicUrl(`videos/${videoId}.mp4`);
 
-      const videoUrl = urlData?.signedUrl || "";
+      const videoUrl = urlData?.publicUrl || "";
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
