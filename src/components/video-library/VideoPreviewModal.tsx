@@ -74,14 +74,14 @@ export function VideoPreviewModal({
   if (actionCompleted) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+        <div className="bg-gray-900 rounded-xl max-w-md w-full p-8 text-center border border-gray-800">
+          <div className="w-16 h-16 bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-white mb-2">
             {actionCompleted === 'added' ? 'Video Added to Product!' : 'Video Saved to Library!'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             {actionCompleted === 'added'
               ? 'The video is now live on your product page in Shopify.'
               : 'You can add this video to your product later from the Video Library.'}
@@ -93,15 +93,15 @@ export function VideoPreviewModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+      <div className="bg-gray-900 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
+        <div className="sticky top-0 bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Review Your Video</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Preview before adding to product</p>
+            <h2 className="text-xl font-semibold text-white">Review Your Video</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Preview before adding to product</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
             disabled={isAdding || isSaving || isDiscarding}
           >
             <X className="w-5 h-5" />
@@ -111,8 +111,8 @@ export function VideoPreviewModal({
         <div className="p-6">
           <div className="grid lg:grid-cols-2 gap-6 mb-6">
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Generated Video</h3>
-              <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
+              <h3 className="text-sm font-medium text-gray-200 mb-3">Generated Video</h3>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 <video
                   src={getProxiedVideoUrl(video.video_url)}
                   controls
@@ -123,19 +123,19 @@ export function VideoPreviewModal({
               </div>
               <div className="mt-3 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium text-gray-900">{video.duration_seconds}s</span>
+                  <span className="text-gray-400">Duration:</span>
+                  <span className="font-medium text-gray-100">{video.duration_seconds}s</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Credits Used:</span>
-                  <span className="font-medium text-gray-900">{video.credits_used}</span>
+                  <span className="text-gray-400">Credits Used:</span>
+                  <span className="font-medium text-gray-100">{video.credits_used}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Original Product Image</h3>
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+              <h3 className="text-sm font-medium text-gray-200 mb-3">Original Product Image</h3>
+              <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
                 <img
                   src={video.source_image_url}
                   alt={video.product_title || 'Product'}
@@ -143,24 +143,24 @@ export function VideoPreviewModal({
                 />
               </div>
               <div className="mt-3">
-                <div className="text-sm text-gray-600 mb-1">Product:</div>
-                <div className="font-medium text-gray-900">{video.product_title}</div>
+                <div className="text-sm text-gray-400 mb-1">Product:</div>
+                <div className="font-medium text-gray-100">{video.product_title}</div>
               </div>
               <div className="mt-3">
-                <div className="text-sm text-gray-600 mb-1">Prompt Used:</div>
-                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <div className="text-sm text-gray-400 mb-1">Prompt Used:</div>
+                <div className="text-sm text-gray-300 bg-gray-800 p-3 rounded-lg border border-gray-700">
                   {video.prompt || 'No prompt specified'}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="bg-purple-900/30 border border-purple-700/30 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
-              <ExternalLink className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <ExternalLink className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">What happens when you add to product?</h4>
-                <p className="text-sm text-gray-700">
+                <h4 className="font-medium text-gray-100 mb-1">What happens when you add to product?</h4>
+                <p className="text-sm text-gray-400">
                   This video will be published to your Shopify product page and visible to customers immediately.
                   You can manage or remove it later from your Shopify admin.
                 </p>
@@ -234,7 +234,7 @@ export function VideoPreviewModal({
           </div>
 
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               Not happy with the result? Try regenerating with different style or motion options.
             </p>
           </div>

@@ -136,7 +136,7 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
 
       <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-8 text-white border border-purple-700">
         <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="bg-white bg-opacity-10 rounded-full p-4 flex-shrink-0">
+          <div className="bg-purple-900/20 rounded-full p-4 flex-shrink-0">
             <Zap className="w-8 h-8" />
           </div>
           <div className="flex-1">

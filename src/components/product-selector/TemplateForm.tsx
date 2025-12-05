@@ -179,8 +179,8 @@ export function TemplateForm({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-gray-900 mb-2">Select Template</h3>
-        <p className="text-sm text-gray-600 mb-4">Choose a style that best fits your product and brand</p>
+        <h3 className="text-base font-semibold text-gray-100 mb-2">Select Template</h3>
+        <p className="text-sm text-gray-400 mb-4">Choose a style that best fits your product and brand</p>
 
         <div className="space-y-3">
           {Object.entries(groupedTemplates).map(([category, categoryTemplates]) => {

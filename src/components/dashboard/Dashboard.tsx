@@ -269,10 +269,10 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
   const [showPreview, setShowPreview] = useState(false);
 
   const statusConfig = {
-    completed: { bg: 'bg-green-100', text: 'text-green-700', label: 'Completed' },
-    processing: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Processing' },
-    pending: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pending' },
-    failed: { bg: 'bg-red-100', text: 'text-red-700', label: 'Failed' },
+    completed: { bg: 'bg-green-900/50', text: 'text-green-300', label: 'Completed' },
+    processing: { bg: 'bg-purple-900/50', text: 'text-purple-300', label: 'Processing' },
+    pending: { bg: 'bg-yellow-900/50', text: 'text-yellow-300', label: 'Pending' },
+    failed: { bg: 'bg-red-900/50', text: 'text-red-300', label: 'Failed' },
   };
 
   const config = statusConfig[video.generation_status];

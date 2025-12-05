@@ -27,29 +27,29 @@ export function LowCreditBanner({ creditsRemaining, planName, onUpgrade }: LowCr
 
   const config = {
     warning: {
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-300',
-      textColor: 'text-yellow-900',
-      iconColor: 'text-yellow-600',
-      buttonBg: 'bg-yellow-600 hover:bg-yellow-700',
+      bgColor: 'bg-yellow-900/30',
+      borderColor: 'border-yellow-700',
+      textColor: 'text-yellow-200',
+      iconColor: 'text-yellow-400',
+      buttonBg: 'bg-yellow-600 hover:bg-yellow-500',
       title: 'Running Low on Credits',
       message: `You have ${creditsRemaining} credits left (about ${videosRemaining} videos). Consider upgrading to keep creating.`,
     },
     critical: {
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-400',
-      textColor: 'text-orange-900',
-      iconColor: 'text-orange-600',
-      buttonBg: 'bg-orange-600 hover:bg-orange-700',
+      bgColor: 'bg-orange-900/30',
+      borderColor: 'border-orange-700',
+      textColor: 'text-orange-200',
+      iconColor: 'text-orange-400',
+      buttonBg: 'bg-orange-600 hover:bg-orange-500',
       title: 'Credits Almost Depleted',
       message: `Only ${creditsRemaining} credits remaining! Upgrade now to avoid interruptions in your video generation.`,
     },
     emergency: {
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-500',
-      textColor: 'text-red-900',
-      iconColor: 'text-red-600',
-      buttonBg: 'bg-red-600 hover:bg-red-700',
+      bgColor: 'bg-red-900/30',
+      borderColor: 'border-red-700',
+      textColor: 'text-red-200',
+      iconColor: 'text-red-400',
+      buttonBg: 'bg-red-600 hover:bg-red-500',
       title: 'Out of Credits',
       message: 'You have no credits left. Upgrade your plan to continue generating videos.',
     },
@@ -72,7 +72,7 @@ export function LowCreditBanner({ creditsRemaining, planName, onUpgrade }: LowCr
             {currentConfig.message}
           </p>
           {planName === 'free' && (
-            <p className="text-xs mt-2 text-gray-600">
+            <p className="text-xs mt-2 text-gray-400">
               Upgrade to Basic for 50 credits/month or Pro for 100 credits/month
             </p>
           )}
@@ -89,10 +89,10 @@ export function LowCreditBanner({ creditsRemaining, planName, onUpgrade }: LowCr
           {canDismiss && (
             <button
               onClick={() => setIsDismissed(true)}
-              className="p-1 hover:bg-black/5 rounded transition-colors"
+              className="p-1 hover:bg-white/10 rounded transition-colors"
               title="Dismiss"
             >
-              <X className="w-4 h-4 text-gray-600" />
+              <X className="w-4 h-4 text-gray-400" />
             </button>
           )}
         </div>
