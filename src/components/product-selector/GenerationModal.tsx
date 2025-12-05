@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, AlertCircle, Sparkles, Clock, Image as ImageIcon } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
@@ -34,7 +34,7 @@ export function GenerationModal({
   const [selectedTemplate, setSelectedTemplate] = useState<DetailedTemplate | null>(null);
   const [duration, setDuration] = useState(maxDuration >= 6 ? 6 : 4);
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
-    { url: imageUrl, isProductImage: true }
+    { url: imageUrl, isProductImage: true, source: 'product' }
   ]);
   const [templateInputs, setTemplateInputs] = useState<TemplateInput>({
     product_name: product.title,
@@ -73,17 +73,17 @@ export function GenerationModal({
   const imageCount = selectedImages.length;
   const imageSurcharge = getImageCostSurcharge(imageCount);
   const creditCost = duration + imageSurcharge;
+  const hasEnoughCredits = creditsAvailable >= creditCost;
 
   useEffect(() => {
     setTemplateInputs(prev => ({ ...prev, duration }));
   }, [duration]);
 
   const handleGenerate = () => {
-    if (!selectedTemplate || creditsAvailable < creditCost) {
+    if (!selectedTemplate || !hasEnoughCredits) {
       return;
     }
 
-    // Build variables map from template inputs and store data
     const variables: Record<string, string> = {
       product_name: product.title,
       product_image_url: imageUrl,
@@ -95,23 +95,18 @@ export function GenerationModal({
       color_palette: store.brand_colors?.map((c: any) => c.hex).join(', ') || 'brand colors',
     };
 
-    // Fill template variables to create comprehensive prompt
     let promptText = fillTemplateVariables(selectedTemplate, variables);
 
-    // Adjust prompt for multi-image if needed
     if (imageCount > 1) {
       promptText = promptText.replace(/\bthe image\b/gi, 'the provided images');
       promptText = promptText.replace(/\bthis image\b/gi, 'these images');
     }
 
-    // Convert platform format to aspect ratio for Veo API
     const aspectRatioMap: Record<string, string> = {
       '9:16': '9:16',
       '16:9': '16:9',
     };
     const aspectRatio = aspectRatioMap[templateInputs.platform || '9:16'] || '9:16';
-
-    // Extract image URLs for multi-image support
     const imageUrls = selectedImages.map(img => img.url);
 
     onGenerate(
@@ -124,204 +119,167 @@ export function GenerationModal({
     );
   };
 
+  const durationOptions = [
+    { value: 4, label: '4s', disabled: false },
+    { value: 6, label: '6s', disabled: maxDuration < 6 },
+    { value: 8, label: '8s', disabled: maxDuration < 8 },
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20">
+        <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-4 flex items-center justify-between backdrop-blur-sm z-10">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Generate Video</h2>
-            <p className="text-xs text-gray-600 mt-0.5 truncate max-w-xl">{product.title}</p>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Wand2 className="w-6 h-6 text-purple-400" />
+              Generate Video
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">{product.title}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            disabled={isGenerating}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <MultiImagePicker
-                productImageUrl={imageUrl}
+                productImages={product.images}
                 productTitle={product.title}
                 onImagesChange={setSelectedImages}
                 maxImages={3}
               />
             </div>
 
-            <div className="lg:col-span-2 space-y-5">
-
+            <div className="lg:col-span-2 space-y-6">
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-gray-700" />
-                  <label className="block text-sm font-medium text-gray-900">
-                    Video Duration
-                  </label>
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-4 h-4 text-purple-400" />
+                  <label className="text-sm font-semibold text-gray-100">Video Duration</label>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[4, 6, 8].map((seconds) => {
-                    const isDisabled = seconds > maxDuration;
-                    const isSelected = duration === seconds;
-                    const getTierBadge = () => {
-                      if (seconds === 4) return null;
-                      if (seconds === 6) return planName.toLowerCase() === 'free' ? 'Basic' : null;
-                      if (seconds === 8) return planName.toLowerCase() !== 'pro' ? 'Pro' : null;
-                      return null;
-                    };
-                    const badge = getTierBadge();
-
-                    return (
-                      <button
-                        key={seconds}
-                        type="button"
-                        onClick={() => setDuration(seconds)}
-                        disabled={isDisabled}
-                        className={`relative px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
-                          isSelected
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-md'
-                            : isDisabled
-                            ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
-                        }`}
-                      >
-                        <div className="text-xl font-bold">{seconds}s</div>
-                        <div className="text-xs mt-0.5 opacity-90">{seconds} credits</div>
-                        {badge && (
-                          <div className="absolute -top-1.5 -right-1.5 bg-gray-900 text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
-                            {badge}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="flex gap-2">
+                  {durationOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => !option.disabled && setDuration(option.value)}
+                      disabled={option.disabled}
+                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                        duration === option.value
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                          : option.disabled
+                          ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
+                      }`}
+                    >
+                      <div>{option.label}</div>
+                      <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
+                    </button>
+                  ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  <span className="font-medium">{planName.toUpperCase()}</span> plan • Max {maxDuration}s
-                </p>
+                {maxDuration < 8 && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    {planName.toUpperCase()} plan • Max {maxDuration}s
+                  </p>
+                )}
               </div>
 
+              {isLoadingTemplates ? (
+                <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                </div>
+              ) : (
+                <TemplateForm
+                  templates={templates}
+                  selectedTemplate={selectedTemplate}
+                  onTemplateSelect={setSelectedTemplate}
+                  inputs={templateInputs}
+                  onInputChange={setTemplateInputs}
+                  userTier={planName}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="sticky bottom-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm z-10">
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
+              <p className="text-xs text-gray-400 mb-1">Template</p>
+              <p className="text-sm font-semibold text-white truncate">
+                {selectedTemplate?.name || 'None'}
+              </p>
+            </div>
+            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
+              <p className="text-xs text-gray-400 mb-1">Duration</p>
+              <p className="text-sm font-semibold text-white">{duration}s</p>
+            </div>
+            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
+              <p className="text-xs text-gray-400 mb-1">Images</p>
+              <p className="text-sm font-semibold text-white">{imageCount} ref{imageCount !== 1 ? 's' : ''}</p>
+            </div>
+            <div className={`rounded-lg p-3 border ${
+              hasEnoughCredits
+                ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30'
+                : 'bg-red-900/30 border-red-500/30'
+            }`}>
+              <p className="text-xs text-gray-400 mb-1">Total Cost</p>
+              <div className="flex items-baseline gap-2">
+                <p className={`text-lg font-bold ${hasEnoughCredits ? 'text-purple-300' : 'text-red-300'}`}>
+                  {creditCost}
+                </p>
+                {imageSurcharge > 0 && (
+                  <p className="text-xs text-gray-400">
+                    ({duration} + {imageSurcharge} multi-img)
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {isLoadingTemplates ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : templates.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-yellow-900 mb-0.5">No Templates Available</p>
-                  <p className="text-xs text-yellow-700">
-                    Please contact support to add video templates to your account.
-                  </p>
-                </div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-sm mb-1">
+                <span className="text-gray-400">Available Credits</span>
+                <span className={`font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}>
+                  {creditsAvailable}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">After generation</span>
+                <span className="font-semibold text-gray-300">
+                  {Math.max(0, creditsAvailable - creditCost)} credits
+                </span>
               </div>
             </div>
-          ) : (
-            <>
-              <TemplateForm
-                templates={templates}
-                selectedTemplate={selectedTemplate}
-                onTemplateSelect={setSelectedTemplate}
-                product={product}
-                productImageUrl={imageUrl}
-                store={store}
-                onInputChange={setTemplateInputs}
-                userTier={planName}
-              />
 
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
-                  <h4 className="text-sm font-semibold text-gray-900">Generation Summary</h4>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white rounded-lg p-2.5">
-                    <p className="text-xs text-gray-600 mb-0.5">Template</p>
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {selectedTemplate?.name || 'None'}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-2.5">
-                    <p className="text-xs text-gray-600 mb-0.5">Duration</p>
-                    <p className="text-sm font-semibold text-gray-900">{duration}s</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-2.5">
-                    <p className="text-xs text-gray-600 mb-0.5">Images</p>
-                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-1">
-                      <ImageIcon className="w-3 h-3" />
-                      {imageCount}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-2.5">
-                    <p className="text-xs text-gray-600 mb-0.5">Credit Cost</p>
-                    <p className="text-lg font-bold text-blue-600">{creditCost}</p>
-                    {imageSurcharge > 0 && (
-                      <p className="text-xs text-gray-500">{duration} + {imageSurcharge}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-blue-200">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-700">Available Credits:</span>
-                    <span className={`text-lg font-bold ${creditsAvailable >= creditCost ? 'text-green-600' : 'text-red-600'}`}>
-                      {creditsAvailable}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-700">After generation:</span>
-                    <span className="font-bold text-gray-900">
-                      {Math.max(0, creditsAvailable - creditCost)} credits
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {creditsAvailable < creditCost && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-red-900 mb-0.5">Insufficient Credits</p>
-                      <p className="text-xs text-red-700">
-                        You need {creditCost - creditsAvailable} more credits. Upgrade your plan or reduce duration.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            <button
+              onClick={handleGenerate}
+              disabled={!selectedTemplate || !hasEnoughCredits || isGenerating}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-current" />
+                  Generate Video
+                </>
               )}
+            </button>
+          </div>
 
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
-                <button
-                  onClick={onClose}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={isGenerating}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || creditsAvailable < creditCost || !selectedTemplate}
-                  className="flex-1 px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4" />
-                      Generate Video ({creditCost} credits)
-                    </>
-                  )}
-                </button>
-              </div>
-            </>
+          {!hasEnoughCredits && (
+            <div className="mt-3 bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300">
+              Insufficient credits. You need {creditCost - creditsAvailable} more credits to generate this video.
+            </div>
           )}
         </div>
       </div>
