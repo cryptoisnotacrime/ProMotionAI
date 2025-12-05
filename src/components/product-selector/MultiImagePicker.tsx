@@ -203,14 +203,18 @@ export function MultiImagePicker({
       {showUrlInput && (
         <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
           <label className="block text-xs font-medium text-gray-300 mb-2">
-            Image URL (Instagram, Pinterest, etc.)
+            Add Image from URL
           </label>
+          <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-2 mb-3 text-xs text-purple-200">
+            <p className="font-semibold mb-1">💡 Quick Tip:</p>
+            <p className="text-purple-300">Right-click any image on Instagram, TikTok, or Pinterest and select "Copy Image Address" to get the direct URL</p>
+          </div>
           <div className="flex gap-2">
             <input
               type="url"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              placeholder="https://..."
+              placeholder="Paste image URL here..."
               className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <button

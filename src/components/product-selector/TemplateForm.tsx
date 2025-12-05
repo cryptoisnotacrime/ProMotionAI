@@ -188,20 +188,20 @@ export function TemplateForm({
             const isExpanded = expandedCategories.has(category);
 
             return (
-              <div key={category} className="border border-gray-200 rounded-xl overflow-hidden">
+              <div key={category} className="border border-gray-700 rounded-xl overflow-hidden bg-gray-800/50">
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 transition-colors flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-gray-700" />
+                    <Icon className="w-5 h-5 text-purple-400" />
                     <div className="text-left">
-                      <h4 className="font-semibold text-gray-900 text-sm">{category}</h4>
-                      <p className="text-xs text-gray-600 mt-0.5">{categoryDescriptions[category]}</p>
+                      <h4 className="font-semibold text-gray-100 text-sm">{category}</h4>
+                      <p className="text-xs text-gray-400 mt-0.5">{categoryDescriptions[category]}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500 font-medium">{categoryTemplates.length} templates</span>
+                    <span className="text-xs text-gray-400 font-medium">{categoryTemplates.length} templates</span>
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 text-gray-400" />
                     ) : (
@@ -211,7 +211,7 @@ export function TemplateForm({
                 </button>
 
                 {isExpanded && (
-                  <div className="p-3 bg-white grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="p-3 bg-gray-900/50 grid grid-cols-1 md:grid-cols-2 gap-2">
                     {categoryTemplates.map((template, index) => {
                       const isLocked = !canAccessTemplate(template);
                       const isPro = template.meta.tier.toLowerCase() === 'pro';
@@ -224,42 +224,42 @@ export function TemplateForm({
                           disabled={isLocked}
                           className={`p-3 border-2 rounded-lg text-left transition-all relative ${
                             isLocked
-                              ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                              ? 'border-gray-700 bg-gray-800/50 opacity-60 cursor-not-allowed'
                               : selectedTemplate?.template_name === template.template_name
-                              ? 'border-blue-600 bg-blue-50 shadow-sm'
-                              : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-sm'
+                              ? 'border-purple-500 bg-purple-900/30 shadow-lg shadow-purple-500/20'
+                              : 'border-gray-700 hover:border-purple-600 bg-gray-800 hover:shadow-sm'
                           }`}
                         >
                           {isLocked && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg">
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-90 rounded-lg">
                               <div className="text-center px-4">
-                                <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm font-semibold text-gray-700 mb-1">
+                                <Lock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                                <p className="text-sm font-semibold text-gray-300 mb-1">
                                   {isPro ? 'Pro Plan Required' : 'Basic Plan Required'}
                                 </p>
-                                <p className="text-xs text-gray-600">
+                                <p className="text-xs text-gray-400">
                                   Upgrade to unlock this premium template
                                 </p>
                               </div>
                             </div>
                           )}
                           <div className="flex items-start justify-between mb-1.5">
-                            <h5 className="font-semibold text-gray-900 text-sm pr-2">{template.template_name}</h5>
+                            <h5 className="font-semibold text-gray-100 text-sm pr-2">{template.template_name}</h5>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ml-2 flex items-center gap-1 ${
-                              template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-100 text-gray-700' :
-                              template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-100 text-blue-700' :
-                              'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700'
+                              template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-700 text-gray-300' :
+                              template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-900 text-blue-300' :
+                              'bg-gradient-to-r from-purple-900 to-pink-900 text-purple-300'
                             }`}>
                               {(isPro || isBasic) && <Crown className="w-3 h-3" />}
                               {template.meta.tier.toUpperCase()}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-600 leading-relaxed mb-2">
+                          <p className="text-xs text-gray-400 leading-relaxed mb-2">
                             {getCleanDescription(template)}
                           </p>
                           <div className="flex gap-1 flex-wrap">
                             {template.keywords.slice(0, 3).map((keyword, ki) => (
-                              <span key={ki} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                              <span key={ki} className="text-xs px-1.5 py-0.5 bg-gray-700 text-gray-300 rounded">
                                 {keyword}
                               </span>
                             ))}
@@ -276,19 +276,19 @@ export function TemplateForm({
       </div>
 
       {selectedTemplate && (
-        <div className="border-t pt-6 space-y-4">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 flex gap-2">
-            <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-800">Customize the template below. Fields with <Sparkles className="w-3 h-3 inline text-blue-600" /> are auto-filled.</p>
+        <div className="border-t border-gray-700 pt-6 space-y-4">
+          <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-700/30 rounded-xl p-3 flex gap-2">
+            <Info className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-purple-200">Customize the template below. Fields with <Sparkles className="w-3 h-3 inline text-purple-400" /> are auto-filled.</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Product Type</label>
+              <label className="block text-xs font-medium text-gray-300 mb-1">Product Type</label>
               <select
                 value={formData.product_type}
                 onChange={(e) => handleProductTypeChange(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
                 <option value="">Select...</option>
                 {productTypes.map(type => (
@@ -298,26 +298,26 @@ export function TemplateForm({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                Brand {prefillData.brand_name && <Sparkles className="w-3 h-3 text-blue-500" />}
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+                Brand {prefillData.brand_name && <Sparkles className="w-3 h-3 text-purple-400" />}
               </label>
               <input
                 type="text"
                 value={formData.brand_name}
                 onChange={(e) => updateField('brand_name', e.target.value)}
                 placeholder={prefillData.brand_name || 'Brand name'}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100 placeholder-gray-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
                 <Zap className="w-3 h-3" /> Tone
               </label>
               <select
                 value={formData.tone}
                 onChange={(e) => updateField('tone', e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
                 {tones.map(tone => (
                   <option key={tone} value={tone.toLowerCase()}>{tone}</option>
@@ -326,11 +326,11 @@ export function TemplateForm({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Background</label>
+              <label className="block text-xs font-medium text-gray-300 mb-1">Background</label>
               <select
                 value={formData.background_style}
                 onChange={(e) => updateField('background_style', e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
                 {backgrounds.map(bg => (
                   <option key={bg} value={bg.toLowerCase()}>{bg}</option>
@@ -339,13 +339,13 @@ export function TemplateForm({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
                 <Sun className="w-3 h-3" /> Lighting
               </label>
               <select
                 value={formData.lighting_mood}
                 onChange={(e) => updateField('lighting_mood', e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
                 {lighting.map(light => (
                   <option key={light} value={light.toLowerCase()}>{light}</option>
@@ -354,14 +354,14 @@ export function TemplateForm({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
                 <Camera className="w-3 h-3" /> Camera
               </label>
               <select
                 value={formData.camera_motion}
                 onChange={(e) => updateField('camera_motion', e.target.value)}
                 disabled={userTier === 'free'}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 disabled:bg-gray-900 bg-gray-800 text-gray-100"
               >
                 {cameraMoves.map(move => (
                   <option key={move} value={move.toLowerCase()}>{move}</option>
@@ -370,8 +370,8 @@ export function TemplateForm({
             </div>
 
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                {formData.color_palette && <Sparkles className="w-3 h-3 text-green-500" />}
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+                {formData.color_palette && <Sparkles className="w-3 h-3 text-purple-400" />}
                 <Palette className="w-3 h-3" /> Colors
               </label>
               <input
@@ -379,20 +379,20 @@ export function TemplateForm({
                 value={formData.color_palette}
                 onChange={(e) => updateField('color_palette', e.target.value)}
                 placeholder="e.g., Gold and Black"
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100 placeholder-gray-500"
               />
             </div>
 
             <div className="col-span-2 md:col-span-4">
-              <label className="block text-xs font-medium text-gray-600 mb-2">Platform</label>
+              <label className="block text-xs font-medium text-gray-300 mb-2">Platform</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => updateField('platform', '9:16')}
                   className={`flex items-center justify-center gap-2 px-3 py-2 border-2 rounded-lg transition-all ${
                     formData.platform === '9:16'
-                      ? 'border-blue-600 bg-blue-50 text-blue-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      ? 'border-purple-500 bg-purple-900/30 text-purple-200'
+                      : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600'
                   }`}
                 >
                   <Instagram className="w-5 h-5" />
@@ -403,8 +403,8 @@ export function TemplateForm({
                   onClick={() => updateField('platform', '16:9')}
                   className={`flex items-center justify-center gap-2 px-3 py-2 border-2 rounded-lg transition-all ${
                     formData.platform === '16:9'
-                      ? 'border-red-600 bg-red-50 text-red-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      ? 'border-red-500 bg-red-900/30 text-red-200'
+                      : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600'
                   }`}
                 >
                   <Youtube className="w-5 h-5" />
@@ -415,8 +415,8 @@ export function TemplateForm({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-              {prefillData.final_call_to_action && <Sparkles className="w-3 h-3 text-blue-500" />}
+            <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+              {prefillData.final_call_to_action && <Sparkles className="w-3 h-3 text-purple-400" />}
               Call to Action
             </label>
             <input
@@ -424,14 +424,14 @@ export function TemplateForm({
               value={formData.final_call_to_action}
               onChange={(e) => updateField('final_call_to_action', e.target.value)}
               placeholder={prefillData.final_call_to_action || 'e.g., Shop now @yourhandle'}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+              className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100 placeholder-gray-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
               {formData.custom_notes && formData.custom_notes === generateCustomNotes() && (
-                <Sparkles className="w-3 h-3 text-green-500" />
+                <Sparkles className="w-3 h-3 text-purple-400" />
               )}
               Custom Notes
             </label>
@@ -440,7 +440,7 @@ export function TemplateForm({
               onChange={(e) => updateField('custom_notes', e.target.value)}
               placeholder="e.g., Emphasize premium quality"
               rows={2}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 resize-none"
+              className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 resize-none bg-gray-800 text-gray-100 placeholder-gray-500"
             />
           </div>
         </div>

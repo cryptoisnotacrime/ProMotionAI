@@ -66,8 +66,7 @@ export function GenerationModal({
 
   const getImageCostSurcharge = (imageCount: number): number => {
     if (imageCount <= 1) return 0;
-    if (imageCount === 2) return 2;
-    return 3;
+    return 1;
   };
 
   const imageCount = selectedImages.length;
