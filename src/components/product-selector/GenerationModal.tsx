@@ -197,7 +197,9 @@ export function GenerationModal({
                   templates={templates}
                   selectedTemplate={selectedTemplate}
                   onTemplateSelect={setSelectedTemplate}
-                  inputs={templateInputs}
+                  product={product}
+                  productImageUrl={imageUrl}
+                  store={store}
                   onInputChange={setTemplateInputs}
                   userTier={planName}
                 />
