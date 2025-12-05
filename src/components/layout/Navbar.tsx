@@ -18,15 +18,15 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="bg-gray-950 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">ProMotionAI</span>
+              <span className="text-xl font-bold text-gray-100">ProMotionAI</span>
             </div>
 
             <div className="hidden md:flex gap-1">
@@ -36,8 +36,8 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
                   onClick={() => onNavigate(item.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                     currentView === item.id
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-purple-600/20 text-purple-400 shadow-lg shadow-purple-500/10'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-300'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -52,23 +52,23 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
               onClick={() => onNavigate('billing')}
               className={`rounded-lg px-4 py-2 flex items-center gap-2 transition-all hover:shadow-md ${
                 isLowCredits
-                  ? 'bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 animate-pulse'
-                  : 'bg-blue-50 border border-blue-200 hover:bg-blue-100'
+                  ? 'bg-gradient-to-r from-orange-900/30 to-red-900/30 border-2 border-orange-500/50 animate-pulse'
+                  : 'bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600/30 hover:border-purple-500/50'
               }`}
             >
               {isLowCredits ? (
-                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <AlertTriangle className="w-4 h-4 text-orange-400" />
               ) : (
-                <CreditCard className="w-4 h-4 text-blue-600" />
+                <CreditCard className="w-4 h-4 text-purple-400" />
               )}
               <div className="flex flex-col items-start">
                 <span className={`text-sm font-bold ${
-                  isLowCredits ? 'text-orange-900' : 'text-blue-900'
+                  isLowCredits ? 'text-orange-300' : 'text-purple-300'
                 }`}>
                   {creditsRemaining} credits
                 </span>
                 {isLowCredits && (
-                  <span className="text-xs text-orange-700 font-medium">
+                  <span className="text-xs text-orange-400 font-medium">
                     {videosRemaining} video{videosRemaining !== 1 ? 's' : ''} left
                   </span>
                 )}
@@ -78,8 +78,8 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
               onClick={() => onNavigate('settings')}
               className={`p-2 rounded-lg transition-colors ${
                 currentView === 'settings'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'hover:bg-gray-100 text-gray-600'
+                  ? 'bg-purple-600/20 text-purple-400 shadow-lg shadow-purple-500/10'
+                  : 'hover:bg-gray-800 text-gray-400 hover:text-gray-300'
               }`}
             >
               <Settings className="w-5 h-5" />
@@ -88,14 +88,14 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
         </div>
       </div>
 
-      <div className="md:hidden border-t border-gray-200">
+      <div className="md:hidden border-t border-gray-800">
         <div className="flex overflow-x-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
               className={`flex-1 flex flex-col items-center gap-1 py-3 min-w-[80px] ${
-                currentView === item.id ? 'text-blue-600' : 'text-gray-600'
+                currentView === item.id ? 'text-purple-400' : 'text-gray-400'
               }`}
             >
               <item.icon className="w-5 h-5" />
@@ -104,13 +104,13 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
           ))}
           <button
             onClick={() => onNavigate('billing')}
-            className="flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-200 bg-blue-50 min-w-[100px]"
+            className="flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-800 bg-purple-600/20 min-w-[100px]"
           >
             <div className="flex items-center gap-1">
-              {isLowCredits && <AlertTriangle className="w-4 h-4 text-orange-600" />}
-              <CreditCard className="w-4 h-4 text-blue-600" />
+              {isLowCredits && <AlertTriangle className="w-4 h-4 text-orange-400" />}
+              <CreditCard className="w-4 h-4 text-purple-400" />
             </div>
-            <span className="text-xs font-bold text-blue-900">{creditsRemaining}</span>
+            <span className="text-xs font-bold text-purple-300">{creditsRemaining}</span>
           </button>
         </div>
       </div>

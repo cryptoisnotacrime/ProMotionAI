@@ -56,14 +56,14 @@ export function Settings({ store, onSave, onRestartOnboarding }: SettingsProps) 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-3xl font-bold text-gray-100">Settings</h1>
+        <p className="text-gray-400 mt-1">
           Manage your account preferences and video generation settings
         </p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="flex border-b border-gray-200">
+      <div className="bg-gray-900 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+        <div className="flex border-b border-gray-700">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -72,8 +72,8 @@ export function Settings({ store, onSave, onRestartOnboarding }: SettingsProps) 
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-6 py-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                   activeTab === tab.id
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-purple-400 border-b-2 border-purple-500 bg-gray-800'
+                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -113,17 +113,17 @@ export function Settings({ store, onSave, onRestartOnboarding }: SettingsProps) 
         </div>
 
         {(activeTab === 'profile' || activeTab === 'video') && (
-          <div className="border-t border-gray-200 px-8 py-4 bg-gray-50 flex justify-end gap-3">
+          <div className="border-t border-gray-700 px-8 py-4 bg-gray-800 flex justify-end gap-3">
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
+              className="px-4 py-2 text-gray-400 hover:text-gray-100 font-medium"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (
                 <>
@@ -159,29 +159,29 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
     <div className="space-y-6">
       <div className="flex items-start gap-6">
         <div className="flex-shrink-0">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
             {storeInitial}
           </div>
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-900">{displayName}</h2>
-          <p className="text-sm text-gray-600 mt-1">Shopify Store</p>
+          <h2 className="text-2xl font-bold text-gray-100">{displayName}</h2>
+          <p className="text-sm text-gray-400 mt-1">Shopify Store</p>
           <a
             href={shopifyStoreUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-2"
+            className="inline-flex items-center gap-1 text-sm text-purple-400 hover:text-purple-300 mt-2"
           >
             Visit Store →
           </a>
         </div>
       </div>
 
-      <div className="pt-6 border-t">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Contact Information</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Contact Email
             </label>
             <input
@@ -189,25 +189,25 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
               value={settings.contact_email}
               onChange={(e) => onSettingsChange({ ...settings, contact_email: e.target.value })}
               placeholder="your@email.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               Used for billing notifications and important updates
             </p>
           </div>
 
           {store.email && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Shopify Account Email
               </label>
               <input
                 type="text"
                 value={store.email}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                className="w-full px-4 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-400"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 From your Shopify account
               </p>
             </div>
@@ -215,16 +215,16 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
         </div>
       </div>
 
-      <div className="pt-6 border-t">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Details</h2>
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Account Details</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">Store ID</div>
-            <div className="font-mono text-sm text-gray-900">{store.id.slice(0, 18)}...</div>
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="text-sm text-gray-400 mb-1">Store ID</div>
+            <div className="font-mono text-sm text-gray-100">{store.id.slice(0, 18)}...</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">Member Since</div>
-            <div className="text-sm text-gray-900">
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="text-sm text-gray-400 mb-1">Member Since</div>
+            <div className="text-sm text-gray-100">
               {new Date(store.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -232,9 +232,9 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
               })}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">Last Updated</div>
-            <div className="text-sm text-gray-900">
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="text-sm text-gray-400 mb-1">Last Updated</div>
+            <div className="text-sm text-gray-100">
               {new Date(store.updated_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -242,9 +242,9 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
               })}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-1">Installation Date</div>
-            <div className="text-sm text-gray-900">
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="text-sm text-gray-400 mb-1">Installation Date</div>
+            <div className="text-sm text-gray-100">
               {new Date(store.installed_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -272,24 +272,24 @@ function BillingSettings({ store }: BillingSettingsProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Plan</h2>
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Current Plan</h2>
+        <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/50 rounded-xl p-6 border border-purple-700">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 capitalize">{store.plan_name} Plan</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                Status: <span className="font-semibold text-green-600 capitalize">{store.subscription_status}</span>
+              <h3 className="text-2xl font-bold text-gray-100 capitalize">{store.plan_name} Plan</h3>
+              <p className="text-sm text-gray-400 mt-1">
+                Status: <span className="font-semibold text-green-400 capitalize">{store.subscription_status}</span>
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="bg-white rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Credits Remaining</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {store.credits_remaining} <span className="text-sm font-normal text-gray-500">/ {store.credits_total}</span>
+            <div className="bg-gray-800 rounded-lg p-4">
+              <div className="text-sm text-gray-400 mb-1">Credits Remaining</div>
+              <div className="text-2xl font-bold text-gray-100">
+                {store.credits_remaining} <span className="text-sm font-normal text-gray-400">/ {store.credits_total}</span>
               </div>
-              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+              <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${
                     store.credits_remaining === 0
@@ -302,16 +302,16 @@ function BillingSettings({ store }: BillingSettingsProps) {
                 />
               </div>
             </div>
-            <div className={`bg-white rounded-lg p-4 ${isOverdue ? 'ring-2 ring-red-500' : ''}`}>
-              <div className="text-sm text-gray-600 mb-1">Cycle Resets In</div>
-              <div className={`text-2xl font-bold ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+            <div className={`bg-gray-800 rounded-lg p-4 ${isOverdue ? 'ring-2 ring-red-500' : ''}`}>
+              <div className="text-sm text-gray-400 mb-1">Cycle Resets In</div>
+              <div className={`text-2xl font-bold ${isOverdue ? 'text-red-400' : 'text-gray-100'}`}>
                 {isOverdue ? (
                   <>
-                    Overdue <span className="text-sm font-normal text-red-500">by {Math.abs(daysRemaining)}d</span>
+                    Overdue <span className="text-sm font-normal text-red-400">by {Math.abs(daysRemaining)}d</span>
                   </>
                 ) : (
                   <>
-                    {daysRemaining} <span className="text-sm font-normal text-gray-500">days</span>
+                    {daysRemaining} <span className="text-sm font-normal text-gray-400">days</span>
                   </>
                 )}
               </div>
@@ -320,34 +320,34 @@ function BillingSettings({ store }: BillingSettingsProps) {
         </div>
       </div>
 
-      <div className="pt-6 border-t">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Billing Cycle</h2>
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Billing Cycle</h2>
         <div className="space-y-3">
-          <div className="flex justify-between py-3 border-b border-gray-200">
-            <span className="text-gray-600">Current Period Start</span>
-            <span className="font-medium text-gray-900">
+          <div className="flex justify-between py-3 border-b border-gray-700">
+            <span className="text-gray-400">Current Period Start</span>
+            <span className="font-medium text-gray-100">
               {cycleStart.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
-          <div className="flex justify-between py-3 border-b border-gray-200">
-            <span className="text-gray-600">Current Period End</span>
-            <span className="font-medium text-gray-900">
+          <div className="flex justify-between py-3 border-b border-gray-700">
+            <span className="text-gray-400">Current Period End</span>
+            <span className="font-medium text-gray-100">
               {cycleEnd.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
           <div className="flex justify-between py-3">
-            <span className="text-gray-600">Next Renewal</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-gray-400">Next Renewal</span>
+            <span className="font-medium text-gray-100">
               {cycleEnd.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="pt-6 border-t">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Method</h2>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-sm text-yellow-800">
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Payment Method</h2>
+        <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4">
+          <p className="text-sm text-yellow-200">
             <strong>Payment Integration Coming Soon</strong>
             <br />
             Stripe/Shopify Billing integration is currently in development. Plan upgrades are instant for testing purposes.
@@ -420,19 +420,19 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
   if (!hasBrandDNA) {
     return (
       <div className="text-center py-12">
-        <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Sparkles className="w-10 h-10 text-blue-600" />
+        <div className="w-20 h-20 bg-gradient-to-br from-purple-900 to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Sparkles className="w-10 h-10 text-purple-300" />
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <h3 className="text-xl font-semibold text-gray-100 mb-2">
           No Brand DNA Yet
         </h3>
-        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+        <p className="text-gray-400 mb-6 max-w-md mx-auto">
           Complete the Brand DNA onboarding to let AI learn your brand's colors, fonts, style, and values for better video generation.
         </p>
         {onRestartOnboarding && (
           <button
             onClick={onRestartOnboarding}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium inline-flex items-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
             Start Brand DNA Setup
@@ -446,15 +446,15 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Brand DNA</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-xl font-semibold text-gray-100 mb-2">Your Brand DNA</h2>
+          <p className="text-sm text-gray-400">
             Review and edit your brand profile. Changes will be reflected in future video generations.
           </p>
         </div>
         {onRestartOnboarding && (
           <button
             onClick={onRestartOnboarding}
-            className="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg font-medium inline-flex items-center gap-2 transition-colors"
+            className="px-4 py-2 text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-lg font-medium inline-flex items-center gap-2 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             Regenerate
@@ -463,7 +463,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
       </div>
 
       {store.brand_dna_updated_at && (
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-400">
           Last updated: {new Date(store.brand_dna_updated_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -475,13 +475,13 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Colors */}
         {brandDNA.brand_colors && brandDNA.brand_colors.length > 0 && (
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Brand Colors</h3>
+          <div className="bg-gray-800 rounded-xl p-5">
+            <h3 className="font-semibold text-gray-100 mb-3">Brand Colors</h3>
             <div className="flex gap-2">
               {brandDNA.brand_colors.map((color: any, index: number) => (
                 <div key={index} className="flex-1 relative group">
                   <div
-                    className="w-full h-16 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-blue-400 transition-colors"
+                    className="w-full h-16 rounded-lg border-2 border-gray-700 cursor-pointer hover:border-purple-500 transition-colors"
                     style={{ backgroundColor: color.hex }}
                     onClick={() => {
                       const input = document.createElement('input');
@@ -503,29 +503,29 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                   >
                     <X className="w-3 h-3" />
                   </button>
-                  <p className="text-xs text-gray-600 mt-1 text-center">{color.hex}</p>
+                  <p className="text-xs text-gray-400 mt-1 text-center">{color.hex}</p>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2">Click any color to change it, hover to delete</p>
+            <p className="text-xs text-gray-400 mt-2">Click any color to change it, hover to delete</p>
           </div>
         )}
 
         {/* Fonts */}
         {brandDNA.brand_fonts && (brandDNA.brand_fonts.primary || brandDNA.brand_fonts.secondary) && (
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-3">Brand Fonts</h3>
+          <div className="bg-gray-800 rounded-xl p-5">
+            <h3 className="font-semibold text-gray-100 mb-3">Brand Fonts</h3>
             <div className="space-y-2">
               {brandDNA.brand_fonts.primary && (
                 <div>
-                  <p className="text-sm text-gray-600">Primary</p>
-                  <p className="font-semibold text-lg">{brandDNA.brand_fonts.primary}</p>
+                  <p className="text-sm text-gray-400">Primary</p>
+                  <p className="font-semibold text-lg text-gray-100">{brandDNA.brand_fonts.primary}</p>
                 </div>
               )}
               {brandDNA.brand_fonts.secondary && (
                 <div>
-                  <p className="text-sm text-gray-600">Secondary</p>
-                  <p className="text-lg">{brandDNA.brand_fonts.secondary}</p>
+                  <p className="text-sm text-gray-400">Secondary</p>
+                  <p className="text-lg text-gray-100">{brandDNA.brand_fonts.secondary}</p>
                 </div>
               )}
             </div>
@@ -534,28 +534,28 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
 
         {/* Tagline */}
         {brandDNA.brand_tagline && (
-          <div className="bg-gray-50 rounded-xl p-5 md:col-span-2">
-            <h3 className="font-semibold text-gray-900 mb-3">Tagline</h3>
+          <div className="bg-gray-800 rounded-xl p-5 md:col-span-2">
+            <h3 className="font-semibold text-gray-100 mb-3">Tagline</h3>
             <textarea
               value={brandDNA.brand_tagline}
               onChange={(e) => {
                 setBrandDNA({ ...brandDNA, brand_tagline: e.target.value });
                 setHasChanges(true);
               }}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               rows={2}
             />
           </div>
         )}
 
         {/* Brand Values */}
-        <div className="bg-gray-50 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-3">Brand Values</h3>
+        <div className="bg-gray-800 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-100 mb-3">Brand Values</h3>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_values && brandDNA.brand_values.map((value: string, index: number) => (
               <span
                 key={index}
-                className="group px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-700 flex items-center gap-2 hover:border-red-300 transition-colors"
+                className="group px-3 py-1 bg-gray-900 border border-gray-700 rounded-full text-sm text-gray-300 flex items-center gap-2 hover:border-red-500 transition-colors"
               >
                 {value}
                 <button
@@ -564,7 +564,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                     setBrandDNA({ ...brandDNA, brand_values: newValues });
                     setHasChanges(true);
                   }}
-                  className="w-4 h-4 rounded-full bg-gray-200 group-hover:bg-red-500 text-gray-600 group-hover:text-white flex items-center justify-center transition-colors"
+                  className="w-4 h-4 rounded-full bg-gray-700 group-hover:bg-red-500 text-gray-400 group-hover:text-white flex items-center justify-center transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -584,7 +584,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                 }
               }}
               placeholder="Add a value (e.g., Quality, Innovation)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <button
               onClick={() => {
@@ -594,7 +594,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                   setHasChanges(true);
                 }
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -602,13 +602,13 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
         </div>
 
         {/* Brand Aesthetic */}
-        <div className="bg-gray-50 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-3">Brand Aesthetic</h3>
+        <div className="bg-gray-800 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-100 mb-3">Brand Aesthetic</h3>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.map((aesthetic: string, index: number) => (
               <span
                 key={index}
-                className="group px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2 hover:bg-blue-200 transition-colors"
+                className="group px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm flex items-center gap-2 hover:bg-purple-800/50 transition-colors"
               >
                 {aesthetic}
                 <button
@@ -617,7 +617,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                     setBrandDNA({ ...brandDNA, brand_aesthetic: newAesthetic });
                     setHasChanges(true);
                   }}
-                  className="w-4 h-4 rounded-full bg-blue-200 group-hover:bg-red-500 text-blue-700 group-hover:text-white flex items-center justify-center transition-colors"
+                  className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -637,7 +637,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                 }
               }}
               placeholder="Add aesthetic (e.g., Modern, Minimalist)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <button
               onClick={() => {
@@ -647,7 +647,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                   setHasChanges(true);
                 }
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -655,13 +655,13 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
         </div>
 
         {/* Tone of Voice */}
-        <div className="bg-gray-50 rounded-xl p-5 md:col-span-2">
-          <h3 className="font-semibold text-gray-900 mb-3">Tone of Voice</h3>
+        <div className="bg-gray-800 rounded-xl p-5 md:col-span-2">
+          <h3 className="font-semibold text-gray-100 mb-3">Tone of Voice</h3>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.map((tone: string, index: number) => (
               <span
                 key={index}
-                className="group px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center gap-2 hover:bg-purple-200 transition-colors"
+                className="group px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm flex items-center gap-2 hover:bg-purple-800/50 transition-colors"
               >
                 {tone}
                 <button
@@ -670,7 +670,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                     setBrandDNA({ ...brandDNA, brand_tone_of_voice: newTone });
                     setHasChanges(true);
                   }}
-                  className="w-4 h-4 rounded-full bg-purple-200 group-hover:bg-red-500 text-purple-700 group-hover:text-white flex items-center justify-center transition-colors"
+                  className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -690,7 +690,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                 }
               }}
               placeholder="Add tone (e.g., Friendly, Professional)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <button
               onClick={() => {
@@ -700,7 +700,7 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
                   setHasChanges(true);
                 }
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -709,15 +709,15 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
 
         {/* Business Overview */}
         {brandDNA.business_overview && (
-          <div className="bg-gray-50 rounded-xl p-5 md:col-span-2">
-            <h3 className="font-semibold text-gray-900 mb-3">Business Overview</h3>
+          <div className="bg-gray-800 rounded-xl p-5 md:col-span-2">
+            <h3 className="font-semibold text-gray-100 mb-3">Business Overview</h3>
             <textarea
               value={brandDNA.business_overview}
               onChange={(e) => {
                 setBrandDNA({ ...brandDNA, business_overview: e.target.value });
                 setHasChanges(true);
               }}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               rows={3}
             />
           </div>
@@ -726,17 +726,17 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
       </div>
 
       {hasChanges && (
-        <div className="border-t pt-4 flex justify-end gap-3">
+        <div className="border-t border-gray-700 pt-4 flex justify-end gap-3">
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
+            className="px-4 py-2 text-gray-400 hover:text-gray-100 font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSaving ? (
               <>
@@ -760,13 +760,13 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Brand & Social Media</h2>
-        <p className="text-sm text-gray-600 mb-4">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Brand & Social Media</h2>
+        <p className="text-sm text-gray-400 mb-4">
           Set your brand information to auto-fill video generation forms
         </p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Default Brand Name
             </label>
             <input
@@ -774,20 +774,20 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
               value={settings.default_brand_name}
               onChange={(e) => onSettingsChange({ ...settings, default_brand_name: e.target.value })}
               placeholder="Your Brand"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-700 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               This will be used as the default brand name in video captions
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 Instagram Handle
               </label>
               <div className="flex">
-                <span className="inline-flex items-center px-3 text-gray-500 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg">
+                <span className="inline-flex items-center px-3 text-gray-400 bg-gray-800 border border-r-0 border-gray-700 rounded-l-lg">
                   @
                 </span>
                 <input
@@ -795,17 +795,17 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
                   value={settings.instagram_handle}
                   onChange={(e) => onSettingsChange({ ...settings, instagram_handle: e.target.value })}
                   placeholder="yourshop"
-                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2.5 border border-gray-700 rounded-r-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
                 TikTok Handle
               </label>
               <div className="flex">
-                <span className="inline-flex items-center px-3 text-gray-500 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg">
+                <span className="inline-flex items-center px-3 text-gray-400 bg-gray-800 border border-r-0 border-gray-700 rounded-l-lg">
                   @
                 </span>
                 <input
@@ -813,14 +813,14 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
                   value={settings.tiktok_handle}
                   onChange={(e) => onSettingsChange({ ...settings, tiktok_handle: e.target.value })}
                   placeholder="yourshop"
-                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2.5 border border-gray-700 rounded-r-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Brand Description
             </label>
             <textarea
@@ -828,23 +828,23 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
               onChange={(e) => onSettingsChange({ ...settings, brand_description: e.target.value })}
               placeholder="e.g., Minimalist aesthetic with earthy tones"
               rows={2}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2.5 border border-gray-700 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               Helps AI generate videos that match your brand style
             </p>
           </div>
         </div>
       </div>
 
-      <div className="pt-6 border-t">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Default Video Settings</h2>
-        <p className="text-sm text-gray-600 mb-4">
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Default Video Settings</h2>
+        <p className="text-sm text-gray-400 mb-4">
           These defaults will pre-fill the video generation form. Our videos are video-only (no audio).
         </p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Default Call to Action
             </label>
             <input
@@ -852,9 +852,9 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
               value={settings.default_call_to_action}
               onChange={(e) => onSettingsChange({ ...settings, default_call_to_action: e.target.value })}
               placeholder="e.g., Shop now at yourstore.com"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-700 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               If not set, we'll generate one from your store URL or social handles
             </p>
           </div>
@@ -863,20 +863,20 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
 
       {/* Instagram Feed - Brand Visual Reference */}
       {store.instagram_handle && store.brand_dna_updated_at && (
-        <div className="pt-6 border-t">
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-200">
+        <div className="pt-6 border-t border-gray-700">
+          <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/30 rounded-xl p-5 border border-purple-700">
             <div className="flex items-center gap-2 mb-3">
-              <Instagram className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900">Instagram Feed</h3>
-              <span className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
+              <Instagram className="w-5 h-5 text-purple-400" />
+              <h3 className="font-semibold text-gray-100">Instagram Feed</h3>
+              <span className="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-400 mb-4">
               Visual references from your brand identity help AI generate on-brand UGC and lifestyle videos. Full Instagram integration coming soon.
             </p>
             {store.brand_images && store.brand_images.length > 0 && !store.brand_images[0]?.includes('cdn.shopify.com') ? (
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer">
                     <img
                       src={imageUrl}
                       alt={`Brand reference ${index + 1}`}
@@ -886,15 +886,15 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-lg p-6 text-center border border-purple-200">
-                <Instagram className="w-12 h-12 text-purple-300 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-gray-700 mb-2">Connect Instagram</p>
-                <p className="text-xs text-gray-600 mb-4">
+              <div className="bg-gray-800 rounded-lg p-6 text-center border border-gray-700">
+                <Instagram className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-gray-100 mb-2">Connect Instagram</p>
+                <p className="text-xs text-gray-400 mb-4">
                   Import photos from your Instagram feed to help AI create on-brand content
                 </p>
                 <button
                   onClick={() => alert('Instagram OAuth integration coming soon! This will allow you to import your actual Instagram photos for brand reference.')}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium text-sm flex items-center gap-2 mx-auto"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm flex items-center gap-2 mx-auto"
                 >
                   <Instagram className="w-4 h-4" />
                   Connect Instagram Account

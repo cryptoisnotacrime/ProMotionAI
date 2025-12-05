@@ -40,11 +40,11 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
       {testMode && (
-        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-blue-900/20 border-2 border-blue-500/30 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-semibold text-blue-900 mb-1">Test Mode Active</p>
-            <p className="text-sm text-blue-700">
+            <p className="font-semibold text-blue-200 mb-1">Test Mode Active</p>
+            <p className="text-sm text-blue-300">
               Payment processing is disabled while we await Shopify billing approval. You can test plan upgrades and downgrades, and all changes will be applied to your account immediately for testing purposes.
             </p>
           </div>
@@ -52,20 +52,20 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
       )}
 
       <div className="text-center max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <h2 className="text-4xl font-bold text-gray-100 mb-4">
           Transform Your Products Into Engaging Videos
         </h2>
-        <p className="text-xl text-gray-600 mb-8">
+        <p className="text-xl text-gray-400 mb-8">
           Join thousands of Shopify merchants using AI to boost conversions with stunning product videos
         </p>
 
-        <div className="inline-flex items-center bg-gray-100 rounded-full p-1">
+        <div className="inline-flex items-center bg-gray-800 rounded-full p-1">
           <button
             onClick={() => setBillingCycle('monthly')}
             className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
               billingCycle === 'monthly'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-gray-100'
             }`}
           >
             Monthly
@@ -74,12 +74,12 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
             onClick={() => setBillingCycle('annual')}
             className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
               billingCycle === 'annual'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-gray-100'
             }`}
           >
             Annual
-            <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+            <span className="ml-2 text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
               Save 20%
             </span>
           </button>
@@ -87,8 +87,8 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
       </div>
 
       {sortedPlans.length === 0 ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
-          <p className="text-yellow-800">No plans available. Please check your database configuration.</p>
+        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-8 text-center">
+          <p className="text-yellow-300">No plans available. Please check your database configuration.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
@@ -128,15 +128,15 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
       )}
 
       <div>
-        <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-100 text-center mb-8">
           Compare Plans
         </h3>
         <FeatureComparison plans={sortedPlans} currentPlanName={currentPlanName} />
       </div>
 
-      <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
+      <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-8 text-white border border-purple-700">
         <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="bg-white bg-opacity-20 rounded-full p-4 flex-shrink-0">
+          <div className="bg-white bg-opacity-10 rounded-full p-4 flex-shrink-0">
             <Zap className="w-8 h-8" />
           </div>
           <div className="flex-1">
@@ -144,48 +144,48 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
             <div className="grid sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="font-semibold mb-1">🎬 Professional Quality</div>
-                <div className="text-blue-100">AI-powered videos that match your brand</div>
+                <div className="text-purple-200">AI-powered videos that match your brand</div>
               </div>
               <div>
                 <div className="font-semibold mb-1">⚡ Lightning Fast</div>
-                <div className="text-blue-100">Generate videos in seconds, not hours</div>
+                <div className="text-purple-200">Generate videos in seconds, not hours</div>
               </div>
               <div>
                 <div className="font-semibold mb-1">📈 Proven Results</div>
-                <div className="text-blue-100">Average 40% increase in conversion rates</div>
+                <div className="text-purple-200">Average 40% increase in conversion rates</div>
               </div>
               <div>
                 <div className="font-semibold mb-1">💰 Cost Effective</div>
-                <div className="text-blue-100">No expensive videographers or equipment</div>
+                <div className="text-purple-200">No expensive videographers or equipment</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
         <div className="max-w-3xl mx-auto">
-          <h4 className="text-lg font-bold text-gray-900 mb-3 text-center">How Pricing Works</h4>
-          <div className="space-y-2 text-sm text-gray-700">
+          <h4 className="text-lg font-bold text-gray-100 mb-3 text-center">How Pricing Works</h4>
+          <div className="space-y-2 text-sm text-gray-300">
             <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-blue-600">1</span>
+              <div className="w-5 h-5 rounded-full bg-purple-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-purple-400">1</span>
               </div>
               <div>
                 <strong>Monthly Subscription:</strong> Pay a flat monthly fee for your plan tier and included credits
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-blue-600">2</span>
+              <div className="w-5 h-5 rounded-full bg-purple-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-purple-400">2</span>
               </div>
               <div>
                 <strong>Usage Charges:</strong> When you generate videos beyond your included credits, you pay per-video usage fees
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-blue-600">3</span>
+              <div className="w-5 h-5 rounded-full bg-purple-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-purple-400">3</span>
               </div>
               <div>
                 <strong>Usage Cap:</strong> Usage charges are capped monthly, so you never pay more than your tier's maximum
@@ -196,29 +196,29 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
       </div>
 
       {showTestModeModal && selectedPlanForUpgrade && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl max-w-md w-full p-6">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-900/40 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Test Mode Upgrade</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-bold text-gray-100 mb-1">Test Mode Upgrade</h3>
+                <p className="text-sm text-gray-400">
                   You're about to change your plan in test mode
                 </p>
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-blue-900">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-300">
                 <strong>Note:</strong> Payment processing is disabled during test mode. Your plan will be updated immediately for testing, but no charges will be made. When Shopify billing is approved, you'll be able to process real payments.
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3 mb-4">
-              <p className="text-sm text-gray-600 mb-1">Plan Change:</p>
-              <p className="text-lg font-bold text-gray-900 capitalize">
+            <div className="bg-gray-900 border border-gray-700 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-400 mb-1">Plan Change:</p>
+              <p className="text-lg font-bold text-gray-100 capitalize">
                 {currentPlanName} → {selectedPlanForUpgrade.name}
               </p>
               <p className="text-xs text-gray-500 mt-1">
@@ -232,13 +232,13 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = 
                   setShowTestModeModal(false);
                   setSelectedPlanForUpgrade(null);
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmTestModeUpgrade}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
               >
                 Confirm Change
               </button>
@@ -265,24 +265,24 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
   const isFree = plan.plan_name === 'free';
 
   const getPlanIcon = () => {
-    if (isFree) return <Gift className="w-6 h-6 text-gray-600" />;
-    if (isPro) return <Crown className="w-6 h-6 text-blue-600" />;
-    return <TrendingUp className="w-6 h-6 text-green-600" />;
+    if (isFree) return <Gift className="w-6 h-6 text-gray-400" />;
+    if (isPro) return <Crown className="w-6 h-6 text-purple-400" />;
+    return <TrendingUp className="w-6 h-6 text-green-400" />;
   };
 
   return (
     <div
-      className={`bg-white rounded-2xl border-2 p-6 relative transition-all hover:shadow-xl ${
+      className={`bg-gray-900 rounded-2xl border-2 p-6 relative transition-all hover:shadow-xl hover:shadow-purple-900/20 ${
         isPro
-          ? 'border-blue-600 shadow-lg scale-105 mt-6'
+          ? 'border-purple-600 shadow-lg shadow-purple-900/30 scale-105 mt-6'
           : isCurrentPlan
-          ? 'border-green-500 mt-6'
-          : 'border-gray-200'
+          ? 'border-purple-500 mt-6'
+          : 'border-gray-700'
       }`}
     >
       {isPro && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+          <span className="bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
             MOST POPULAR
           </span>
         </div>
@@ -290,7 +290,7 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
 
       {isCurrentPlan && !isPro && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          <span className="bg-green-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+          <span className="bg-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
             CURRENT PLAN
           </span>
         </div>
@@ -298,29 +298,29 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
 
       <div className="flex items-center gap-3 mb-4">
         {getPlanIcon()}
-        <h3 className="text-2xl font-bold text-gray-900">{plan.display_name}</h3>
+        <h3 className="text-2xl font-bold text-gray-100">{plan.display_name}</h3>
       </div>
 
       <div className="mb-6">
         <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-bold text-gray-900">${price.toFixed(0)}</span>
-          <span className="text-gray-500 text-base">/month</span>
+          <span className="text-5xl font-bold text-gray-100">${price.toFixed(0)}</span>
+          <span className="text-gray-400 text-base">/month</span>
         </div>
         {billingCycle === 'annual' && savings > 0 && (
-          <p className="text-sm text-green-600 font-medium mt-2">
+          <p className="text-sm text-green-400 font-medium mt-2">
             Save ${savings.toFixed(0)}/year
           </p>
         )}
         {isFree && (
-          <p className="text-sm text-gray-500 mt-2">Perfect to get started</p>
+          <p className="text-sm text-gray-400 mt-2">Perfect to get started</p>
         )}
 
         {/* Hybrid Pricing Display */}
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-gray-800">
           <div className="text-sm space-y-1">
-            <div className="flex items-center justify-between text-gray-600">
+            <div className="flex items-center justify-between text-gray-400">
               <span>Per-video usage:</span>
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-100">
                 {isFree ? '$0.50' : plan.plan_name === 'basic' ? '$0.30' : '$0.20'}/video
               </span>
             </div>
@@ -340,34 +340,34 @@ function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, on
         disabled={isCurrentPlan}
         className={`w-full py-3 rounded-xl font-semibold transition-all mb-6 ${
           isCurrentPlan
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
             : isPro
-            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-lg hover:scale-105'
+            ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:shadow-lg hover:shadow-purple-600/50 hover:scale-105'
             : isFree
-            ? 'bg-gray-200 text-gray-700'
-            : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg'
+            ? 'bg-gray-800 text-gray-400 border border-gray-700'
+            : 'bg-purple-600 text-white hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-600/30'
         }`}
       >
         {isCurrentPlan ? 'Current Plan' : isFree ? 'Default Plan' : 'Subscribe Now'}
       </button>
 
-      <div className="space-y-3 border-t pt-6">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-            <Check className="w-4 h-4 text-blue-600" />
+      <div className="space-y-3 border-t border-gray-800 pt-6">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-100">
+          <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center">
+            <Check className="w-4 h-4 text-purple-400" />
           </div>
           <span>{plan.credits_per_cycle} video credits/month</span>
         </div>
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-            <Check className="w-4 h-4 text-blue-600" />
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-100">
+          <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center">
+            <Check className="w-4 h-4 text-purple-400" />
           </div>
           <span>Up to {plan.max_video_duration}s videos</span>
         </div>
         {Array.isArray(plan.features) && plan.features.map((feature, index) => (
-          <div key={index} className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-              <Check className="w-4 h-4 text-blue-600" />
+          <div key={index} className="flex items-center gap-2 text-sm font-semibold text-gray-100">
+            <div className="w-6 h-6 rounded-full bg-purple-900/40 flex items-center justify-center">
+              <Check className="w-4 h-4 text-purple-400" />
             </div>
             <span>{feature}</span>
           </div>
@@ -398,36 +398,36 @@ function FeatureComparison({ plans, currentPlanName }: FeatureComparisonProps) {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-gray-900 rounded-xl border border-gray-700 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-800">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Features</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-100">Features</th>
               {plans.map((plan) => (
                 <th key={plan.id} className="px-6 py-4 text-center">
-                  <div className="text-sm font-bold text-gray-900">{plan.display_name}</div>
+                  <div className="text-sm font-bold text-gray-100">{plan.display_name}</div>
                   {plan.plan_name === currentPlanName && (
-                    <div className="text-xs text-green-600 font-semibold mt-1">Current</div>
+                    <div className="text-xs text-purple-400 font-semibold mt-1">Current</div>
                   )}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-800">
             {features.map((feature, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{feature.name}</td>
+              <tr key={index} className="hover:bg-gray-800/50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-100">{feature.name}</td>
                 {plans.map((plan) => (
                   <td key={plan.id} className="px-6 py-4 text-center">
                     {feature.key === 'credits' ? (
-                      <span className="text-sm font-semibold text-gray-900">{plan.credits_per_cycle}</span>
+                      <span className="text-sm font-semibold text-gray-100">{plan.credits_per_cycle}</span>
                     ) : feature.key === 'duration' ? (
-                      <span className="text-sm font-semibold text-gray-900">{plan.max_video_duration}s</span>
+                      <span className="text-sm font-semibold text-gray-100">{plan.max_video_duration}s</span>
                     ) : feature.values?.[plan.plan_name as keyof typeof feature.values] ? (
-                      <Check className="w-5 h-5 text-green-600 mx-auto" />
+                      <Check className="w-5 h-5 text-purple-400 mx-auto" />
                     ) : (
-                      <X className="w-5 h-5 text-gray-300 mx-auto" />
+                      <X className="w-5 h-5 text-gray-600 mx-auto" />
                     )}
                   </td>
                 ))}

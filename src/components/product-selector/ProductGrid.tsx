@@ -40,7 +40,7 @@ export function ProductGrid({ products, onSelectProduct, isLoading, videos = [],
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
     );
   }
@@ -48,7 +48,7 @@ export function ProductGrid({ products, onSelectProduct, isLoading, videos = [],
   return (
     <div className="space-y-4">
       {/* Search and Filter Bar */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -57,27 +57,27 @@ export function ProductGrid({ products, onSelectProduct, isLoading, videos = [],
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <Filter className="w-4 h-4 text-gray-400" />
             <select
               value={filterMode}
               onChange={(e) => setFilterMode(e.target.value as FilterMode)}
-              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
             >
               <option value="all">All Products ({stats.total})</option>
               <option value="with-videos">With Videos ({stats.withVideos})</option>
               <option value="no-videos">No Videos ({stats.noVideos})</option>
             </select>
 
-            <div className="border-l border-gray-300 pl-2 flex gap-1">
+            <div className="border-l border-gray-700 pl-2 flex gap-1">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                  viewMode === 'grid' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-400 hover:bg-gray-800'
                 }`}
                 title="Grid view"
               >
@@ -86,7 +86,7 @@ export function ProductGrid({ products, onSelectProduct, isLoading, videos = [],
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                  viewMode === 'list' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-400 hover:bg-gray-800'
                 }`}
                 title="List view"
               >
@@ -99,9 +99,9 @@ export function ProductGrid({ products, onSelectProduct, isLoading, videos = [],
 
       {filteredProducts.length === 0 ? (
         <div className="text-center py-12">
-          <Package className="mx-auto w-16 h-16 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-          <p className="text-gray-500">
+          <Package className="mx-auto w-16 h-16 text-gray-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-100 mb-2">No products found</h3>
+          <p className="text-gray-400">
             {searchTerm
               ? 'Try adjusting your search terms'
               : 'Connect your Shopify store to see products'}
@@ -160,8 +160,8 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
   const imageCount = product.images.length;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all group">
-      <div className="aspect-square bg-gray-100 relative cursor-pointer" onClick={() => mainImage && onSelectImage(mainImage.src)}>
+    <div className="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden hover:shadow-lg hover:shadow-purple-500/10 transition-all group">
+      <div className="aspect-square bg-gray-800 relative cursor-pointer" onClick={() => mainImage && onSelectImage(mainImage.src)}>
         {/* Stats badges */}
         <div className="absolute top-1 left-1 right-1 flex items-start justify-between z-10">
           <div className="flex flex-col gap-1">
@@ -173,12 +173,12 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
             )}
           </div>
           <div className="flex flex-col gap-1">
-            <div className="bg-white/90 backdrop-blur-sm rounded px-1.5 py-0.5 text-xs font-medium text-gray-700 flex items-center gap-1 shadow-sm">
+            <div className="bg-gray-900/90 backdrop-blur-sm rounded px-1.5 py-0.5 text-xs font-medium text-gray-300 flex items-center gap-1 shadow-sm">
               <Image className="w-3 h-3" />
               {imageCount}
             </div>
             {variantCount > 1 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded px-1.5 py-0.5 text-xs font-medium text-gray-700 flex items-center gap-1 shadow-sm">
+              <div className="bg-gray-900/90 backdrop-blur-sm rounded px-1.5 py-0.5 text-xs font-medium text-gray-300 flex items-center gap-1 shadow-sm">
                 <Layers className="w-3 h-3" />
                 {variantCount}
               </div>
@@ -194,14 +194,14 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-12 h-12 text-gray-300" />
+            <Package className="w-12 h-12 text-gray-600" />
           </div>
         )}
 
         {/* Hover overlay */}
         {mainImage && (
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-            <span className="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium text-sm">
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+            <span className="bg-purple-600 text-white px-3 py-1.5 rounded-lg font-medium text-sm hover:bg-purple-500">
               Generate Video
             </span>
           </div>
@@ -209,7 +209,7 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
       </div>
 
       <div className="p-2">
-        <h3 className="font-medium text-gray-900 text-xs line-clamp-2 mb-1" title={product.title}>
+        <h3 className="font-medium text-gray-100 text-xs line-clamp-2 mb-1" title={product.title}>
           {product.title}
         </h3>
 
@@ -222,13 +222,13 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
                   e.stopPropagation();
                   onSelectImage(img.src);
                 }}
-                className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded border border-gray-200 overflow-hidden cursor-pointer hover:ring-1 hover:ring-blue-500 transition-all"
+                className="w-8 h-8 flex-shrink-0 bg-gray-800 rounded border border-gray-700 overflow-hidden cursor-pointer hover:ring-1 hover:ring-purple-500 transition-all"
               >
                 <img src={img.src} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
             {product.images.length > 4 && (
-              <div className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-500">
+              <div className="w-8 h-8 flex-shrink-0 bg-gray-800 rounded border border-gray-700 flex items-center justify-center text-xs text-gray-400">
                 +{product.images.length - 4}
               </div>
             )}
@@ -238,7 +238,7 @@ function ProductCardCompact({ product, onSelectImage, videoCount, completedVideo
         {videoCount > 0 && onViewVideos && (
           <button
             onClick={() => onViewVideos(product.id.toString())}
-            className="w-full mt-1 px-2 py-1 bg-green-50 text-green-700 rounded text-xs font-medium hover:bg-green-100 transition-colors flex items-center justify-center gap-1"
+            className="w-full mt-1 px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-medium hover:bg-green-900/50 transition-colors flex items-center justify-center gap-1"
           >
             <CheckCircle className="w-3 h-3" />
             View Videos
@@ -263,11 +263,11 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
   const imageCount = product.images.length;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all">
+    <div className="bg-gray-900 border border-gray-700 rounded-lg p-3 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
       <div className="flex items-center gap-4">
         {/* Thumbnail */}
         <div
-          className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+          className="w-20 h-20 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
           onClick={() => mainImage && onSelectImage(mainImage.src)}
         >
           {mainImage ? (
@@ -278,17 +278,17 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Package className="w-8 h-8 text-gray-300" />
+              <Package className="w-8 h-8 text-gray-600" />
             </div>
           )}
         </div>
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">
+          <h3 className="font-medium text-gray-100 text-sm line-clamp-1 mb-1">
             {product.title}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-gray-600">
+          <div className="flex items-center gap-3 text-xs text-gray-400">
             <div className="flex items-center gap-1">
               <Image className="w-3.5 h-3.5" />
               <span>{imageCount} photo{imageCount !== 1 ? 's' : ''}</span>
@@ -300,7 +300,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
               </div>
             )}
             {videoCount > 0 && (
-              <div className="flex items-center gap-1 text-green-600 font-medium">
+              <div className="flex items-center gap-1 text-green-400 font-medium">
                 <Video className="w-3.5 h-3.5" />
                 <span>{completedVideoCount} video{completedVideoCount !== 1 ? 's' : ''}</span>
               </div>
@@ -313,7 +313,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
           {videoCount > 0 && onViewVideos ? (
             <button
               onClick={() => onViewVideos(product.id.toString())}
-              className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-green-900/30 text-green-400 rounded-lg text-xs font-medium hover:bg-green-900/50 transition-colors flex items-center gap-1"
             >
               <CheckCircle className="w-3.5 h-3.5" />
               View Videos
@@ -321,7 +321,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
           ) : null}
           <button
             onClick={() => mainImage && onSelectImage(mainImage.src)}
-            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+            className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-500 transition-colors"
           >
             Generate
           </button>
