@@ -5,7 +5,8 @@ export interface VideoGenerationRequest {
   storeId: string;
   productId: string;
   productTitle: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
   prompt?: string;
   durationSeconds?: number;
   aspectRatio?: string;
@@ -24,9 +25,15 @@ export class VideoGenerationService {
     request: VideoGenerationRequest
   ): Promise<VideoGenerationResponse> {
     const durationSeconds = request.durationSeconds || 5;
-    // Credit calculation: 1 credit = 1 second of video
-    // Using Veo 3.1 preview model - pricing TBD by Google
-    const creditsRequired = durationSeconds;
+
+    // Determine image URLs
+    const imageUrls = request.imageUrls || (request.imageUrl ? [request.imageUrl] : []);
+    const imageCount = imageUrls.length;
+
+    // Credit calculation: base cost is duration + image surcharge
+    // 1 image: +0, 2 images: +2, 3 images: +3
+    const imageSurcharge = imageCount <= 1 ? 0 : imageCount === 2 ? 2 : 3;
+    const creditsRequired = durationSeconds + imageSurcharge;
 
     const store = await CreditsService.getStoreInfo(request.storeId);
     if (!store) {
@@ -60,7 +67,7 @@ export class VideoGenerationService {
         body: JSON.stringify({
           videoId: videoRecord.id,
           storeId: request.storeId,
-          imageUrl: request.imageUrl,
+          imageUrls: imageUrls,
           prompt: request.prompt || `Create an engaging e-commerce product video showcasing ${request.productTitle} for an online store`,
           durationSeconds: durationSeconds,
           aspectRatio: request.aspectRatio || '9:16',

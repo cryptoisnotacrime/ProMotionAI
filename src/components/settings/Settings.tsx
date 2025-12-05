@@ -266,6 +266,8 @@ function BillingSettings({ store }: BillingSettingsProps) {
   const cycleStart = new Date(store.billing_cycle_start);
   const cycleEnd = new Date(store.billing_cycle_end);
   const daysRemaining = Math.ceil((cycleEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const isOverdue = daysRemaining < 0;
+  const creditUsagePercentage = ((store.credits_total - store.credits_remaining) / store.credits_total) * 100;
 
   return (
     <div className="space-y-6">
@@ -287,11 +289,31 @@ function BillingSettings({ store }: BillingSettingsProps) {
               <div className="text-2xl font-bold text-gray-900">
                 {store.credits_remaining} <span className="text-sm font-normal text-gray-500">/ {store.credits_total}</span>
               </div>
+              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full transition-all ${
+                    store.credits_remaining === 0
+                      ? 'bg-red-500'
+                      : store.credits_remaining <= 10
+                      ? 'bg-orange-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{ width: `${((store.credits_remaining / store.credits_total) * 100)}%` }}
+                />
+              </div>
             </div>
-            <div className="bg-white rounded-lg p-4">
+            <div className={`bg-white rounded-lg p-4 ${isOverdue ? 'ring-2 ring-red-500' : ''}`}>
               <div className="text-sm text-gray-600 mb-1">Cycle Resets In</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {daysRemaining} <span className="text-sm font-normal text-gray-500">days</span>
+              <div className={`text-2xl font-bold ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                {isOverdue ? (
+                  <>
+                    Overdue <span className="text-sm font-normal text-red-500">by {Math.abs(daysRemaining)}d</span>
+                  </>
+                ) : (
+                  <>
+                    {daysRemaining} <span className="text-sm font-normal text-gray-500">days</span>
+                  </>
+                )}
               </div>
             </div>
           </div>

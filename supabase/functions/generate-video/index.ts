@@ -10,7 +10,8 @@ const corsHeaders = {
 interface VideoGenerationRequest {
   videoId: string;
   storeId: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
   prompt: string;
   durationSeconds: number;
   aspectRatio?: string;
@@ -59,14 +60,16 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body: VideoGenerationRequest = await req.json();
-    const { videoId, storeId, imageUrl, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
+    const { videoId, storeId, imageUrl, imageUrls, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
 
-    console.log("Request received:", { videoId, storeId, imageUrl: imageUrl ? 'present' : 'missing', durationSeconds, creditsRequired });
+    const images = imageUrls || (imageUrl ? [imageUrl] : []);
 
-    if (!videoId || !imageUrl || !storeId || !creditsRequired) {
-      console.error("Missing required fields:", { videoId, imageUrl, storeId, creditsRequired });
+    console.log("Request received:", { videoId, storeId, imageCount: images.length, durationSeconds, creditsRequired });
+
+    if (!videoId || images.length === 0 || !storeId || !creditsRequired) {
+      console.error("Missing required fields:", { videoId, hasImages: images.length > 0, storeId, creditsRequired });
       return new Response(
-        JSON.stringify({ error: "Missing required fields", details: { videoId: !!videoId, imageUrl: !!imageUrl, storeId: !!storeId, creditsRequired: !!creditsRequired } }),
+        JSON.stringify({ error: "Missing required fields", details: { videoId: !!videoId, hasImages: images.length > 0, storeId: !!storeId, creditsRequired: !!creditsRequired } }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -149,38 +152,52 @@ Deno.serve(async (req: Request) => {
       })
       .eq("id", videoId);
 
-    console.log("Fetching image from:", imageUrl);
-    const imageResponse = await fetch(imageUrl);
-    console.log("Image fetch response:", { status: imageResponse.status, ok: imageResponse.ok });
+    console.log(`Processing ${images.length} image(s)...`);
+    const processedImages = [];
 
-    if (!imageResponse.ok) {
-      const errorText = await imageResponse.text().catch(() => 'Unable to read error');
-      console.error("Failed to fetch image:", { status: imageResponse.status, error: errorText });
-      await refundCredits(supabase, storeId, creditsRequired, videoId, "Failed to fetch image");
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch source image", details: { status: imageResponse.status, imageUrl } }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+    for (let i = 0; i < images.length; i++) {
+      const imageUrl = images[i];
+      console.log(`Fetching image ${i + 1}/${images.length} from:`, imageUrl);
+
+      const imageResponse = await fetch(imageUrl);
+      console.log(`Image ${i + 1} fetch response:`, { status: imageResponse.status, ok: imageResponse.ok });
+
+      if (!imageResponse.ok) {
+        const errorText = await imageResponse.text().catch(() => 'Unable to read error');
+        console.error(`Failed to fetch image ${i + 1}:`, { status: imageResponse.status, error: errorText });
+        await refundCredits(supabase, storeId, creditsRequired, videoId, `Failed to fetch image ${i + 1}`);
+        return new Response(
+          JSON.stringify({ error: `Failed to fetch source image ${i + 1}`, details: { status: imageResponse.status, imageUrl } }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      console.log(`Converting image ${i + 1} to base64...`);
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const uint8Array = new Uint8Array(imageBuffer);
+
+      let binaryString = '';
+      const chunkSize = 8192;
+      for (let j = 0; j < uint8Array.length; j += chunkSize) {
+        const chunk = uint8Array.subarray(j, Math.min(j + chunkSize, uint8Array.length));
+        binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+      const imageBase64 = btoa(binaryString);
+      console.log(`Image ${i + 1} converted to base64, length:`, imageBase64.length);
+
+      const contentType = imageResponse.headers.get('content-type') || 'image/png';
+      const mimeType = contentType.includes('jpeg') || contentType.includes('jpg') ? 'image/jpeg' : 'image/png';
+
+      processedImages.push({
+        bytesBase64Encoded: imageBase64,
+        mimeType: mimeType,
+      });
     }
 
-    console.log("Converting image to base64...");
-    const imageBuffer = await imageResponse.arrayBuffer();
-    const uint8Array = new Uint8Array(imageBuffer);
-
-    let binaryString = '';
-    const chunkSize = 8192;
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-      binaryString += String.fromCharCode.apply(null, Array.from(chunk));
-    }
-    const imageBase64 = btoa(binaryString);
-    console.log("Image converted to base64, length:", imageBase64.length);
-
-    const contentType = imageResponse.headers.get('content-type') || 'image/png';
-    const mimeType = contentType.includes('jpeg') || contentType.includes('jpg') ? 'image/jpeg' : 'image/png';
+    console.log(`Successfully processed ${processedImages.length} images`);
 
     console.log("Generating OAuth access token from service account...");
     const accessToken = await getAccessToken(gcpServiceAccountJson);
@@ -196,23 +213,35 @@ Deno.serve(async (req: Request) => {
       console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
     }
 
-    const veoRequestBody = {
-      instances: [
-        {
-          prompt: prompt || "Create an engaging product video",
-          image: {
-            bytesBase64Encoded: imageBase64,
-            mimeType: mimeType,
+    const veoRequestBody = processedImages.length === 1
+      ? {
+          instances: [
+            {
+              prompt: prompt || "Create an engaging product video",
+              image: processedImages[0],
+            },
+          ],
+          parameters: {
+            durationSeconds: durationSeconds,
+            aspectRatio: veoAspectRatio,
+            personGeneration: "allow_adult",
+            generateAudio: false,
           },
-        },
-      ],
-      parameters: {
-        durationSeconds: durationSeconds,
-        aspectRatio: veoAspectRatio,
-        personGeneration: "allow_adult",
-        generateAudio: false,
-      },
-    };
+        }
+      : {
+          instances: [
+            {
+              prompt: prompt || "Create an engaging product video",
+              subject_images: processedImages,
+            },
+          ],
+          parameters: {
+            durationSeconds: durationSeconds,
+            aspectRatio: veoAspectRatio,
+            personGeneration: "allow_adult",
+            generateAudio: false,
+          },
+        };
 
     console.log("Calling Veo 3.1 API with prompt:", prompt);
     console.log("Vertex AI endpoint:", veoEndpoint.replace(gcpProjectId, 'PROJECT_ID'));

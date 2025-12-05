@@ -1,4 +1,4 @@
-import { Check, X, Zap, TrendingUp, Crown, Gift } from 'lucide-react';
+import { Check, X, Zap, TrendingUp, Crown, Gift, AlertCircle } from 'lucide-react';
 import { SubscriptionPlan } from '../../lib/supabase';
 import { useState } from 'react';
 
@@ -6,10 +6,30 @@ interface PricingPlansProps {
   plans: SubscriptionPlan[];
   currentPlanName: string;
   onSelectPlan: (planName: string, billingCycle: 'monthly' | 'annual') => void;
+  testMode?: boolean;
 }
 
-export function PricingPlans({ plans, currentPlanName, onSelectPlan }: PricingPlansProps) {
+export function PricingPlans({ plans, currentPlanName, onSelectPlan, testMode = true }: PricingPlansProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [showTestModeModal, setShowTestModeModal] = useState(false);
+  const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<{ name: string; cycle: 'monthly' | 'annual' } | null>(null);
+
+  const handlePlanSelect = (planName: string, cycle: 'monthly' | 'annual') => {
+    if (testMode) {
+      setSelectedPlanForUpgrade({ name: planName, cycle });
+      setShowTestModeModal(true);
+    } else {
+      onSelectPlan(planName, cycle);
+    }
+  };
+
+  const confirmTestModeUpgrade = () => {
+    if (selectedPlanForUpgrade) {
+      onSelectPlan(selectedPlanForUpgrade.name, selectedPlanForUpgrade.cycle);
+      setShowTestModeModal(false);
+      setSelectedPlanForUpgrade(null);
+    }
+  };
 
   const sortedPlans = [...plans].sort((a, b) => {
     const aPrice = typeof a.monthly_price === 'string' ? parseFloat(a.monthly_price) : a.monthly_price;
@@ -19,6 +39,18 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan }: PricingPl
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      {testMode && (
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-semibold text-blue-900 mb-1">Test Mode Active</p>
+            <p className="text-sm text-blue-700">
+              Payment processing is disabled while we await Shopify billing approval. You can test plan upgrades and downgrades, and all changes will be applied to your account immediately for testing purposes.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
           Transform Your Products Into Engaging Videos
@@ -87,7 +119,8 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan }: PricingPl
                 savings={savings}
                 isCurrentPlan={isCurrentPlan}
                 isPro={isPro}
-                onSelect={onSelectPlan}
+                onSelect={handlePlanSelect}
+                testMode={testMode}
               />
             );
           })}
@@ -161,6 +194,58 @@ export function PricingPlans({ plans, currentPlanName, onSelectPlan }: PricingPl
           </div>
         </div>
       </div>
+
+      {showTestModeModal && selectedPlanForUpgrade && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Test Mode Upgrade</h3>
+                <p className="text-sm text-gray-600">
+                  You're about to change your plan in test mode
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-900">
+                <strong>Note:</strong> Payment processing is disabled during test mode. Your plan will be updated immediately for testing, but no charges will be made. When Shopify billing is approved, you'll be able to process real payments.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-600 mb-1">Plan Change:</p>
+              <p className="text-lg font-bold text-gray-900 capitalize">
+                {currentPlanName} → {selectedPlanForUpgrade.name}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Billing: {selectedPlanForUpgrade.cycle === 'annual' ? 'Annual' : 'Monthly'}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowTestModeModal(false);
+                  setSelectedPlanForUpgrade(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmTestModeUpgrade}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Confirm Change
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -173,9 +258,10 @@ interface PlanCardProps {
   isCurrentPlan: boolean;
   isPro: boolean;
   onSelect: (planName: string, billingCycle: 'monthly' | 'annual') => void;
+  testMode?: boolean;
 }
 
-function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, onSelect }: PlanCardProps) {
+function PlanCard({ plan, price, billingCycle, savings, isCurrentPlan, isPro, onSelect, testMode = false }: PlanCardProps) {
   const isFree = plan.plan_name === 'free';
 
   const getPlanIcon = () => {

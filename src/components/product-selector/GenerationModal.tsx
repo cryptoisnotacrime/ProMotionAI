@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, AlertCircle, Sparkles, Clock } from 'lucide-react';
+import { X, Wand2, AlertCircle, Sparkles, Clock, Image as ImageIcon } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
 import { Store } from '../../lib/supabase';
+import { MultiImagePicker, ImageSlot } from './MultiImagePicker';
 
 interface GenerationModalProps {
   product: ShopifyProduct;
@@ -13,7 +14,7 @@ interface GenerationModalProps {
   maxDuration: number;
   planName: string;
   store: Store;
-  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>) => void;
+  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>, imageUrls?: string[]) => void;
   onClose: () => void;
   isGenerating?: boolean;
 }
@@ -32,6 +33,9 @@ export function GenerationModal({
   const [templates, setTemplates] = useState<DetailedTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<DetailedTemplate | null>(null);
   const [duration, setDuration] = useState(maxDuration >= 6 ? 6 : 4);
+  const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
+    { url: imageUrl, isProductImage: true }
+  ]);
   const [templateInputs, setTemplateInputs] = useState<TemplateInput>({
     product_name: product.title,
     product_image_url: imageUrl,
@@ -60,7 +64,15 @@ export function GenerationModal({
     }
   };
 
-  const creditCost = duration;
+  const getImageCostSurcharge = (imageCount: number): number => {
+    if (imageCount <= 1) return 0;
+    if (imageCount === 2) return 2;
+    return 3;
+  };
+
+  const imageCount = selectedImages.length;
+  const imageSurcharge = getImageCostSurcharge(imageCount);
+  const creditCost = duration + imageSurcharge;
 
   useEffect(() => {
     setTemplateInputs(prev => ({ ...prev, duration }));
@@ -84,7 +96,13 @@ export function GenerationModal({
     };
 
     // Fill template variables to create comprehensive prompt
-    const promptText = fillTemplateVariables(selectedTemplate, variables);
+    let promptText = fillTemplateVariables(selectedTemplate, variables);
+
+    // Adjust prompt for multi-image if needed
+    if (imageCount > 1) {
+      promptText = promptText.replace(/\bthe image\b/gi, 'the provided images');
+      promptText = promptText.replace(/\bthis image\b/gi, 'these images');
+    }
 
     // Convert platform format to aspect ratio for Veo API
     const aspectRatioMap: Record<string, string> = {
@@ -93,12 +111,16 @@ export function GenerationModal({
     };
     const aspectRatio = aspectRatioMap[templateInputs.platform || '9:16'] || '9:16';
 
+    // Extract image URLs for multi-image support
+    const imageUrls = selectedImages.map(img => img.url);
+
     onGenerate(
       promptText,
       duration,
       aspectRatio,
       undefined,
-      { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category }
+      { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category, image_count: imageCount },
+      imageUrls
     );
   };
 
@@ -121,14 +143,12 @@ export function GenerationModal({
         <div className="p-5 space-y-5">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-1">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Product Image</h3>
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                <img
-                  src={imageUrl}
-                  alt={product.title}
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <MultiImagePicker
+                productImageUrl={imageUrl}
+                productTitle={product.title}
+                onImagesChange={setSelectedImages}
+                maxImages={3}
+              />
             </div>
 
             <div className="lg:col-span-2 space-y-5">
@@ -228,24 +248,34 @@ export function GenerationModal({
                   </div>
                   <div className="bg-white rounded-lg p-2.5">
                     <p className="text-xs text-gray-600 mb-0.5">Duration</p>
-                    <p className="text-sm font-semibold text-gray-900">{creditCost}s</p>
+                    <p className="text-sm font-semibold text-gray-900">{duration}s</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-2.5">
+                    <p className="text-xs text-gray-600 mb-0.5">Images</p>
+                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                      <ImageIcon className="w-3 h-3" />
+                      {imageCount}
+                    </p>
                   </div>
                   <div className="bg-white rounded-lg p-2.5">
                     <p className="text-xs text-gray-600 mb-0.5">Credit Cost</p>
                     <p className="text-lg font-bold text-blue-600">{creditCost}</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-2.5">
-                    <p className="text-xs text-gray-600 mb-0.5">Available</p>
-                    <p className={`text-lg font-bold ${creditsAvailable >= creditCost ? 'text-green-600' : 'text-red-600'}`}>
-                      {creditsAvailable}
-                    </p>
+                    {imageSurcharge > 0 && (
+                      <p className="text-xs text-gray-500">{duration} + {imageSurcharge}</p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-blue-200">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-700">Available Credits:</span>
+                    <span className={`text-lg font-bold ${creditsAvailable >= creditCost ? 'text-green-600' : 'text-red-600'}`}>
+                      {creditsAvailable}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-700">After generation:</span>
                     <span className="font-bold text-gray-900">
-                      {Math.max(0, creditsAvailable - creditCost)} credits remaining
+                      {Math.max(0, creditsAvailable - creditCost)} credits
                     </span>
                   </div>
                 </div>

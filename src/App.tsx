@@ -7,6 +7,7 @@ import { ProductGrid } from './components/product-selector/ProductGrid';
 import { GenerationModal } from './components/product-selector/GenerationModal';
 import { VideoLibrary } from './components/video-library/VideoLibrary';
 import { PricingPlans } from './components/billing/PricingPlans';
+import { LowCreditBanner } from './components/billing/LowCreditBanner';
 import { Settings } from './components/settings/Settings';
 import { BusinessDNAOnboarding } from './components/onboarding/BusinessDNAOnboarding';
 import { ShopifyAuthService } from './services/shopify/auth.service';
@@ -308,7 +309,14 @@ function App() {
     setSelectedProduct({ product, imageUrl });
   };
 
-  const handleGenerateVideo = async (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>) => {
+  const handleGenerateVideo = async (
+    prompt: string,
+    duration: number,
+    aspectRatio: string,
+    templateId?: string,
+    templateInputs?: Record<string, any>,
+    imageUrls?: string[]
+  ) => {
     if (!store || !selectedProduct) return;
 
     try {
@@ -318,7 +326,7 @@ function App() {
         storeId: store.id,
         productId: selectedProduct.product.id,
         productTitle: selectedProduct.product.title,
-        imageUrl: selectedProduct.imageUrl,
+        imageUrls: imageUrls || [selectedProduct.imageUrl],
         prompt,
         durationSeconds: duration,
         aspectRatio,
@@ -490,6 +498,14 @@ function App() {
         creditsRemaining={store.credits_remaining}
         creditsTotal={store.credits_total}
       />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <LowCreditBanner
+          creditsRemaining={store.credits_remaining}
+          planName={store.plan_name}
+          onUpgrade={() => setCurrentView('billing')}
+        />
+      </div>
 
       <main className={currentView === 'billing' ? 'py-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>
         {currentView === 'dashboard' && (
