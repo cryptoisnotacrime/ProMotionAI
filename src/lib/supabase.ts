@@ -130,3 +130,29 @@ export type SubscriptionPlan = {
   created_at: string;
   updated_at: string;
 };
+
+export type SocialMediaConnection = {
+  id: string;
+  store_id: string;
+  platform: 'instagram' | 'tiktok';
+  platform_user_id: string;
+  platform_username: string;
+  access_token: string;
+  refresh_token?: string;
+  token_expires_at?: string;
+  profile_picture_url?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SocialMediaPhoto = {
+  id: string;
+  url: string;
+  thumbnail: string;
+  caption?: string;
+  permalink?: string;
+  timestamp?: string;
+  type: string;
+  platform: 'instagram' | 'tiktok';
+};

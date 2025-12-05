@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info, Instagram, Music } from 'lucide-react';
+import { SocialMediaService } from '../../services/social-media/social-media.service';
+import type { SocialMediaPhoto, SocialMediaConnection } from '../../lib/supabase';
 
 export interface ImageSlot {
   url: string;
   file?: File;
   isProductImage: boolean;
-  source: 'product' | 'upload' | 'url';
+  source: 'product' | 'upload' | 'url' | 'instagram' | 'tiktok';
 }
 
 interface MultiImagePickerProps {
@@ -13,22 +15,62 @@ interface MultiImagePickerProps {
   productTitle: string;
   onImagesChange: (images: ImageSlot[]) => void;
   maxImages?: number;
+  storeId?: string;
 }
+
+type SourceTab = 'product' | 'upload' | 'social';
 
 export function MultiImagePicker({
   productImages,
   productTitle,
   onImagesChange,
   maxImages = 3,
+  storeId,
 }: MultiImagePickerProps) {
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     productImages[0] ? { url: productImages[0].src, isProductImage: true, source: 'product' } : null
   ].filter(Boolean) as ImageSlot[]);
+  const [activeTab, setActiveTab] = useState<SourceTab>('product');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [urlError, setUrlError] = useState<string | null>(null);
   const [showTips, setShowTips] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [socialPhotos, setSocialPhotos] = useState<SocialMediaPhoto[]>([]);
+  const [socialConnections, setSocialConnections] = useState<SocialMediaConnection[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
+  const [socialError, setSocialError] = useState<string | null>(null);
+
+  // Load social media connections and photos
+  useEffect(() => {
+    if (storeId && activeTab === 'social') {
+      loadSocialMedia();
+    }
+  }, [storeId, activeTab]);
+
+  const loadSocialMedia = async () => {
+    if (!storeId) return;
+
+    setLoadingSocial(true);
+    setSocialError(null);
+
+    try {
+      const connections = await SocialMediaService.getConnections(storeId);
+      setSocialConnections(connections);
+
+      if (connections.length > 0) {
+        const photos = await SocialMediaService.getAllPhotos(storeId);
+        setSocialPhotos(photos);
+      } else {
+        setSocialPhotos([]);
+      }
+    } catch (error) {
+      console.error('Error loading social media:', error);
+      setSocialError(error instanceof Error ? error.message : 'Failed to load social media content');
+    } finally {
+      setLoadingSocial(false);
+    }
+  };
 
   const updateImages = (newImages: ImageSlot[]) => {
     setSelectedImages(newImages);
@@ -42,6 +84,17 @@ export function MultiImagePicker({
       url: imageSrc,
       isProductImage: true,
       source: 'product',
+    };
+    updateImages([...selectedImages, newImage]);
+  };
+
+  const handleSocialPhotoSelect = (photo: SocialMediaPhoto) => {
+    if (selectedImages.length >= maxImages) return;
+
+    const newImage: ImageSlot = {
+      url: photo.url,
+      isProductImage: false,
+      source: photo.platform,
     };
     updateImages([...selectedImages, newImage]);
   };
@@ -162,10 +215,12 @@ export function MultiImagePicker({
             >
               <X className="w-4 h-4" />
             </button>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] px-2 py-1.5">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] px-2 py-1.5 flex items-center gap-1">
               {image.source === 'product' && 'Product'}
               {image.source === 'upload' && 'Uploaded'}
               {image.source === 'url' && 'URL'}
+              {image.source === 'instagram' && <><Instagram className="w-3 h-3" /> Instagram</>}
+              {image.source === 'tiktok' && <><Music className="w-3 h-3" /> TikTok</>}
             </div>
           </div>
         ))}
@@ -246,24 +301,142 @@ export function MultiImagePicker({
         </div>
       )}
 
-      {availableProductImages.length > 0 && canAddMore && (
-        <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-gray-300">Product Gallery</h4>
-          <div className="grid grid-cols-6 gap-2">
-            {availableProductImages.slice(0, 6).map((img) => (
-              <button
-                key={img.id}
-                onClick={() => handleProductImageSelect(img.src)}
-                className="aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-purple-500 overflow-hidden transition-all group"
-              >
-                <img
-                  src={img.src}
-                  alt={img.alt || productTitle}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                />
-              </button>
-            ))}
+      {canAddMore && (
+        <div className="space-y-3">
+          {/* Tabs */}
+          <div className="flex gap-1 bg-gray-800/50 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('product')}
+              className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                activeTab === 'product'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5 inline mr-1" />
+              Product
+            </button>
+            <button
+              onClick={() => setActiveTab('upload')}
+              className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                activeTab === 'upload'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <Upload className="w-3.5 h-3.5 inline mr-1" />
+              Upload/URL
+            </button>
+            <button
+              onClick={() => setActiveTab('social')}
+              className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                activeTab === 'social'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <Instagram className="w-3.5 h-3.5 inline mr-1" />
+              Social
+            </button>
           </div>
+
+          {/* Product Gallery Tab */}
+          {activeTab === 'product' && availableProductImages.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-gray-300">Product Gallery</h4>
+              <div className="grid grid-cols-6 gap-2">
+                {availableProductImages.slice(0, 12).map((img) => (
+                  <button
+                    key={img.id}
+                    onClick={() => handleProductImageSelect(img.src)}
+                    className="aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-purple-500 overflow-hidden transition-all group"
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.alt || productTitle}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upload/URL Tab - Already exists above, just show message */}
+          {activeTab === 'upload' && (
+            <div className="bg-gray-800 rounded-lg p-3 border border-gray-700 text-center">
+              <p className="text-xs text-gray-400">Use the Upload or From URL buttons above to add images</p>
+            </div>
+          )}
+
+          {/* Social Media Tab */}
+          {activeTab === 'social' && (
+            <div className="space-y-3">
+              {loadingSocial ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                </div>
+              ) : socialError ? (
+                <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 text-xs text-red-300">
+                  {socialError}
+                </div>
+              ) : socialConnections.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg p-4 text-center">
+                  <Instagram className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-300 mb-1">No social accounts connected</p>
+                  <p className="text-xs text-gray-400 mb-3">Connect Instagram or TikTok to use your social media photos</p>
+                  <button
+                    onClick={() => {/* Navigate to settings */}}
+                    className="text-xs text-purple-400 hover:text-purple-300 font-medium"
+                  >
+                    Go to Settings to connect accounts
+                  </button>
+                </div>
+              ) : socialPhotos.length === 0 ? (
+                <div className="bg-gray-800 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-400">No photos found</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold text-gray-300">
+                      Your Social Media Photos ({socialPhotos.length})
+                    </h4>
+                    <button
+                      onClick={loadSocialMedia}
+                      className="text-xs text-purple-400 hover:text-purple-300 font-medium"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                    {socialPhotos.map((photo) => (
+                      <button
+                        key={photo.id}
+                        onClick={() => handleSocialPhotoSelect(photo)}
+                        className="relative aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-purple-500 overflow-hidden transition-all group"
+                        title={photo.caption}
+                      >
+                        <img
+                          src={photo.thumbnail}
+                          alt={photo.caption || ''}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                        />
+                        <div className="absolute top-1 right-1">
+                          {photo.platform === 'instagram' && (
+                            <Instagram className="w-3 h-3 text-white drop-shadow" />
+                          )}
+                          {photo.platform === 'tiktok' && (
+                            <Music className="w-3 h-3 text-white drop-shadow" />
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

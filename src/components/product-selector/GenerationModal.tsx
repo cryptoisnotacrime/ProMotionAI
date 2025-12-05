@@ -152,6 +152,7 @@ export function GenerationModal({
                 productTitle={product.title}
                 onImagesChange={setSelectedImages}
                 maxImages={3}
+                storeId={store.id}
               />
             </div>
 

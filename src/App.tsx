@@ -474,11 +474,11 @@ function App() {
     if (isEmbedded) {
       return (
         <ShopifyAppBridge apiKey={SHOPIFY_CONFIG.clientId}>
-          <div className="min-h-screen bg-white flex items-center justify-center p-4">
+          <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
             <div className="text-center max-w-md">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Connecting to Shopify...</h2>
-              <p className="text-gray-600 mb-4">Please wait while we authenticate your store.</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-100 mb-2">Connecting to Shopify...</h2>
+              <p className="text-gray-400 mb-4">Please wait while we authenticate your store.</p>
               <p className="text-sm text-gray-500">
                 If this takes too long, please refresh the page.
               </p>
@@ -491,7 +491,7 @@ function App() {
   }
 
   const appContent = (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950">
       <Navbar
         currentView={currentView}
         onNavigate={(view) => setCurrentView(view as View)}
