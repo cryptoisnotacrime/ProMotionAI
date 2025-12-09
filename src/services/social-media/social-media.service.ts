@@ -45,12 +45,16 @@ export class SocialMediaService {
 
       // Listen for OAuth completion
       return new Promise((resolve, reject) => {
+        let messageReceived = false;
+
         const messageHandler = (event: MessageEvent) => {
           if (event.data.type === 'instagram_connected') {
+            messageReceived = true;
             window.removeEventListener('message', messageHandler);
             popup?.close();
             resolve();
           } else if (event.data.type === 'instagram_error') {
+            messageReceived = true;
             window.removeEventListener('message', messageHandler);
             popup?.close();
             reject(new Error(event.data.error || 'Instagram connection failed'));
@@ -64,7 +68,10 @@ export class SocialMediaService {
           if (popup?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageHandler);
-            reject(new Error('OAuth window was closed'));
+            // Only reject if we didn't receive a message
+            if (!messageReceived) {
+              reject(new Error('OAuth window was closed'));
+            }
           }
         }, 500);
       });
@@ -109,12 +116,16 @@ export class SocialMediaService {
 
       // Listen for OAuth completion
       return new Promise((resolve, reject) => {
+        let messageReceived = false;
+
         const messageHandler = (event: MessageEvent) => {
           if (event.data.type === 'tiktok_connected') {
+            messageReceived = true;
             window.removeEventListener('message', messageHandler);
             popup?.close();
             resolve();
           } else if (event.data.type === 'tiktok_error') {
+            messageReceived = true;
             window.removeEventListener('message', messageHandler);
             popup?.close();
             reject(new Error(event.data.error || 'TikTok connection failed'));
@@ -128,7 +139,10 @@ export class SocialMediaService {
           if (popup?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageHandler);
-            reject(new Error('OAuth window was closed'));
+            // Only reject if we didn't receive a message
+            if (!messageReceived) {
+              reject(new Error('OAuth window was closed'));
+            }
           }
         }, 500);
       });

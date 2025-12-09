@@ -328,12 +328,12 @@ Deno.serve(async (req: Request) => {
         }
         setTimeout(function() {
           window.close();
-        }, 1000);
+        }, 2000);
       } catch(e) {
         console.error('Error:', e);
         setTimeout(function() {
           window.close();
-        }, 2000);
+        }, 3000);
       }
     })();
   </script>
