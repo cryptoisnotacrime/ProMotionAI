@@ -67,16 +67,31 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Fetch media from Instagram
+    // Use Instagram Business Account ID to fetch media
+    const igBusinessAccountId = connection.instagram_business_account_id;
+
+    if (!igBusinessAccountId) {
+      return new Response(
+        JSON.stringify({ error: 'Instagram Business Account not properly configured. Please reconnect your account.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Fetch media from Instagram Graph API
     const mediaResponse = await fetch(
-      `https://graph.instagram.com/me/media?` +
+      `https://graph.facebook.com/v21.0/${igBusinessAccountId}/media?` +
       `fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&` +
       `limit=${limit}&` +
       `access_token=${connection.access_token}`
     );
 
     if (!mediaResponse.ok) {
-      throw new Error('Failed to fetch Instagram media');
+      const errorData = await mediaResponse.json();
+      console.error('Instagram API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to fetch Instagram media');
     }
 
     const mediaData = await mediaResponse.json();

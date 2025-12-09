@@ -28,14 +28,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Instagram OAuth configuration
-    // NOTE: These need to be configured in your Supabase project secrets
-    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
+    const clientId = Deno.env.get('FACEBOOK_APP_ID');
     const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/instagram-oauth-callback`;
 
     if (!clientId) {
       return new Response(
-        JSON.stringify({ error: 'Instagram OAuth not configured. Please set INSTAGRAM_CLIENT_ID in Supabase secrets.' }),
+        JSON.stringify({ error: 'Facebook OAuth not configured. Please set FACEBOOK_APP_ID in Supabase secrets.' }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -43,14 +41,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Build Instagram OAuth URL
-    const scope = 'user_profile,user_media';
+    // Build Facebook OAuth URL with Instagram permissions
+    const scope = 'pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights,instagram_content_publish,business_management';
     const state = btoa(JSON.stringify({ store_id: storeId, timestamp: Date.now() }));
-    
-    const authUrl = `https://api.instagram.com/oauth/authorize?` +
+
+    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?` +
       `client_id=${clientId}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `scope=${scope}&` +
+      `scope=${encodeURIComponent(scope)}&` +
       `response_type=code&` +
       `state=${state}`;
 
