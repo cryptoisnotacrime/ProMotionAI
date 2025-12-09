@@ -173,7 +173,6 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
               {storeInitial}
             </div>
           )}
-          <p className="text-xs text-gray-400 text-center mt-2">From Shopify</p>
         </div>
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-gray-100">{displayName}</h2>
