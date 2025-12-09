@@ -384,13 +384,7 @@ export function MultiImagePicker({
                 <div className="bg-gray-800 rounded-lg p-4 text-center">
                   <Instagram className="w-8 h-8 text-gray-600 mx-auto mb-2" />
                   <p className="text-sm font-medium text-gray-300 mb-1">No social accounts connected</p>
-                  <p className="text-xs text-gray-400 mb-3">Connect Instagram or TikTok to use your social media photos</p>
-                  <a
-                    href="/settings?tab=brand"
-                    className="text-xs text-purple-400 hover:text-purple-300 font-medium inline-block"
-                  >
-                    Go to Settings to connect accounts
-                  </a>
+                  <p className="text-xs text-gray-400">Connect Instagram or TikTok in Settings under the Brand DNA tab to use your social media photos</p>
                 </div>
               ) : socialPhotos.length === 0 ? (
                 <div className="bg-gray-800 rounded-lg p-4 text-center">

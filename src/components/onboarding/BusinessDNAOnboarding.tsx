@@ -272,7 +272,7 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
               <h3 className="font-semibold text-gray-100 mb-3">Brand Colors</h3>
               <div className="flex gap-2">
                 {brandDNA.brand_colors.map((color, index) => (
-                  <div key={index} className="flex-1">
+                  <div key={index} className="flex-1 relative group">
                     <div
                       className="w-full h-16 rounded-lg border-2 border-gray-700 cursor-pointer hover:border-purple-400 transition-colors"
                       style={{ backgroundColor: color.hex }}
@@ -288,11 +288,22 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                         input.click();
                       }}
                     />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newColors = brandDNA.brand_colors.filter((_, i) => i !== index);
+                        setBrandDNA({ ...brandDNA, brand_colors: newColors });
+                      }}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                      title="Delete color"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                     <p className="text-xs text-gray-400 mt-1 text-center">{color.hex}</p>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-400 mt-2">Click any color to change it</p>
+              <p className="text-xs text-gray-400 mt-2">Click to change, hover to delete</p>
             </div>
 
             {/* Fonts */}
@@ -335,9 +346,18 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                   {brandDNA.brand_values.map((value, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-gray-900 border border-gray-700 rounded-full text-sm text-gray-300"
+                      className="group px-3 py-1 bg-gray-900 border border-gray-700 rounded-full text-sm text-gray-300 flex items-center gap-2 hover:border-red-500 transition-colors"
                     >
                       {value}
+                      <button
+                        onClick={() => {
+                          const newValues = brandDNA.brand_values.filter((_, i) => i !== index);
+                          setBrandDNA({ ...brandDNA, brand_values: newValues });
+                        }}
+                        className="w-4 h-4 rounded-full bg-gray-700 group-hover:bg-red-500 text-gray-400 group-hover:text-white flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </span>
                   ))}
                 </div>
@@ -352,9 +372,18 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                   {brandDNA.brand_aesthetic.map((aesthetic, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm"
+                      className="group px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm flex items-center gap-2 hover:bg-purple-800/50 transition-colors"
                     >
                       {aesthetic}
+                      <button
+                        onClick={() => {
+                          const newAesthetic = brandDNA.brand_aesthetic.filter((_, i) => i !== index);
+                          setBrandDNA({ ...brandDNA, brand_aesthetic: newAesthetic });
+                        }}
+                        className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </span>
                   ))}
                 </div>
@@ -369,9 +398,18 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                   {brandDNA.brand_tone_of_voice.map((tone, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm"
+                      className="group px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm flex items-center gap-2 hover:bg-purple-800/50 transition-colors"
                     >
                       {tone}
+                      <button
+                        onClick={() => {
+                          const newTone = brandDNA.brand_tone_of_voice.filter((_, i) => i !== index);
+                          setBrandDNA({ ...brandDNA, brand_tone_of_voice: newTone });
+                        }}
+                        className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </span>
                   ))}
                 </div>
@@ -383,7 +421,12 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
           {brandDNA.business_overview && (
             <div className="bg-gray-800 rounded-xl p-5 mb-8">
               <h3 className="font-semibold text-gray-100 mb-3">Business Overview</h3>
-              <p className="text-gray-300">{brandDNA.business_overview}</p>
+              <textarea
+                value={brandDNA.business_overview}
+                onChange={(e) => setBrandDNA({ ...brandDNA, business_overview: e.target.value })}
+                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                rows={3}
+              />
             </div>
           )}
 

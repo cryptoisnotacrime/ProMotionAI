@@ -157,7 +157,7 @@ export class SocialMediaService {
   }
 
   /**
-   * Disconnect a social media account
+   * Disconnect a social media account by connection ID
    */
   static async disconnect(connectionId: string): Promise<void> {
     const { error } = await supabase
@@ -167,6 +167,22 @@ export class SocialMediaService {
 
     if (error) {
       console.error('Error disconnecting account:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Disconnect a social media account by platform name
+   */
+  static async disconnectPlatform(storeId: string, platform: string): Promise<void> {
+    const { error } = await supabase
+      .from('social_media_connections')
+      .update({ is_active: false })
+      .eq('store_id', storeId)
+      .eq('platform', platform);
+
+    if (error) {
+      console.error('Error disconnecting platform:', error);
       throw error;
     }
   }
