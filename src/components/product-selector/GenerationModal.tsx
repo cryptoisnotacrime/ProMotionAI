@@ -208,20 +208,20 @@ export function GenerationModal({
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm z-10">
-          <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="sticky bottom-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-5 backdrop-blur-sm z-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
             <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1">Template</p>
-              <p className="text-sm font-semibold text-white truncate">
+              <p className="text-xs text-gray-400 mb-1.5 font-medium">Template</p>
+              <p className="text-sm font-semibold text-white truncate" title={selectedTemplate?.name || 'None'}>
                 {selectedTemplate?.name || 'None'}
               </p>
             </div>
             <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1">Duration</p>
+              <p className="text-xs text-gray-400 mb-1.5 font-medium">Duration</p>
               <p className="text-sm font-semibold text-white">{duration}s</p>
             </div>
             <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1">Images</p>
+              <p className="text-xs text-gray-400 mb-1.5 font-medium">Images</p>
               <p className="text-sm font-semibold text-white">{imageCount} ref{imageCount !== 1 ? 's' : ''}</p>
             </div>
             <div className={`rounded-lg p-3 border ${
@@ -229,31 +229,31 @@ export function GenerationModal({
                 ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30'
                 : 'bg-red-900/30 border-red-500/30'
             }`}>
-              <p className="text-xs text-gray-400 mb-1">Total Cost</p>
-              <div className="flex items-baseline gap-2">
+              <p className="text-xs text-gray-400 mb-1.5 font-medium">Total Cost</p>
+              <div className="flex items-baseline gap-1.5">
                 <p className={`text-lg font-bold ${hasEnoughCredits ? 'text-purple-300' : 'text-red-300'}`}>
                   {creditCost}
                 </p>
                 {imageSurcharge > 0 && (
-                  <p className="text-xs text-gray-400">
-                    ({duration} + {imageSurcharge} multi-img)
+                  <p className="text-xs text-gray-400 whitespace-nowrap">
+                    ({duration} + {imageSurcharge})
                   </p>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-400">Available Credits</span>
-                <span className={`font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div className="flex-1 bg-gray-800/30 rounded-lg p-3 border border-gray-700/30">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-300">Available Credits</span>
+                <span className={`text-lg font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}>
                   {creditsAvailable}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">After generation</span>
-                <span className="font-semibold text-gray-300">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">After generation</span>
+                <span className="text-sm font-semibold text-gray-300">
                   {Math.max(0, creditsAvailable - creditCost)} credits
                 </span>
               </div>
@@ -262,7 +262,7 @@ export function GenerationModal({
             <button
               onClick={handleGenerate}
               disabled={!selectedTemplate || !hasEnoughCredits || isGenerating}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center gap-2"
+              className="sm:min-w-[200px] px-8 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {isGenerating ? (
                 <>
@@ -279,8 +279,8 @@ export function GenerationModal({
           </div>
 
           {!hasEnoughCredits && (
-            <div className="mt-3 bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300">
-              Insufficient credits. You need {creditCost - creditsAvailable} more credits to generate this video.
+            <div className="mt-4 bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300 text-center">
+              Insufficient credits. You need {creditCost - creditsAvailable} more credit{creditCost - creditsAvailable !== 1 ? 's' : ''} to generate this video.
             </div>
           )}
         </div>

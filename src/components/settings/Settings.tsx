@@ -446,12 +446,24 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
   };
 
   const handleResetBrandDNA = async () => {
-    if (!confirm('Are you sure you want to reset all Brand DNA? This will clear all your brand information and you can start fresh.')) return;
+    if (!confirm('Are you sure you want to reset all Brand DNA? This will clear all your brand information, disconnect social accounts, and you can start fresh.')) return;
 
     try {
       setIsSaving(true);
+
+      // Reset Brand DNA
       await BrandDNAService.resetBrandDNA(store.id);
-      alert('Brand DNA reset successfully! Reloading...');
+
+      // Disconnect all social media connections
+      for (const connection of socialConnections) {
+        try {
+          await SocialMediaService.disconnectPlatform(store.id, connection.platform);
+        } catch (err) {
+          console.error(`Failed to disconnect ${connection.platform}:`, err);
+        }
+      }
+
+      alert('Brand DNA reset successfully! All social connections have been disconnected. Reloading...');
       window.location.reload();
     } catch (error) {
       console.error('Failed to reset Brand DNA:', error);
