@@ -11,10 +11,10 @@ interface BusinessDNAOnboardingProps {
 export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardingProps) {
   const [step, setStep] = useState<'welcome' | 'input' | 'generating' | 'review'>('welcome');
 
-  // Get custom domain, skip .myshopify.com domains
+  // Auto-fill with Shopify store URL
   const getDefaultWebsite = () => {
-    // Check shop_domain (from OAuth)
-    if (store.shop_domain && !store.shop_domain.includes('.myshopify.com')) {
+    // Always use shop_domain from Shopify OAuth
+    if (store.shop_domain) {
       return `https://${store.shop_domain}`;
     }
     return '';
@@ -169,8 +169,12 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                 value={urls.website}
                 onChange={(e) => setUrls(prev => ({ ...prev, website: e.target.value }))}
                 placeholder="https://yourstore.com"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                disabled={!!defaultWebsite}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-75 disabled:cursor-not-allowed"
               />
+              {defaultWebsite && (
+                <p className="text-xs text-gray-400 mt-1">Auto-filled from your Shopify store</p>
+              )}
             </div>
 
             <div>

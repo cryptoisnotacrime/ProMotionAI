@@ -124,4 +124,31 @@ export class BrandDNAService {
       throw new Error(`Failed to skip onboarding: ${error.message}`);
     }
   }
+
+  /**
+   * Reset all Brand DNA data
+   */
+  static async resetBrandDNA(storeId: string): Promise<void> {
+    const { error } = await supabase
+      .from('stores')
+      .update({
+        brand_logo_url: null,
+        brand_colors: [],
+        brand_fonts: {},
+        brand_images: [],
+        brand_tagline: null,
+        brand_values: [],
+        brand_aesthetic: [],
+        brand_tone_of_voice: [],
+        business_overview: null,
+        onboarding_completed: false,
+        brand_dna_updated_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', storeId);
+
+    if (error) {
+      throw new Error(`Failed to reset brand DNA: ${error.message}`);
+    }
+  }
 }

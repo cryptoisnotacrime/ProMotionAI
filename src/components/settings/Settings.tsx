@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X, Plus, Instagram } from 'lucide-react';
+import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X, Plus, Instagram, Music, Trash2 } from 'lucide-react';
 import { Store } from '../../lib/supabase';
 import { BrandDNAService } from '../../services/onboarding/brand-dna.service';
+import { SocialMediaService } from '../../services/social-media/social-media.service';
 
 interface SettingsProps {
   store: Store;
@@ -159,9 +160,20 @@ function ProfileSettings({ store, settings, onSettingsChange }: ProfileSettingsP
     <div className="space-y-6">
       <div className="flex items-start gap-6">
         <div className="flex-shrink-0">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            {storeInitial}
-          </div>
+          {store.brand_logo_url ? (
+            <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center shadow-lg overflow-hidden border-2 border-gray-700">
+              <img
+                src={store.brand_logo_url}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+              {storeInitial}
+            </div>
+          )}
+          <p className="text-xs text-gray-400 text-center mt-2">From Shopify</p>
         </div>
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-gray-100">{displayName}</h2>
@@ -384,7 +396,71 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
   const [newValueInput, setNewValueInput] = useState('');
   const [newAestheticInput, setNewAestheticInput] = useState('');
   const [newToneInput, setNewToneInput] = useState('');
-  const [instagramPhotos, setInstagramPhotos] = useState<string[]>([]);
+  const [socialConnections, setSocialConnections] = useState<any[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
+
+  useEffect(() => {
+    loadSocialConnections();
+  }, []);
+
+  const loadSocialConnections = async () => {
+    try {
+      setLoadingSocial(true);
+      const connections = await SocialMediaService.getConnections(store.id);
+      setSocialConnections(connections);
+    } catch (error) {
+      console.error('Failed to load social connections:', error);
+    } finally {
+      setLoadingSocial(false);
+    }
+  };
+
+  const handleConnectInstagram = async () => {
+    try {
+      await SocialMediaService.connectInstagram(store.id);
+    } catch (error) {
+      console.error('Failed to connect Instagram:', error);
+      alert('Failed to connect Instagram. Please try again.');
+    }
+  };
+
+  const handleConnectTikTok = async () => {
+    try {
+      await SocialMediaService.connectTikTok(store.id);
+    } catch (error) {
+      console.error('Failed to connect TikTok:', error);
+      alert('Failed to connect TikTok. Please try again.');
+    }
+  };
+
+  const handleDisconnectPlatform = async (platform: string) => {
+    if (!confirm(`Are you sure you want to disconnect ${platform}?`)) return;
+
+    try {
+      await SocialMediaService.disconnectPlatform(store.id, platform);
+      await loadSocialConnections();
+      alert(`${platform} disconnected successfully!`);
+    } catch (error) {
+      console.error('Failed to disconnect platform:', error);
+      alert('Failed to disconnect platform. Please try again.');
+    }
+  };
+
+  const handleResetBrandDNA = async () => {
+    if (!confirm('Are you sure you want to reset all Brand DNA? This will clear all your brand information and you can start fresh.')) return;
+
+    try {
+      setIsSaving(true);
+      await BrandDNAService.resetBrandDNA(store.id);
+      alert('Brand DNA reset successfully! Reloading...');
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to reset Brand DNA:', error);
+      alert('Failed to reset Brand DNA. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleColorChange = (index: number, newColor: string) => {
     const newColors = [...brandDNA.brand_colors];
@@ -442,6 +518,9 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
     );
   }
 
+  const instagramConnection = socialConnections.find(c => c.platform === 'instagram');
+  const tiktokConnection = socialConnections.find(c => c.platform === 'tiktok');
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -451,15 +530,98 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
             Review and edit your brand profile. Changes will be reflected in future video generations.
           </p>
         </div>
-        {onRestartOnboarding && (
+        <div className="flex gap-2">
           <button
-            onClick={onRestartOnboarding}
-            className="px-4 py-2 text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-lg font-medium inline-flex items-center gap-2 transition-colors"
+            onClick={handleResetBrandDNA}
+            disabled={isSaving}
+            className="px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg font-medium inline-flex items-center gap-2 transition-colors disabled:opacity-50"
           >
-            <RefreshCw className="w-4 h-4" />
-            Regenerate
+            <Trash2 className="w-4 h-4" />
+            Reset All
           </button>
-        )}
+          {onRestartOnboarding && (
+            <button
+              onClick={onRestartOnboarding}
+              className="px-4 py-2 text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-lg font-medium inline-flex items-center gap-2 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Regenerate
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Social Media Connections */}
+      <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
+        <h3 className="font-semibold text-gray-100 mb-3">Social Media Connections</h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Connect your social accounts to import photos for video generation
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Instagram */}
+          <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Instagram className="w-5 h-5 text-purple-400" />
+                <h4 className="font-medium text-gray-100">Instagram</h4>
+              </div>
+              {instagramConnection && (
+                <span className="text-xs px-2 py-1 bg-green-900/30 text-green-400 rounded-full">Connected</span>
+              )}
+            </div>
+            {instagramConnection ? (
+              <div>
+                <p className="text-sm text-gray-400 mb-2">@{instagramConnection.platform_username}</p>
+                <button
+                  onClick={() => handleDisconnectPlatform('instagram')}
+                  className="text-xs text-red-400 hover:text-red-300 font-medium"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleConnectInstagram}
+                disabled={loadingSocial}
+                className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm rounded-lg font-medium transition-all disabled:opacity-50"
+              >
+                Connect Instagram
+              </button>
+            )}
+          </div>
+
+          {/* TikTok */}
+          <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Music className="w-5 h-5 text-purple-400" />
+                <h4 className="font-medium text-gray-100">TikTok</h4>
+              </div>
+              {tiktokConnection && (
+                <span className="text-xs px-2 py-1 bg-green-900/30 text-green-400 rounded-full">Connected</span>
+              )}
+            </div>
+            {tiktokConnection ? (
+              <div>
+                <p className="text-sm text-gray-400 mb-2">@{tiktokConnection.platform_username}</p>
+                <button
+                  onClick={() => handleDisconnectPlatform('tiktok')}
+                  className="text-xs text-red-400 hover:text-red-300 font-medium"
+                >
+                  Disconnect
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleConnectTikTok}
+                disabled={loadingSocial}
+                className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm rounded-lg font-medium transition-all disabled:opacity-50"
+              >
+                Connect TikTok
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {store.brand_dna_updated_at && (

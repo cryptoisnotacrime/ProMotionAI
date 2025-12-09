@@ -40,7 +40,7 @@ export function TemplateForm({
   userTier,
 }: TemplateFormProps) {
   const prefillData = prefillFromStoreSettings(store, product);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Cinematic Reveal']));
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set([]));
 
   // Extract colors from product description
   const extractColors = () => {
@@ -439,8 +439,8 @@ export function TemplateForm({
               value={formData.custom_notes}
               onChange={(e) => updateField('custom_notes', e.target.value)}
               placeholder="e.g., Emphasize premium quality"
-              rows={2}
-              className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 resize-none bg-gray-800 text-gray-100 placeholder-gray-500"
+              rows={3}
+              className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 resize-y bg-gray-800 text-gray-100 placeholder-gray-500"
             />
           </div>
         </div>
