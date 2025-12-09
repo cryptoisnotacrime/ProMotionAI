@@ -11,10 +11,15 @@ interface CustomTemplateModalProps {
 }
 
 export function CustomTemplateModal({ baseTemplate, storeId, onClose, onSave }: CustomTemplateModalProps) {
-  const [name, setName] = useState(`${baseTemplate.name} (Custom)`);
+  // Convert DetailedTemplate to a prompt template format
+  const createPromptFromTemplate = (template: DetailedTemplate) => {
+    return `${template.description}. Visual style: ${template.visual_style}. Camera: ${template.camera}. Main subject: ${template.main_subject}. Background: ${template.background}. Lighting: ${template.lighting_mood}. Color palette: ${template.color_palette}. Opening: ${template.hook}. Ending: ${template.finale}.`;
+  };
+
+  const [name, setName] = useState(`${baseTemplate.template_name} (Custom)`);
   const [description, setDescription] = useState(baseTemplate.description);
   const [category, setCategory] = useState(baseTemplate.meta.category);
-  const [promptTemplate, setPromptTemplate] = useState(baseTemplate.prompt_template);
+  const [promptTemplate, setPromptTemplate] = useState(createPromptFromTemplate(baseTemplate));
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -101,7 +106,7 @@ export function CustomTemplateModal({ baseTemplate, storeId, onClose, onSave }: 
               <Copy className="w-6 h-6 text-purple-400" />
               Create Custom Template
             </h2>
-            <p className="text-sm text-gray-400 mt-1">Based on: {baseTemplate.name}</p>
+            <p className="text-sm text-gray-400 mt-1">Based on: {baseTemplate.template_name}</p>
           </div>
           <button
             onClick={onClose}

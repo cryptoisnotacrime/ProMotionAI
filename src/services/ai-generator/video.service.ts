@@ -31,8 +31,8 @@ export class VideoGenerationService {
     const imageCount = imageUrls.length;
 
     // Credit calculation: base cost is duration + image surcharge
-    // 1 image: +0, 2 images: +2, 3 images: +3
-    const imageSurcharge = imageCount <= 1 ? 0 : imageCount === 2 ? 2 : 3;
+    // 1 image: +0, 2+ images: +1 (flat fee for multi-image mode)
+    const imageSurcharge = imageCount <= 1 ? 0 : 1;
     const creditsRequired = durationSeconds + imageSurcharge;
 
     const store = await CreditsService.getStoreInfo(request.storeId);

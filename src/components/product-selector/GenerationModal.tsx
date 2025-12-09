@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
 import { Store } from '../../lib/supabase';
 import { MultiImagePicker, ImageSlot } from './MultiImagePicker';
+import { CustomTemplateModal } from '../settings/CustomTemplateModal';
 
 interface GenerationModalProps {
   product: ShopifyProduct;
@@ -44,6 +45,7 @@ export function GenerationModal({
     tier: planName,
   });
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
+  const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
 
   useEffect(() => {
     loadTemplates();
@@ -66,7 +68,8 @@ export function GenerationModal({
 
   const getImageCostSurcharge = (imageCount: number): number => {
     if (imageCount <= 1) return 0;
-    return 1;
+    if (imageCount === 2) return 1;
+    return 1; // 3 images also costs +1
   };
 
   const imageCount = selectedImages.length;
@@ -157,6 +160,24 @@ export function GenerationModal({
             </div>
 
             <div className="lg:col-span-2 space-y-6">
+              {selectedTemplate && (
+                <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm text-purple-200">
+                      Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowCustomTemplateModal(true)}
+                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    Save as Custom
+                  </button>
+                </div>
+              )}
+
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-purple-400" />
@@ -217,8 +238,8 @@ export function GenerationModal({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
             <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
               <p className="text-xs text-gray-400 mb-1.5 font-medium">Template</p>
-              <p className="text-sm font-semibold text-white truncate" title={selectedTemplate?.name || 'None'}>
-                {selectedTemplate?.name || 'None'}
+              <p className="text-sm font-semibold text-white truncate" title={selectedTemplate?.template_name || 'None'}>
+                {selectedTemplate?.template_name || 'None'}
               </p>
             </div>
             <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
@@ -290,6 +311,18 @@ export function GenerationModal({
           )}
         </div>
       </div>
+
+      {showCustomTemplateModal && selectedTemplate && (
+        <CustomTemplateModal
+          baseTemplate={selectedTemplate}
+          storeId={store.id}
+          onClose={() => setShowCustomTemplateModal(false)}
+          onSave={() => {
+            setShowCustomTemplateModal(false);
+            alert('Custom template saved! You can now use it from the template selector.');
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1179,7 +1179,7 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
       <div className="pt-6 border-t border-gray-700">
         <h2 className="text-xl font-semibold text-gray-100 mb-4">Custom Templates</h2>
         <p className="text-sm text-gray-400 mb-4">
-          Manage your custom video templates. Create new ones from the video generation page.
+          Manage your custom video templates. Create new ones by clicking "Save as Custom" when generating videos.
         </p>
         {loadingTemplates ? (
           <div className="text-center py-8 text-gray-400">Loading templates...</div>
