@@ -389,26 +389,26 @@ export function TemplateForm({
                 <button
                   type="button"
                   onClick={() => updateField('platform', '9:16')}
-                  className={`flex items-center justify-center gap-2 px-3 py-2 border-2 rounded-lg transition-all ${
+                  className={`flex flex-col items-center justify-center gap-2 px-3 py-3 border-2 rounded-lg transition-all ${
                     formData.platform === '9:16'
                       ? 'border-purple-500 bg-purple-900/30 text-purple-200'
                       : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600'
                   }`}
                 >
-                  <Instagram className="w-5 h-5" />
-                  <span className="text-sm font-medium">Instagram/TikTok</span>
+                  <Instagram className="w-6 h-6" />
+                  <span className="text-sm font-semibold">9:16</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => updateField('platform', '16:9')}
-                  className={`flex items-center justify-center gap-2 px-3 py-2 border-2 rounded-lg transition-all ${
+                  className={`flex flex-col items-center justify-center gap-2 px-3 py-3 border-2 rounded-lg transition-all ${
                     formData.platform === '16:9'
                       ? 'border-red-500 bg-red-900/30 text-red-200'
                       : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600'
                   }`}
                 >
-                  <Youtube className="w-5 h-5" />
-                  <span className="text-sm font-medium">YouTube</span>
+                  <Youtube className="w-6 h-6" />
+                  <span className="text-sm font-semibold">16:9</span>
                 </button>
               </div>
             </div>

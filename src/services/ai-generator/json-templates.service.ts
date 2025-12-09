@@ -131,13 +131,13 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   });
   parts.push(`Ending: ${removeUrls(finale)}`);
 
-  // Important constraints
-  parts.push('CRITICAL: This is a silent video with NO AUDIO, NO SPEECH, NO DIALOGUE, NO VOICEOVER');
-  parts.push('No people speaking, no mouths moving, no talking');
-  parts.push('No text overlays, no subtitles, no captions in the video itself');
+  // Important constraints - positive framing
+  parts.push('CRITICAL: Silent video format with visual storytelling only');
+  parts.push('People remain silent with natural expressions');
+  parts.push('Clean visuals without text overlays or subtitles');
 
-  // Negative prompt
-  parts.push(`Avoid: ${template.negative_prompt}, no people talking or speaking, no dialogue, no voiceover, no audio indicators`);
+  // Negative prompt - descriptive terms only (no instructive language per Google guidelines)
+  parts.push(`Negative elements to exclude: ${template.negative_prompt}, people talking or speaking, dialogue, voiceover, audio indicators, mouth movements indicating speech`);
 
   return parts.join('. ');
 }

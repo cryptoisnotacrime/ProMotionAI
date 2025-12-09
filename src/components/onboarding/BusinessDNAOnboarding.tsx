@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, Globe, Instagram, Video, X, Loader, ArrowRight, SkipForward } from 'lucide-react';
+import { Sparkles, Globe, Instagram, Video, X, Loader, ArrowRight, SkipForward, Facebook } from 'lucide-react';
 import { Store } from '../../lib/supabase';
 import { BrandDNAService, BrandDNA } from '../../services/onboarding/brand-dna.service';
 
@@ -56,6 +56,7 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
         websiteUrl: urls.website,
         instagramUrl: urls.instagram,
         tiktokUrl: urls.tiktok,
+        facebookUrl: urls.facebook,
       });
 
       setBrandDNA(generated);
@@ -201,6 +202,20 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                 value={urls.tiktok}
                 onChange={(e) => setUrls(prev => ({ ...prev, tiktok: e.target.value }))}
                 placeholder="https://tiktok.com/@yourstore"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                <Facebook className="w-4 h-4" />
+                Facebook (optional)
+              </label>
+              <input
+                type="url"
+                value={urls.facebook}
+                onChange={(e) => setUrls(prev => ({ ...prev, facebook: e.target.value }))}
+                placeholder="https://facebook.com/yourstore"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
