@@ -23,7 +23,32 @@ Deno.serve(async (req: Request) => {
 
     if (error) {
       return new Response(
-        `<html><body><script>window.opener?.postMessage({ type: 'instagram_error', error: '${error}' }, '*'); window.close();</script><p>Authorization cancelled. You can close this window.</p></body></html>`,
+        `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Connection</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #fff; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin-bottom: 10px; }
+    p { color: #999; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">❌</div>
+    <h1>Connection Cancelled</h1>
+    <p>Authorization was cancelled. This window will close automatically.</p>
+  </div>
+  <script>
+    window.opener?.postMessage({ type: 'instagram_error', error: '${error}' }, '*');
+    setTimeout(() => window.close(), 2000);
+  </script>
+</body>
+</html>`,
         {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/html' },
@@ -95,7 +120,32 @@ Deno.serve(async (req: Request) => {
 
     if (!pagesData.data || pagesData.data.length === 0) {
       return new Response(
-        `<html><body><script>window.opener?.postMessage({ type: 'instagram_error', error: 'No Facebook Pages found. You need a Facebook Page connected to your Instagram Business Account.' }, '*'); window.close();</script><p>No Facebook Pages found. Please create a Facebook Page and link your Instagram Business Account to it.</p></body></html>`,
+        `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Connection</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #fff; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin-bottom: 10px; }
+    p { color: #999; font-size: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">⚠️</div>
+    <h1>No Facebook Pages Found</h1>
+    <p>Please create a Facebook Page and link your Instagram Business Account to it, then try again.</p>
+  </div>
+  <script>
+    window.opener?.postMessage({ type: 'instagram_error', error: 'No Facebook Pages found. You need a Facebook Page connected to your Instagram Business Account.' }, '*');
+    setTimeout(() => window.close(), 3000);
+  </script>
+</body>
+</html>`,
         {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/html' },
@@ -156,7 +206,32 @@ Deno.serve(async (req: Request) => {
 
     if (!instagramAccountFound) {
       return new Response(
-        `<html><body><script>window.opener?.postMessage({ type: 'instagram_error', error: 'No Instagram Business Account found linked to your Facebook Pages.' }, '*'); window.close();</script><p>No Instagram Business Account found. Please link your Instagram Business Account to one of your Facebook Pages.</p></body></html>`,
+        `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Connection</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #fff; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin-bottom: 10px; }
+    p { color: #999; font-size: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">⚠️</div>
+    <h1>No Instagram Business Account</h1>
+    <p>Please link your Instagram Business Account to one of your Facebook Pages and try again.</p>
+  </div>
+  <script>
+    window.opener?.postMessage({ type: 'instagram_error', error: 'No Instagram Business Account found linked to your Facebook Pages.' }, '*');
+    setTimeout(() => window.close(), 3000);
+  </script>
+</body>
+</html>`,
         {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'text/html' },
@@ -183,7 +258,33 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      `<html><body><script>window.opener?.postMessage({ type: 'instagram_connected', username: '${connectionData.platform_username}' }, '*'); window.close();</script><p>Instagram Business Account connected successfully! You can close this window.</p></body></html>`,
+      `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Connected</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #fff; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .icon { font-size: 48px; margin-bottom: 20px; animation: fadeIn 0.5s; }
+    h1 { font-size: 20px; margin-bottom: 10px; color: #10b981; }
+    p { color: #999; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">✓</div>
+    <h1>Instagram Connected!</h1>
+    <p>@${connectionData.platform_username} has been connected successfully.</p>
+  </div>
+  <script>
+    window.opener?.postMessage({ type: 'instagram_connected', username: '${connectionData.platform_username}' }, '*');
+    setTimeout(() => window.close(), 1500);
+  </script>
+</body>
+</html>`,
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'text/html' },
@@ -192,7 +293,31 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error('Instagram OAuth callback error:', error);
     return new Response(
-      `<html><body><p>Error connecting Instagram: ${error.message}</p></body></html>`,
+      `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connection Error</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: #1a1a1a; color: #fff; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 20px; margin-bottom: 10px; color: #ef4444; }
+    p { color: #999; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">❌</div>
+    <h1>Connection Error</h1>
+    <p>${error.message}</p>
+  </div>
+  <script>
+    setTimeout(() => window.close(), 3000);
+  </script>
+</body>
+</html>`,
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'text/html' },

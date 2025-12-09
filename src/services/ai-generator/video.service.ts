@@ -101,6 +101,15 @@ export class VideoGenerationService {
   ): Promise<GeneratedVideo> {
     const durationSeconds = request.durationSeconds || 5;
 
+    // Determine primary image URL - use imageUrl if provided, otherwise first from imageUrls array
+    const primaryImageUrl = request.imageUrl || request.imageUrls?.[0];
+    if (!primaryImageUrl) {
+      throw new Error('At least one image URL is required for video generation');
+    }
+
+    // Store all image URLs in metadata for multi-image generation
+    const imageUrls = request.imageUrls || (request.imageUrl ? [request.imageUrl] : []);
+
     // Extract metadata from template inputs for easy querying
     const metadata: Record<string, any> = {
       template_name: request.templateInputs?.template_name,
@@ -108,6 +117,8 @@ export class VideoGenerationService {
       aspect_ratio: request.aspectRatio,
       tone: request.templateInputs?.tone,
       background_style: request.templateInputs?.background_style,
+      image_urls: imageUrls, // Store all image URLs for reference
+      image_count: imageUrls.length,
       ...request.templateInputs,
     };
 
@@ -117,7 +128,7 @@ export class VideoGenerationService {
         store_id: request.storeId,
         product_id: request.productId,
         product_title: request.productTitle,
-        source_image_url: request.imageUrl,
+        source_image_url: primaryImageUrl, // Use primary image URL (first image)
         prompt: request.prompt,
         duration_seconds: durationSeconds,
         generation_status: 'pending',

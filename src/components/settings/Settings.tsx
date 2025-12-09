@@ -723,7 +723,12 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
 
         {/* Brand Values */}
         <div className="bg-gray-800 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-100 mb-3">Brand Values</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-100">Brand Values</h3>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
+              {brandDNA.brand_values?.length || 0}/20
+            </span>
+          </div>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_values && brandDNA.brand_values.map((value: string, index: number) => (
               <span
@@ -744,39 +749,51 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
               </span>
             ))}
           </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newValueInput}
-              onChange={(e) => setNewValueInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && newValueInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
-                  setNewValueInput('');
-                  setHasChanges(true);
-                }
-              }}
-              placeholder="Add a value (e.g., Quality, Innovation)"
-              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <button
-              onClick={() => {
-                if (newValueInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
-                  setNewValueInput('');
-                  setHasChanges(true);
-                }
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newValueInput}
+                onChange={(e) => setNewValueInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newValueInput.trim() && (brandDNA.brand_values?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
+                    setNewValueInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                placeholder="Add a value (e.g., Quality, Innovation)"
+                disabled={(brandDNA.brand_values?.length || 0) >= 20}
+                className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                onClick={() => {
+                  if (newValueInput.trim() && (brandDNA.brand_values?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, newValueInput.trim()] });
+                    setNewValueInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                disabled={(brandDNA.brand_values?.length || 0) >= 20}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-600"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            {(brandDNA.brand_values?.length || 0) >= 20 && (
+              <p className="text-xs text-orange-400">Maximum 20 tags reached</p>
+            )}
           </div>
         </div>
 
         {/* Brand Aesthetic */}
         <div className="bg-gray-800 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-100 mb-3">Brand Aesthetic</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-100">Brand Aesthetic</h3>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
+              {brandDNA.brand_aesthetic?.length || 0}/20
+            </span>
+          </div>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.map((aesthetic: string, index: number) => (
               <span
@@ -797,39 +814,51 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
               </span>
             ))}
           </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newAestheticInput}
-              onChange={(e) => setNewAestheticInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && newAestheticInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
-                  setNewAestheticInput('');
-                  setHasChanges(true);
-                }
-              }}
-              placeholder="Add aesthetic (e.g., Modern, Minimalist)"
-              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <button
-              onClick={() => {
-                if (newAestheticInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
-                  setNewAestheticInput('');
-                  setHasChanges(true);
-                }
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newAestheticInput}
+                onChange={(e) => setNewAestheticInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newAestheticInput.trim() && (brandDNA.brand_aesthetic?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
+                    setNewAestheticInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                placeholder="Add aesthetic (e.g., Modern, Minimalist)"
+                disabled={(brandDNA.brand_aesthetic?.length || 0) >= 20}
+                className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                onClick={() => {
+                  if (newAestheticInput.trim() && (brandDNA.brand_aesthetic?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, newAestheticInput.trim()] });
+                    setNewAestheticInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                disabled={(brandDNA.brand_aesthetic?.length || 0) >= 20}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-600"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            {(brandDNA.brand_aesthetic?.length || 0) >= 20 && (
+              <p className="text-xs text-orange-400">Maximum 20 tags reached</p>
+            )}
           </div>
         </div>
 
         {/* Tone of Voice */}
         <div className="bg-gray-800 rounded-xl p-5 md:col-span-2">
-          <h3 className="font-semibold text-gray-100 mb-3">Tone of Voice</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-100">Tone of Voice</h3>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
+              {brandDNA.brand_tone_of_voice?.length || 0}/20
+            </span>
+          </div>
           <div className="flex flex-wrap gap-2 mb-3">
             {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.map((tone: string, index: number) => (
               <span
@@ -850,33 +879,40 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
               </span>
             ))}
           </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newToneInput}
-              onChange={(e) => setNewToneInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && newToneInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
-                  setNewToneInput('');
-                  setHasChanges(true);
-                }
-              }}
-              placeholder="Add tone (e.g., Friendly, Professional)"
-              className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            <button
-              onClick={() => {
-                if (newToneInput.trim()) {
-                  setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
-                  setNewToneInput('');
-                  setHasChanges(true);
-                }
-              }}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newToneInput}
+                onChange={(e) => setNewToneInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newToneInput.trim() && (brandDNA.brand_tone_of_voice?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
+                    setNewToneInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                placeholder="Add tone (e.g., Friendly, Professional)"
+                disabled={(brandDNA.brand_tone_of_voice?.length || 0) >= 20}
+                className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                onClick={() => {
+                  if (newToneInput.trim() && (brandDNA.brand_tone_of_voice?.length || 0) < 20) {
+                    setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, newToneInput.trim()] });
+                    setNewToneInput('');
+                    setHasChanges(true);
+                  }
+                }}
+                disabled={(brandDNA.brand_tone_of_voice?.length || 0) >= 20}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-600"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            {(brandDNA.brand_tone_of_voice?.length || 0) >= 20 && (
+              <p className="text-xs text-orange-400">Maximum 20 tags reached</p>
+            )}
           </div>
         </div>
 
@@ -930,6 +966,56 @@ function BrandDNASettings({ store, onRestartOnboarding }: BrandDNASettingsProps)
 }
 
 function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps) {
+  const [socialConnections, setSocialConnections] = useState<any[]>([]);
+  const [socialPhotos, setSocialPhotos] = useState<any[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
+
+  useEffect(() => {
+    loadSocialMedia();
+  }, [store.id]);
+
+  const loadSocialMedia = async () => {
+    try {
+      setLoadingSocial(true);
+      const connections = await SocialMediaService.getConnections(store.id);
+      setSocialConnections(connections);
+
+      if (connections.length > 0) {
+        const photos = await SocialMediaService.getAllPhotos(store.id);
+        setSocialPhotos(photos);
+      }
+    } catch (error) {
+      console.error('Failed to load social media:', error);
+    } finally {
+      setLoadingSocial(false);
+    }
+  };
+
+  const handleConnectInstagram = async () => {
+    try {
+      await SocialMediaService.connectInstagram(store.id);
+      await loadSocialMedia();
+    } catch (error) {
+      console.error('Failed to connect Instagram:', error);
+      alert('Failed to connect Instagram. Please try again.');
+    }
+  };
+
+  const handleConnectTikTok = async () => {
+    try {
+      await SocialMediaService.connectTikTok(store.id);
+      await loadSocialMedia();
+    } catch (error) {
+      console.error('Failed to connect TikTok:', error);
+      alert('Failed to connect TikTok. Please try again.');
+    }
+  };
+
+  const instagramConnection = socialConnections.find(c => c.platform === 'instagram');
+  const tiktokConnection = socialConnections.find(c => c.platform === 'tiktok');
+  const instagramPhotos = socialPhotos.filter(p => p.platform === 'instagram');
+  const tiktokPhotos = socialPhotos.filter(p => p.platform === 'tiktok');
+
   return (
     <div className="space-y-6">
       <div>
@@ -1034,49 +1120,123 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
         </div>
       </div>
 
-      {/* Instagram Feed - Brand Visual Reference */}
-      {store.instagram_handle && store.brand_dna_updated_at && (
-        <div className="pt-6 border-t border-gray-700">
-          <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/30 rounded-xl p-5 border border-purple-700">
+      {/* Social Media Feeds - Brand Visual Reference */}
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Social Media Content</h2>
+        <p className="text-sm text-gray-400 mb-4">
+          Visual references from your social media help AI generate on-brand UGC and lifestyle videos
+        </p>
+
+        {/* Instagram Feed */}
+        {instagramConnection ? (
+          <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-5 border border-purple-700 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Instagram className="w-5 h-5 text-purple-400" />
-              <h3 className="font-semibold text-gray-100">Instagram Feed</h3>
-              <span className="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded-full">@{store.instagram_handle}</span>
+              <h3 className="font-semibold text-gray-100">Instagram</h3>
+              <span className="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded-full">
+                @{instagramConnection.platform_username}
+              </span>
             </div>
-            <p className="text-sm text-gray-400 mb-4">
-              Visual references from your brand identity help AI generate on-brand UGC and lifestyle videos. Full Instagram integration coming soon.
-            </p>
-            {store.brand_images && store.brand_images.length > 0 && !store.brand_images[0]?.includes('cdn.shopify.com') ? (
+            {loadingSocial ? (
+              <div className="text-center py-8 text-gray-400">Loading...</div>
+            ) : instagramPhotos.length > 0 ? (
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                {store.brand_images.slice(0, 6).map((imageUrl: string, index: number) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                {instagramPhotos.slice(0, 12).map((photo: any, index: number) => (
+                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer relative group">
                     <img
-                      src={imageUrl}
-                      alt={`Brand reference ${index + 1}`}
+                      src={photo.media_url}
+                      alt={photo.caption || 'Instagram post'}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Instagram className="w-6 h-6 text-white" />
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-gray-800 rounded-lg p-6 text-center border border-gray-700">
-                <Instagram className="w-12 h-12 text-purple-400 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-gray-100 mb-2">Connect Instagram</p>
-                <p className="text-xs text-gray-400 mb-4">
-                  Import photos from your Instagram feed to help AI create on-brand content
-                </p>
-                <button
-                  onClick={() => alert('Instagram OAuth integration coming soon! This will allow you to import your actual Instagram photos for brand reference.')}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm flex items-center gap-2 mx-auto"
-                >
-                  <Instagram className="w-4 h-4" />
-                  Connect Instagram Account
-                </button>
-              </div>
+              <p className="text-sm text-gray-400 text-center py-4">No Instagram posts found</p>
             )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-5 border border-purple-700 mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Instagram className="w-5 h-5 text-purple-400" />
+              <h3 className="font-semibold text-gray-100">Instagram</h3>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-6 text-center border border-gray-700">
+              <Instagram className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-gray-100 mb-2">Connect Instagram</p>
+              <p className="text-xs text-gray-400 mb-4">
+                Import photos from your Instagram feed to help AI create on-brand content
+              </p>
+              <button
+                onClick={handleConnectInstagram}
+                disabled={loadingSocial}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all font-medium text-sm flex items-center gap-2 mx-auto disabled:opacity-50"
+              >
+                <Instagram className="w-4 h-4" />
+                Connect Instagram Account
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TikTok Feed */}
+        {tiktokConnection ? (
+          <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-xl p-5 border border-gray-700">
+            <div className="flex items-center gap-2 mb-3">
+              <Music className="w-5 h-5 text-purple-400" />
+              <h3 className="font-semibold text-gray-100">TikTok</h3>
+              <span className="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded-full">
+                {tiktokConnection.platform_username}
+              </span>
+            </div>
+            {loadingSocial ? (
+              <div className="text-center py-8 text-gray-400">Loading...</div>
+            ) : tiktokPhotos.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {tiktokPhotos.slice(0, 12).map((photo: any, index: number) => (
+                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer relative group">
+                    <img
+                      src={photo.cover_image_url}
+                      alt={photo.title || 'TikTok video'}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Music className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 text-center py-4">No TikTok videos found</p>
+            )}
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-xl p-5 border border-gray-700">
+            <div className="flex items-center gap-2 mb-3">
+              <Music className="w-5 h-5 text-purple-400" />
+              <h3 className="font-semibold text-gray-100">TikTok</h3>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-6 text-center border border-gray-700">
+              <Music className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-gray-100 mb-2">Connect TikTok</p>
+              <p className="text-xs text-gray-400 mb-4">
+                Import videos from your TikTok feed to help AI create on-brand content
+              </p>
+              <button
+                onClick={handleConnectTikTok}
+                disabled={loadingSocial}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg transition-all font-medium text-sm flex items-center gap-2 mx-auto disabled:opacity-50"
+              >
+                <Music className="w-4 h-4" />
+                Connect TikTok Account
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
