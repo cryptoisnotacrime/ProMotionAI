@@ -59,7 +59,11 @@ Deno.serve(async (req: Request) => {
 </html>`;
       return new Response(html, {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'X-Content-Type-Options': 'nosniff',
+        },
       });
     }
 
@@ -68,7 +72,11 @@ Deno.serve(async (req: Request) => {
         `<html><body><p>Invalid OAuth callback. Missing code or state.</p></body></html>`,
         {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+          headers: {
+            'Content-Type': 'text/html; charset=UTF-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'X-Content-Type-Options': 'nosniff',
+          },
         }
       );
     }
@@ -163,7 +171,11 @@ Deno.serve(async (req: Request) => {
 </html>`;
       return new Response(html, {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'X-Content-Type-Options': 'nosniff',
+        },
       });
     }
 
@@ -256,7 +268,11 @@ Deno.serve(async (req: Request) => {
 </html>`;
       return new Response(html, {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'X-Content-Type-Options': 'nosniff',
+        },
       });
     }
 
@@ -335,8 +351,9 @@ Deno.serve(async (req: Request) => {
     return new Response(html, {
       status: 200,
       headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
   } catch (error) {
@@ -379,7 +396,11 @@ Deno.serve(async (req: Request) => {
 </html>`;
     return new Response(html, {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Content-Type-Options': 'nosniff',
+      },
     });
   }
 });

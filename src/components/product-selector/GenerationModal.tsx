@@ -168,7 +168,7 @@ export function GenerationModal({
                       key={option.value}
                       onClick={() => !option.disabled && setDuration(option.value)}
                       disabled={option.disabled}
-                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all relative ${
                         duration === option.value
                           ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
                           : option.disabled
@@ -176,6 +176,11 @@ export function GenerationModal({
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
                       }`}
                     >
+                      {option.value === 8 && (
+                        <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                          PRO
+                        </span>
+                      )}
                       <div>{option.label}</div>
                       <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
                     </button>

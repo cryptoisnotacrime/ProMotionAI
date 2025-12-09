@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, Globe, Instagram, Video, X, Loader, ArrowRight, SkipForward, Facebook } from 'lucide-react';
+import { Sparkles, Globe, Instagram, Video, X, Loader, ArrowRight, SkipForward, Facebook, Plus } from 'lucide-react';
 import { Store } from '../../lib/supabase';
 import { BrandDNAService, BrandDNA } from '../../services/onboarding/brand-dna.service';
 
@@ -37,6 +37,9 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
     brand_tone_of_voice: [],
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const [newValue, setNewValue] = useState('');
+  const [newAesthetic, setNewAesthetic] = useState('');
+  const [newTone, setNewTone] = useState('');
 
   const handleSkip = async () => {
     try {
@@ -79,6 +82,30 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
     } catch (error) {
       console.error('Failed to save manual edits:', error);
       alert('Failed to save changes. Please try again.');
+    }
+  };
+
+  const handleAddValue = () => {
+    const trimmed = newValue.trim();
+    if (trimmed && !brandDNA.brand_values.includes(trimmed) && brandDNA.brand_values.length < 10) {
+      setBrandDNA({ ...brandDNA, brand_values: [...brandDNA.brand_values, trimmed] });
+      setNewValue('');
+    }
+  };
+
+  const handleAddAesthetic = () => {
+    const trimmed = newAesthetic.trim();
+    if (trimmed && !brandDNA.brand_aesthetic.includes(trimmed) && brandDNA.brand_aesthetic.length < 10) {
+      setBrandDNA({ ...brandDNA, brand_aesthetic: [...brandDNA.brand_aesthetic, trimmed] });
+      setNewAesthetic('');
+    }
+  };
+
+  const handleAddTone = () => {
+    const trimmed = newTone.trim();
+    if (trimmed && !brandDNA.brand_tone_of_voice.includes(trimmed) && brandDNA.brand_tone_of_voice.length < 10) {
+      setBrandDNA({ ...brandDNA, brand_tone_of_voice: [...brandDNA.brand_tone_of_voice, trimmed] });
+      setNewTone('');
     }
   };
 
@@ -354,10 +381,10 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
             )}
 
             {/* Brand Values */}
-            {brandDNA.brand_values && brandDNA.brand_values.length > 0 && (
-              <div className="bg-gray-800 rounded-xl p-5">
-                <h3 className="font-semibold text-gray-100 mb-3">Brand Values</h3>
-                <div className="flex flex-wrap gap-2">
+            <div className="bg-gray-800 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-100 mb-3">Brand Values</h3>
+              {brandDNA.brand_values && brandDNA.brand_values.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mb-3">
                   {brandDNA.brand_values.map((value, index) => (
                     <span
                       key={index}
@@ -376,14 +403,38 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                     </span>
                   ))}
                 </div>
+              ) : (
+                <p className="text-sm text-gray-400 mb-3">Click + to add your first brand value</p>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddValue()}
+                  placeholder="Add a brand value..."
+                  maxLength={30}
+                  disabled={brandDNA.brand_values.length >= 10}
+                  className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <button
+                  onClick={handleAddValue}
+                  disabled={!newValue.trim() || brandDNA.brand_values.length >= 10}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
-            )}
+              {brandDNA.brand_values.length >= 10 && (
+                <p className="text-xs text-gray-400 mt-2">Maximum 10 values reached</p>
+              )}
+            </div>
 
             {/* Brand Aesthetic */}
-            {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.length > 0 && (
-              <div className="bg-gray-800 rounded-xl p-5">
-                <h3 className="font-semibold text-gray-100 mb-3">Brand Aesthetic</h3>
-                <div className="flex flex-wrap gap-2">
+            <div className="bg-gray-800 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-100 mb-3">Brand Aesthetic</h3>
+              {brandDNA.brand_aesthetic && brandDNA.brand_aesthetic.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mb-3">
                   {brandDNA.brand_aesthetic.map((aesthetic, index) => (
                     <span
                       key={index}
@@ -392,8 +443,8 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                       {aesthetic}
                       <button
                         onClick={() => {
-                          const newAesthetic = brandDNA.brand_aesthetic.filter((_, i) => i !== index);
-                          setBrandDNA({ ...brandDNA, brand_aesthetic: newAesthetic });
+                          const newAestheticList = brandDNA.brand_aesthetic.filter((_, i) => i !== index);
+                          setBrandDNA({ ...brandDNA, brand_aesthetic: newAestheticList });
                         }}
                         className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
                       >
@@ -402,14 +453,38 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                     </span>
                   ))}
                 </div>
+              ) : (
+                <p className="text-sm text-gray-400 mb-3">Click + to add your first aesthetic keyword</p>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newAesthetic}
+                  onChange={(e) => setNewAesthetic(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddAesthetic()}
+                  placeholder="Add an aesthetic keyword..."
+                  maxLength={30}
+                  disabled={brandDNA.brand_aesthetic.length >= 10}
+                  className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <button
+                  onClick={handleAddAesthetic}
+                  disabled={!newAesthetic.trim() || brandDNA.brand_aesthetic.length >= 10}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
-            )}
+              {brandDNA.brand_aesthetic.length >= 10 && (
+                <p className="text-xs text-gray-400 mt-2">Maximum 10 aesthetics reached</p>
+              )}
+            </div>
 
             {/* Tone of Voice */}
-            {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.length > 0 && (
-              <div className="bg-gray-800 rounded-xl p-5">
-                <h3 className="font-semibold text-gray-100 mb-3">Tone of Voice</h3>
-                <div className="flex flex-wrap gap-2">
+            <div className="bg-gray-800 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-100 mb-3">Tone of Voice</h3>
+              {brandDNA.brand_tone_of_voice && brandDNA.brand_tone_of_voice.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mb-3">
                   {brandDNA.brand_tone_of_voice.map((tone, index) => (
                     <span
                       key={index}
@@ -418,8 +493,8 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                       {tone}
                       <button
                         onClick={() => {
-                          const newTone = brandDNA.brand_tone_of_voice.filter((_, i) => i !== index);
-                          setBrandDNA({ ...brandDNA, brand_tone_of_voice: newTone });
+                          const newToneList = brandDNA.brand_tone_of_voice.filter((_, i) => i !== index);
+                          setBrandDNA({ ...brandDNA, brand_tone_of_voice: newToneList });
                         }}
                         className="w-4 h-4 rounded-full bg-purple-800 group-hover:bg-red-500 text-purple-300 group-hover:text-white flex items-center justify-center transition-colors"
                       >
@@ -428,8 +503,32 @@ export function BusinessDNAOnboarding({ store, onComplete }: BusinessDNAOnboardi
                     </span>
                   ))}
                 </div>
+              ) : (
+                <p className="text-sm text-gray-400 mb-3">Click + to add your first tone descriptor</p>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTone}
+                  onChange={(e) => setNewTone(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddTone()}
+                  placeholder="Add a tone descriptor..."
+                  maxLength={30}
+                  disabled={brandDNA.brand_tone_of_voice.length >= 10}
+                  className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <button
+                  onClick={handleAddTone}
+                  disabled={!newTone.trim() || brandDNA.brand_tone_of_voice.length >= 10}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
-            )}
+              {brandDNA.brand_tone_of_voice.length >= 10 && (
+                <p className="text-xs text-gray-400 mt-2">Maximum 10 tones reached</p>
+              )}
+            </div>
           </div>
 
           {/* Business Overview */}
