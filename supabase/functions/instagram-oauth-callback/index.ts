@@ -22,8 +22,7 @@ Deno.serve(async (req: Request) => {
     const error = url.searchParams.get('error');
 
     if (error) {
-      return new Response(
-        `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -36,24 +35,32 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; }
     p { color: #999; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'instagram_error', error: '${error.replace(/'/g, "\\'")}' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 1500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 2000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">❌</div>
     <h1>Connection Cancelled</h1>
-    <p>Authorization was cancelled. This window will close automatically.</p>
+    <p>Authorization was cancelled.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'instagram_error', error: '${error}' }, '*');
-    setTimeout(() => window.close(), 2000);
-  </script>
 </body>
-</html>`,
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-        }
-      );
+</html>`;
+      return new Response(html, {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     if (!code || !state) {
@@ -119,8 +126,7 @@ Deno.serve(async (req: Request) => {
     const pagesData = await pagesResponse.json();
 
     if (!pagesData.data || pagesData.data.length === 0) {
-      return new Response(
-        `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -133,24 +139,32 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; }
     p { color: #999; font-size: 14px; line-height: 1.5; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'instagram_error', error: 'No Facebook Pages found. You need a Facebook Page connected to your Instagram Business Account.' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 2500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 3000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">⚠️</div>
     <h1>No Facebook Pages Found</h1>
     <p>Please create a Facebook Page and link your Instagram Business Account to it, then try again.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'instagram_error', error: 'No Facebook Pages found. You need a Facebook Page connected to your Instagram Business Account.' }, '*');
-    setTimeout(() => window.close(), 3000);
-  </script>
 </body>
-</html>`,
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-        }
-      );
+</html>`;
+      return new Response(html, {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     // Step 5: For each page, check if it has an Instagram Business Account
@@ -205,8 +219,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!instagramAccountFound) {
-      return new Response(
-        `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -219,24 +232,32 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; }
     p { color: #999; font-size: 14px; line-height: 1.5; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'instagram_error', error: 'No Instagram Business Account found linked to your Facebook Pages.' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 2500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 3000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">⚠️</div>
     <h1>No Instagram Business Account</h1>
     <p>Please link your Instagram Business Account to one of your Facebook Pages and try again.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'instagram_error', error: 'No Instagram Business Account found linked to your Facebook Pages.' }, '*');
-    setTimeout(() => window.close(), 3000);
-  </script>
 </body>
-</html>`,
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-        }
-      );
+</html>`;
+      return new Response(html, {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     // Step 6: Save to database
@@ -257,8 +278,15 @@ Deno.serve(async (req: Request) => {
       throw new Error('Failed to save connection');
     }
 
-    return new Response(
-      `<!DOCTYPE html>
+    // Escape username for safe HTML/JS injection
+    const safeUsername = connectionData.platform_username
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -272,28 +300,49 @@ Deno.serve(async (req: Request) => {
     p { color: #999; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
   </style>
+  <script>
+    // Execute immediately
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({
+            type: 'instagram_connected',
+            username: decodeURIComponent('${encodeURIComponent(connectionData.platform_username)}')
+          }, '*');
+        }
+        setTimeout(function() {
+          window.close();
+        }, 1000);
+      } catch(e) {
+        console.error('Error:', e);
+        setTimeout(function() {
+          window.close();
+        }, 2000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">✓</div>
     <h1>Instagram Connected!</h1>
-    <p>@${connectionData.platform_username} has been connected successfully.</p>
+    <p>@${safeUsername} connected successfully.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'instagram_connected', username: '${connectionData.platform_username}' }, '*');
-    setTimeout(() => window.close(), 1500);
-  </script>
 </body>
-</html>`,
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-      }
-    );
+</html>`;
+
+    return new Response(html, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/html; charset=utf-8',
+      },
+    });
   } catch (error) {
     console.error('Instagram OAuth callback error:', error);
-    return new Response(
-      `<!DOCTYPE html>
+    const errorMsg = error.message.replace(/'/g, "\\'");
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -306,22 +355,31 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; color: #ef4444; }
     p { color: #999; font-size: 14px; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'instagram_error', error: '${errorMsg}' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 2500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 3000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">❌</div>
     <h1>Connection Error</h1>
-    <p>${error.message}</p>
+    <p>${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    setTimeout(() => window.close(), 3000);
-  </script>
 </body>
-</html>`,
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-      }
-    );
+</html>`;
+    return new Response(html, {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+    });
   }
 });

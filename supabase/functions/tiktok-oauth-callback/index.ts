@@ -22,8 +22,7 @@ Deno.serve(async (req: Request) => {
     const error = url.searchParams.get('error');
 
     if (error) {
-      return new Response(
-        `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -36,29 +35,36 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; }
     p { color: #999; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'tiktok_error', error: '${error.replace(/'/g, "\\'")}' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 1500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 2000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">❌</div>
     <h1>Connection Cancelled</h1>
-    <p>Authorization was cancelled. This window will close automatically.</p>
+    <p>Authorization was cancelled.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'tiktok_error', error: '${error}' }, '*');
-    setTimeout(() => window.close(), 2000);
-  </script>
 </body>
-</html>`,
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-        }
-      );
+</html>`;
+      return new Response(html, {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     if (!code || !state) {
-      return new Response(
-        `<!DOCTYPE html>
+      const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -71,20 +77,32 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; color: #ef4444; }
     p { color: #999; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'tiktok_error', error: 'Invalid OAuth parameters' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 2000);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 2500);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">⚠️</div>
     <h1>Invalid Request</h1>
     <p>Missing required OAuth parameters.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
 </body>
-</html>`,
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-        }
-      );
+</html>`;
+      return new Response(html, {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     // Decode state to get store_id
@@ -168,9 +186,15 @@ Deno.serve(async (req: Request) => {
       throw new Error('Failed to save connection');
     }
 
-    // Return success page that closes window
-    return new Response(
-      `<!DOCTYPE html>
+    // Escape username for safe HTML/JS injection
+    const safeUsername = userInfo.display_name
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -184,28 +208,49 @@ Deno.serve(async (req: Request) => {
     p { color: #999; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
   </style>
+  <script>
+    // Execute immediately
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({
+            type: 'tiktok_connected',
+            username: decodeURIComponent('${encodeURIComponent(userInfo.display_name)}')
+          }, '*');
+        }
+        setTimeout(function() {
+          window.close();
+        }, 1000);
+      } catch(e) {
+        console.error('Error:', e);
+        setTimeout(function() {
+          window.close();
+        }, 2000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">✓</div>
     <h1>TikTok Connected!</h1>
-    <p>${userInfo.display_name} has been connected successfully.</p>
+    <p>${safeUsername} connected successfully.</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    window.opener?.postMessage({ type: 'tiktok_connected', username: '${userInfo.display_name}' }, '*');
-    setTimeout(() => window.close(), 1500);
-  </script>
 </body>
-</html>`,
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-      }
-    );
+</html>`;
+
+    return new Response(html, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/html; charset=utf-8',
+      },
+    });
   } catch (error) {
     console.error('TikTok OAuth callback error:', error);
-    return new Response(
-      `<!DOCTYPE html>
+    const errorMsg = error.message.replace(/'/g, "\\'");
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -218,22 +263,31 @@ Deno.serve(async (req: Request) => {
     h1 { font-size: 20px; margin-bottom: 10px; color: #ef4444; }
     p { color: #999; font-size: 14px; }
   </style>
+  <script>
+    (function() {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'tiktok_error', error: '${errorMsg}' }, '*');
+        }
+        setTimeout(function() { window.close(); }, 2500);
+      } catch(e) {
+        setTimeout(function() { window.close(); }, 3000);
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="container">
     <div class="icon">❌</div>
     <h1>Connection Error</h1>
-    <p>${error.message}</p>
+    <p>${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+    <p style="font-size: 12px; margin-top: 20px;">This window will close automatically...</p>
   </div>
-  <script>
-    setTimeout(() => window.close(), 3000);
-  </script>
 </body>
-</html>`,
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-      }
-    );
+</html>`;
+    return new Response(html, {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+    });
   }
 });
