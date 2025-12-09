@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X, Plus, Instagram, Music, Trash2 } from 'lucide-react';
-import { Store } from '../../lib/supabase';
+import { User, CreditCard, Video, Save, RefreshCw, Palette, Sparkles, X, Plus, Instagram, Music, Trash2, Edit2, Star } from 'lucide-react';
+import { Store, supabase } from '../../lib/supabase';
 import { BrandDNAService } from '../../services/onboarding/brand-dna.service';
 import { SocialMediaService } from '../../services/social-media/social-media.service';
 
@@ -969,9 +969,12 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
   const [socialConnections, setSocialConnections] = useState<any[]>([]);
   const [socialPhotos, setSocialPhotos] = useState<any[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
+  const [customTemplates, setCustomTemplates] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
     loadSocialMedia();
+    loadCustomTemplates();
   }, [store.id]);
 
   const loadSocialMedia = async () => {
@@ -988,6 +991,58 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
       console.error('Failed to load social media:', error);
     } finally {
       setLoadingSocial(false);
+    }
+  };
+
+  const loadCustomTemplates = async () => {
+    try {
+      setLoadingTemplates(true);
+      const { data, error } = await supabase
+        .from('custom_templates')
+        .select('*')
+        .eq('store_id', store.id)
+        .eq('is_enabled', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCustomTemplates(data || []);
+    } catch (error) {
+      console.error('Failed to load custom templates:', error);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    if (!confirm('Are you sure you want to delete this custom template?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('custom_templates')
+        .delete()
+        .eq('id', templateId);
+
+      if (error) throw error;
+      await loadCustomTemplates();
+      alert('Template deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete template:', error);
+      alert('Failed to delete template. Please try again.');
+    }
+  };
+
+  const handleToggleFavorite = async (templateId: string, isFavorite: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('custom_templates')
+        .update({ is_favorite: !isFavorite })
+        .eq('id', templateId);
+
+      if (error) throw error;
+      await loadCustomTemplates();
+    } catch (error) {
+      console.error('Failed to update template:', error);
+      alert('Failed to update template. Please try again.');
     }
   };
 
@@ -1120,6 +1175,68 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
         </div>
       </div>
 
+      {/* Custom Templates */}
+      <div className="pt-6 border-t border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Custom Templates</h2>
+        <p className="text-sm text-gray-400 mb-4">
+          Manage your custom video templates. Create new ones from the video generation page.
+        </p>
+        {loadingTemplates ? (
+          <div className="text-center py-8 text-gray-400">Loading templates...</div>
+        ) : customTemplates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {customTemplates.map((template) => (
+              <div key={template.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-100">{template.name}</h4>
+                      <span className="text-xs px-2 py-0.5 bg-purple-900/50 text-purple-300 rounded-full">
+                        {template.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-2">{template.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span>Used {template.usage_count || 0} times</span>
+                      <span>•</span>
+                      <span>Created {new Date(template.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleToggleFavorite(template.id, template.is_favorite)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        template.is_favorite
+                          ? 'text-yellow-400 hover:text-yellow-300 bg-yellow-900/20'
+                          : 'text-gray-500 hover:text-gray-400 hover:bg-gray-700'
+                      }`}
+                      title={template.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Star className={`w-4 h-4 ${template.is_favorite ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTemplate(template.id)}
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Delete template"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-gray-800 rounded-xl p-6 text-center border border-gray-700">
+            <Edit2 className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-gray-100 mb-2">No Custom Templates Yet</p>
+            <p className="text-xs text-gray-400">
+              Create custom templates from the video generation page to save your favorite prompts
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Social Media Feeds - Brand Visual Reference */}
       <div className="pt-6 border-t border-gray-700">
         <h2 className="text-xl font-semibold text-gray-100 mb-4">Social Media Content</h2>
@@ -1140,16 +1257,19 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
             {loadingSocial ? (
               <div className="text-center py-8 text-gray-400">Loading...</div>
             ) : instagramPhotos.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {instagramPhotos.slice(0, 12).map((photo: any, index: number) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer relative group">
-                    <img
-                      src={photo.media_url}
-                      alt={photo.caption || 'Instagram post'}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Instagram className="w-6 h-6 text-white" />
+                  <div key={index} className="relative rounded-lg overflow-hidden border border-gray-700 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group bg-gray-900">
+                    <div className="relative w-full" style={{ paddingBottom: '133%' }}>
+                      <img
+                        src={photo.media_url}
+                        alt={photo.caption || 'Instagram post'}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Instagram className="w-6 h-6 text-white" />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1195,16 +1315,19 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
             {loadingSocial ? (
               <div className="text-center py-8 text-gray-400">Loading...</div>
             ) : tiktokPhotos.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {tiktokPhotos.slice(0, 12).map((photo: any, index: number) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden border-2 border-gray-700 shadow-sm hover:scale-105 transition-transform cursor-pointer relative group">
-                    <img
-                      src={photo.cover_image_url}
-                      alt={photo.title || 'TikTok video'}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Music className="w-6 h-6 text-white" />
+                  <div key={index} className="relative rounded-lg overflow-hidden border border-gray-700 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group bg-gray-900">
+                    <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
+                      <img
+                        src={photo.cover_image_url}
+                        alt={photo.title || 'TikTok video'}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Music className="w-6 h-6 text-white" />
+                      </div>
                     </div>
                   </div>
                 ))}
