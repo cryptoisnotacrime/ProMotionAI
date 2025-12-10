@@ -5,7 +5,7 @@ import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
 import { Store, SocialMediaPhoto } from '../../lib/supabase';
-import { MultiImagePicker, ImageSlot } from './MultiImagePicker';
+import { ImageSlot } from './MultiImagePicker';
 import { CustomTemplateModal } from '../settings/CustomTemplateModal';
 import { SocialMediaService } from '../../services/social-media/social-media.service';
 
@@ -211,11 +211,11 @@ export function GenerationModal({
                 <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
               </div>
 
-              {/* Compact 3-Slot Layout */}
+              {/* Compact 3-Slot Layout - Reduced by 40% */}
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {/* Slot 1: Primary Image (Always Filled) */}
                 <div
-                  className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
+                  className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
                   onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
                 >
                   {selectedImages[0] && (
@@ -238,7 +238,7 @@ export function GenerationModal({
                 {/* Slot 2: Reference Image or Placeholder */}
                 {selectedImages[1] ? (
                   <div
-                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
                     onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
                   >
                     <img
@@ -251,7 +251,7 @@ export function GenerationModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                  <div className="relative h-24 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
                       <Lock className="w-5 h-5 mb-1" />
                       <span className="text-[10px] font-medium">Reference 2</span>
@@ -272,7 +272,7 @@ export function GenerationModal({
                 {/* Slot 3: Last Frame or Placeholder */}
                 {selectedImages[2] ? (
                   <div
-                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
                     onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
                   >
                     <img
@@ -285,7 +285,7 @@ export function GenerationModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                  <div className="relative h-24 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
                       <Lock className="w-5 h-5 mb-1" />
                       <span className="text-[10px] font-medium">Last Frame</span>
@@ -313,7 +313,8 @@ export function GenerationModal({
                       <button
                         key={idx}
                         onClick={() => {
-                          if (selectedImages.length >= 3 || (!isProPlan && selectedImages.length >= 1)) return;
+                          if (selectedImages.length >= 3) return;
+                          if (!isProPlan && selectedImages.length >= 1) return;
                           const newImage: ImageSlot = {
                             url: img.src.trim(),
                             isProductImage: true,
@@ -325,8 +326,8 @@ export function GenerationModal({
                         className={`flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
                           selectedImages.some(s => s.url === img.src)
                             ? 'border-purple-500 opacity-50'
-                            : 'border-gray-700 hover:border-purple-500 cursor-pointer'
-                        } ${(!isProPlan && selectedImages.length >= 1) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                            : ((!isProPlan && selectedImages.length >= 1) ? 'border-gray-700 opacity-40 cursor-not-allowed' : 'border-gray-700 hover:border-purple-500 cursor-pointer')
+                        }`}
                       >
                         <img
                           src={img.src}
@@ -353,7 +354,8 @@ export function GenerationModal({
                         <button
                           key={photo.id}
                           onClick={() => {
-                            if (selectedImages.length >= 3 || (!isProPlan && selectedImages.length >= 1)) return;
+                            if (selectedImages.length >= 3) return;
+                            if (!isProPlan && selectedImages.length >= 1) return;
                             const newImage: ImageSlot = {
                               url: photo.url.trim(),
                               isProductImage: false,
@@ -365,8 +367,8 @@ export function GenerationModal({
                           className={`relative flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
                             selectedImages.some(s => s.url === photo.url)
                               ? 'border-indigo-500 opacity-50'
-                              : 'border-indigo-700/50 hover:border-indigo-500 cursor-pointer'
-                          } ${(!isProPlan && selectedImages.length >= 1) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              : ((!isProPlan && selectedImages.length >= 1) ? 'border-indigo-700/50 opacity-40 cursor-not-allowed' : 'border-indigo-700/50 hover:border-indigo-500 cursor-pointer')
+                          }`}
                         >
                           <img
                             src={photo.thumbnail}
@@ -404,73 +406,7 @@ export function GenerationModal({
                   )}
                 </div>
               </div>
-
-              {/* Expandable Multi-Image Picker */}
-              <details className="mt-2">
-                <summary className="cursor-pointer text-xs text-purple-400 hover:text-purple-300 font-medium">
-                  {isProPlan ? 'Add or change images' : 'Upgrade to Pro for multi-image'}
-                </summary>
-                <div className="mt-3">
-                  <MultiImagePicker
-                    productImages={product.images}
-                    productTitle={product.title}
-                    onImagesChange={setSelectedImages}
-                    maxImages={3}
-                    storeId={store.id}
-                    planName={planName}
-                  />
-                </div>
-              </details>
             </div>
-
-            {/* Current Template Badge */}
-            {selectedTemplate && (
-              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span className="text-xs text-purple-200">
-                    Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
-                  </span>
-                </div>
-                {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
-                  <button
-                    onClick={() => setShowCustomTemplateModal(true)}
-                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
-                  >
-                    <Save className="w-3 h-3" />
-                    Save as Custom
-                  </button>
-                ) : (
-                  <div className="group relative">
-                    <button
-                      disabled
-                      className="px-2.5 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
-                    >
-                      <Lock className="w-3 h-3" />
-                      PRO Feature
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Template Selection & Customization - All in One View */}
-            {isLoadingTemplates ? (
-              <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-              </div>
-            ) : (
-              <TemplateForm
-                templates={templates}
-                selectedTemplate={selectedTemplate}
-                onTemplateSelect={setSelectedTemplate}
-                product={product}
-                productImageUrl={imageUrl}
-                store={store}
-                onInputChange={setTemplateInputs}
-                userTier={planName}
-              />
-            )}
 
             {/* Duration Selection */}
             <div>
@@ -510,6 +446,55 @@ export function GenerationModal({
                 </div>
               )}
             </div>
+
+            {/* Template Selection & Customization - All in One View */}
+            {isLoadingTemplates ? (
+              <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              </div>
+            ) : (
+              <TemplateForm
+                templates={templates}
+                selectedTemplate={selectedTemplate}
+                onTemplateSelect={setSelectedTemplate}
+                product={product}
+                productImageUrl={imageUrl}
+                store={store}
+                onInputChange={setTemplateInputs}
+                userTier={planName}
+              />
+            )}
+
+            {/* Current Template Badge */}
+            {selectedTemplate && (
+              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs text-purple-200">
+                    Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
+                  </span>
+                </div>
+                {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
+                  <button
+                    onClick={() => setShowCustomTemplateModal(true)}
+                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save as Custom
+                  </button>
+                ) : (
+                  <div className="group relative">
+                    <button
+                      disabled
+                      className="px-2.5 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
+                    >
+                      <Lock className="w-3 h-3" />
+                      PRO Feature
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Footer - Fixed */}
