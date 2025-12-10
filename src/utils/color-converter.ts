@@ -96,5 +96,20 @@ export function hexToColorName(hex: string): string {
     return 'Gray';
   }
 
-  return hex;
+  // Determine dominant color channel and return generic name
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+
+  if (max - min < 30) {
+    return brightness < 128 ? 'Dark Gray' : 'Light Gray';
+  }
+
+  if (r === max && g > b) return brightness < 128 ? 'Dark Orange' : 'Orange';
+  if (r === max && b > g) return brightness < 128 ? 'Dark Red' : 'Red';
+  if (g === max && r > b) return brightness < 128 ? 'Olive' : 'Yellow-Green';
+  if (g === max) return brightness < 128 ? 'Dark Green' : 'Green';
+  if (b === max && g > r) return brightness < 128 ? 'Teal' : 'Cyan';
+  if (b === max) return brightness < 128 ? 'Navy' : 'Blue';
+
+  return 'Custom Color';
 }

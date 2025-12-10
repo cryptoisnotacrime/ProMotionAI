@@ -166,7 +166,7 @@ export function GenerationModal({
   return (
     <>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20 flex flex-col">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20 flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-3 flex items-center justify-between backdrop-blur-sm flex-shrink-0">
             <div>
@@ -187,17 +187,18 @@ export function GenerationModal({
 
           {/* Main Content - Scrollable */}
           <div className="overflow-y-auto flex-1 p-6 space-y-5">
-            {/* Compact Image Gallery */}
+            {/* Product Gallery */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
                 <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="grid grid-cols-3 gap-3 mb-3">
                 {selectedImages.map((image, index) => (
                   <div
                     key={index}
-                    className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group flex-shrink-0"
+                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    onClick={() => setEnlargedImageUrl(image.url)}
                   >
                     <img
                       src={image.url}
@@ -205,16 +206,13 @@ export function GenerationModal({
                       className="w-full h-full object-cover"
                     />
                     {index === 0 && (
-                      <div className="absolute top-1 left-1 bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-semibold">
+                      <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
                         Primary
                       </div>
                     )}
-                    <button
-                      onClick={() => setEnlargedImageUrl(image.url)}
-                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                    >
-                      <Maximize2 className="w-4 h-4 text-white" />
-                    </button>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Maximize2 className="w-6 h-6 text-white" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -222,7 +220,7 @@ export function GenerationModal({
               {/* Expandable Multi-Image Picker */}
               <details className="mt-3">
                 <summary className="cursor-pointer text-xs text-purple-400 hover:text-purple-300 font-medium">
-                  {isProPlan ? 'Add more images' : 'Upgrade to Pro for multi-image'}
+                  {isProPlan ? 'Add or change images' : 'Upgrade to Pro for multi-image'}
                 </summary>
                 <div className="mt-3">
                   <MultiImagePicker
