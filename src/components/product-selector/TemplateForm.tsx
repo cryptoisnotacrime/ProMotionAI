@@ -56,7 +56,19 @@ export function TemplateForm({
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set([]));
   const [customTemplates, setCustomTemplates] = useState<DetailedTemplate[]>([]);
 
-  // Extract colors from product description
+  // Get brand colors from Brand DNA
+  const getBrandColors = (): string => {
+    if (store.brand_colors && store.brand_colors.length > 0) {
+      return store.brand_colors
+        .slice(0, 3)
+        .map((c: any) => c.name || c.hex)
+        .filter(Boolean)
+        .join(', ');
+    }
+    return '';
+  };
+
+  // Extract colors from product description (fallback only)
   const extractColors = () => {
     const description = product.body_html?.toLowerCase() || '';
     const colorKeywords = ['gold', 'silver', 'black', 'white', 'blue', 'red', 'green', 'purple', 'pink', 'yellow', 'orange', 'brown', 'grey', 'gray', 'navy', 'rose'];
@@ -92,7 +104,7 @@ export function TemplateForm({
     camera_motion: 'dolly_in',
     lens_effect: 'shallow_dof',
     visual_style: 'cinematic',
-    color_palette: extractColors(),
+    color_palette: getBrandColors() || extractColors(),
     platform: '9:16',
     duration: 8,
     tier: userTier,
@@ -110,7 +122,7 @@ export function TemplateForm({
       brand_name: prev.brand_name || updatedPrefillData.brand_name || '',
       final_call_to_action: prev.final_call_to_action || updatedPrefillData.final_call_to_action || '',
       custom_notes: prev.custom_notes || generateCustomNotes() || updatedPrefillData.custom_notes || '',
-      color_palette: prev.color_palette || extractColors(),
+      color_palette: prev.color_palette || getBrandColors() || extractColors(),
     }));
   }, [product.title, productImageUrl, userTier, store]);
 
@@ -123,7 +135,7 @@ export function TemplateForm({
         background_style: TemplateMappingService.mapBackground(selectedTemplate.background),
         tone: TemplateMappingService.mapTone(selectedTemplate.hook || selectedTemplate.meta.category),
         lens_effect: TemplateMappingService.mapLensEffect(selectedTemplate.visual_style),
-        color_palette: selectedTemplate.color_palette || extractColors(),
+        color_palette: selectedTemplate.color_palette || getBrandColors() || extractColors(),
       };
 
       const categoryDefaults = TemplateMappingService.getCategoryDefaults(selectedTemplate.meta.category);

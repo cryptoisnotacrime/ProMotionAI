@@ -194,8 +194,11 @@ Deno.serve(async (req: Request) => {
       const mimeType = contentType.includes('jpeg') || contentType.includes('jpg') ? 'image/jpeg' : 'image/png';
 
       processedImages.push({
-        bytesBase64Encoded: imageBase64,
-        mimeType: mimeType,
+        image: {
+          bytesBase64Encoded: imageBase64,
+          mimeType: mimeType,
+        },
+        referenceType: "asset",
       });
     }
 
@@ -215,37 +218,32 @@ Deno.serve(async (req: Request) => {
       console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
     }
 
-    const veoRequestBody = processedImages.length === 1
-      ? {
-          instances: [
-            {
-              prompt: prompt || "Create an engaging product video",
-              image: processedImages[0],
-            },
-          ],
-          parameters: {
-            durationSeconds: durationSeconds,
-            aspectRatio: veoAspectRatio,
-            personGeneration: "allow_adult",
-            generateAudio: false,
-          },
-        }
-      : {
-          instances: [
-            {
-              prompt: prompt || "Create an engaging product video",
-              subject_images: processedImages,
-            },
-          ],
-          parameters: {
-            durationSeconds: durationSeconds,
-            aspectRatio: veoAspectRatio,
-            personGeneration: "allow_adult",
-            generateAudio: false,
-          },
-        };
+    // Veo 3.1 with reference images only supports 8-second videos
+    if (processedImages.length > 0 && durationSeconds > 8) {
+      console.log(`Warning: Veo 3.1 with reference images only supports 8s videos. Requested ${durationSeconds}s will be clamped to 8s.`);
+    }
+
+    const veoRequestBody = {
+      instances: [
+        {
+          prompt: prompt || "Create an engaging product video",
+          referenceImages: processedImages,
+        },
+      ],
+      parameters: {
+        durationSeconds: durationSeconds,
+        aspectRatio: veoAspectRatio,
+        personGeneration: "allow_adult",
+        generateAudio: false,
+      },
+    };
 
     console.log("Calling Veo 3.1 API with prompt:", prompt);
+    console.log(`Using ${processedImages.length} reference image(s) with structure:`, JSON.stringify({
+      imageCount: processedImages.length,
+      mimeTypes: processedImages.map((img: any) => img.image?.mimeType),
+      base64Lengths: processedImages.map((img: any) => img.image?.bytesBase64Encoded?.length),
+    }));
     console.log("Vertex AI endpoint:", veoEndpoint.replace(gcpProjectId, 'PROJECT_ID'));
 
     const veoResponse = await fetch(veoEndpoint, {
