@@ -23,6 +23,8 @@ export interface TemplateInput {
   background_style?: string;
   lighting_mood?: string;
   camera_motion?: string;
+  lens_effect?: string;
+  visual_style?: string;
   color_palette?: string;
   platform?: string;
   duration?: number;

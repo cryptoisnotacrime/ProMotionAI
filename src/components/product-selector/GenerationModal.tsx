@@ -95,6 +95,11 @@ export function GenerationModal({
       aspect_ratio: templateInputs.platform || '9:16',
       background_style: templateInputs.background_style || 'studio',
       color_palette: store.brand_colors?.map((c: any) => c.hex).join(', ') || 'brand colors',
+      camera_motion: templateInputs.camera_motion || 'dolly_in',
+      lens_effect: templateInputs.lens_effect || '',
+      visual_style: templateInputs.visual_style || 'cinematic',
+      lighting_mood: templateInputs.lighting_mood || 'dramatic',
+      tone: templateInputs.tone || 'luxury',
     };
 
     let promptText = fillTemplateVariables(selectedTemplate, variables);

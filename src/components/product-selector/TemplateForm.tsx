@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Info, Film, Heart, Users, ChevronDown, ChevronUp, Lock, Crown, Youtube, Instagram, Zap, Palette, Camera, Sun } from 'lucide-react';
+import { Sparkles, Info, Film, Heart, Users, ChevronDown, ChevronUp, Lock, Crown, Youtube, Instagram, Zap, Palette, Camera, Sun, Eye, Aperture } from 'lucide-react';
 import { TemplateInput, getDefaultInputsForProductType } from '../../services/ai-generator/template.service';
 import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { Store } from '../../lib/supabase';
 import { prefillFromStoreSettings } from '../../services/ai-generator/prefill.service';
+import {
+  CAMERA_MOVEMENTS,
+  LENS_EFFECTS,
+  LIGHTING_MOODS,
+  BACKGROUNDS,
+  TONES,
+  VISUAL_STYLES
+} from '../../constants/video-generation';
+import { Tooltip } from '../common/Tooltip';
 
 interface TemplateFormProps {
   templates: DetailedTemplate[];
@@ -72,10 +81,12 @@ export function TemplateForm({
     product_image_url: productImageUrl,
     product_type: '',
     brand_name: prefillData.brand_name || '',
-    tone: 'cinematic',
+    tone: 'luxury',
     background_style: 'studio',
     lighting_mood: 'dramatic',
-    camera_motion: 'slow dolly-in',
+    camera_motion: 'dolly_in',
+    lens_effect: 'shallow_dof',
+    visual_style: 'cinematic',
     color_palette: extractColors(),
     platform: '9:16',
     duration: 8,
@@ -170,11 +181,6 @@ export function TemplateForm({
     'Fashion', 'Tech', 'Food', 'Jewelry', 'Cosmetics',
     'Home Decor', 'Fitness', 'Other'
   ];
-
-  const tones = ['Luxury', 'Bold', 'Minimal', 'Warm', 'Futuristic', 'Playful'];
-  const backgrounds = ['Studio', 'Outdoor', 'Abstract', 'Lifestyle', 'Natural'];
-  const lighting = ['Golden Hour', 'Neon Glow', 'Natural Light', 'Spotlight', 'Dramatic', 'Soft Diffused'];
-  const cameraMoves = ['Static', 'Slow Dolly-In', 'Orbit', 'Track-In', 'Crane Shot', 'Dolly Zoom', 'Handheld'];
 
   return (
     <div className="space-y-6">
@@ -312,59 +318,101 @@ export function TemplateForm({
 
             <div>
               <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
-                <Zap className="w-3 h-3" /> Tone
+                <Eye className="w-3 h-3" />
+                Visual Style
+                <Tooltip content={VISUAL_STYLES.find(s => s.value === formData.visual_style)?.description || 'Overall aesthetic and presentation style'} />
+              </label>
+              <select
+                value={formData.visual_style}
+                onChange={(e) => updateField('visual_style', e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
+              >
+                {VISUAL_STYLES.map(style => (
+                  <option key={style.value} value={style.value}>{style.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                Tone
+                <Tooltip content={TONES.find(t => t.value === formData.tone)?.description || 'Emotional mood and feeling'} />
               </label>
               <select
                 value={formData.tone}
                 onChange={(e) => updateField('tone', e.target.value)}
                 className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
-                {tones.map(tone => (
-                  <option key={tone} value={tone.toLowerCase()}>{tone}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1">Background</label>
-              <select
-                value={formData.background_style}
-                onChange={(e) => updateField('background_style', e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
-              >
-                {backgrounds.map(bg => (
-                  <option key={bg} value={bg.toLowerCase()}>{bg}</option>
+                {TONES.map(tone => (
+                  <option key={tone.value} value={tone.value}>{tone.label}</option>
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
-                <Sun className="w-3 h-3" /> Lighting
+                Background
+                <Tooltip content={BACKGROUNDS.find(b => b.value === formData.background_style)?.description || 'Setting and environment for your video'} />
+              </label>
+              <select
+                value={formData.background_style}
+                onChange={(e) => updateField('background_style', e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
+              >
+                {BACKGROUNDS.map(bg => (
+                  <option key={bg.value} value={bg.value}>{bg.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+                <Sun className="w-3 h-3" />
+                Lighting
+                <Tooltip content={LIGHTING_MOODS.find(l => l.value === formData.lighting_mood)?.description || 'Lighting setup and mood'} />
               </label>
               <select
                 value={formData.lighting_mood}
                 onChange={(e) => updateField('lighting_mood', e.target.value)}
                 className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
-                {lighting.map(light => (
-                  <option key={light} value={light.toLowerCase()}>{light}</option>
+                {LIGHTING_MOODS.map(light => (
+                  <option key={light.value} value={light.value}>{light.label}</option>
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
-                <Camera className="w-3 h-3" /> Camera
+                <Camera className="w-3 h-3" />
+                Camera Movement
+                <Tooltip content={CAMERA_MOVEMENTS.find(c => c.value === formData.camera_motion)?.description || 'How the camera moves through the scene'} example={CAMERA_MOVEMENTS.find(c => c.value === formData.camera_motion)?.example} />
               </label>
               <select
                 value={formData.camera_motion}
                 onChange={(e) => updateField('camera_motion', e.target.value)}
-                disabled={userTier === 'free'}
-                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 disabled:bg-gray-900 bg-gray-800 text-gray-100"
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
               >
-                {cameraMoves.map(move => (
-                  <option key={move} value={move.toLowerCase()}>{move}</option>
+                {CAMERA_MOVEMENTS.map(move => (
+                  <option key={move.value} value={move.value}>{move.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-300 mb-1 flex items-center gap-1">
+                <Aperture className="w-3 h-3" />
+                Lens Effect
+                <Tooltip content={LENS_EFFECTS.find(l => l.value === formData.lens_effect)?.description || 'Optical effects and lens characteristics'} example={LENS_EFFECTS.find(l => l.value === formData.lens_effect)?.example} />
+              </label>
+              <select
+                value={formData.lens_effect}
+                onChange={(e) => updateField('lens_effect', e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100"
+              >
+                {LENS_EFFECTS.map(lens => (
+                  <option key={lens.value} value={lens.value}>{lens.label}</option>
                 ))}
               </select>
             </div>
@@ -396,7 +444,10 @@ export function TemplateForm({
                   }`}
                 >
                   <Instagram className="w-6 h-6" />
-                  <span className="text-sm font-semibold">9:16</span>
+                  <div>
+                    <span className="text-sm font-semibold block">9:16 Vertical</span>
+                    <span className="text-xs text-gray-400">Instagram, TikTok, Shorts</span>
+                  </div>
                 </button>
                 <button
                   type="button"
@@ -408,7 +459,10 @@ export function TemplateForm({
                   }`}
                 >
                   <Youtube className="w-6 h-6" />
-                  <span className="text-sm font-semibold">16:9</span>
+                  <div>
+                    <span className="text-sm font-semibold block">16:9 Horizontal</span>
+                    <span className="text-xs text-gray-400">YouTube, Facebook, Web</span>
+                  </div>
                 </button>
               </div>
             </div>

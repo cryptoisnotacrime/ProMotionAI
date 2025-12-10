@@ -77,6 +77,11 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
     return text.replace(/https?:\/\/[^\s)]+/gi, '').replace(/\s+/g, ' ').trim();
   };
 
+  // Helper function to convert snake_case to readable text
+  const formatOption = (text: string): string => {
+    return text.replace(/_/g, ' ');
+  };
+
   // Build comprehensive Veo 3 prompt from template structure
   const parts: string[] = [];
 
@@ -87,11 +92,18 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   });
   parts.push(removeUrls(description));
 
-  // Visual style
-  parts.push(`Visual style: ${template.visual_style}`);
+  // Visual style (use custom or template default)
+  const visualStyle = variables.visual_style || template.visual_style;
+  parts.push(`Visual style: ${formatOption(visualStyle)}`);
 
-  // Camera movement
-  parts.push(`Camera: ${template.camera}`);
+  // Camera movement (use custom or template default)
+  const cameraMotion = variables.camera_motion || template.camera;
+  parts.push(`Camera: ${formatOption(cameraMotion)}`);
+
+  // Lens effect (if provided)
+  if (variables.lens_effect) {
+    parts.push(`Lens: ${formatOption(variables.lens_effect)}`);
+  }
 
   // Main subject with variables
   let mainSubject = template.main_subject;
