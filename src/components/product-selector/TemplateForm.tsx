@@ -154,11 +154,11 @@ export function TemplateForm({
   }, [store.id]);
 
   const handleProductTypeChange = (type: string) => {
-    const defaults = getDefaultInputsForProductType(type);
+    // Only update product_type field, don't override other dropdown selections
+    // Template selection should be the only thing that changes dropdown defaults
     setFormData(prev => ({
       ...prev,
       product_type: type,
-      ...defaults,
     }));
   };
 

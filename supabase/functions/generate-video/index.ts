@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
 
     const newCredits = store.credits_remaining - creditsRequired;
 
-    console.log("Deducting credits...");
+    console.log(`Deducting ${creditsRequired} credits from store...`);
     const { error: updateError } = await supabase
       .from("stores")
       .update({
@@ -131,7 +131,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("Recording transaction...");
+    console.log(`✓ Credits deducted successfully! ${creditsRequired} credits used, ${newCredits} credits remaining`);
+    console.log("Recording transaction in credit_transactions table...");
     await supabase.from("credit_transactions").insert({
       store_id: storeId,
       video_id: videoId,
@@ -508,7 +509,7 @@ async function chargeUsage(
   accessToken: string
 ): Promise<void> {
   try {
-    console.log("Fetching store plan and subscription details...");
+    console.log("Attempting to charge Shopify usage (separate from credit deduction)...");
     const { data: store } = await supabase
       .from("stores")
       .select("plan_name, shopify_subscription_id")
@@ -516,7 +517,7 @@ async function chargeUsage(
       .single();
 
     if (!store || !store.shopify_subscription_id) {
-      console.log("No subscription ID found, skipping usage charge");
+      console.log("No Shopify subscription found - skipping Shopify usage charge (credits already deducted)");
       return;
     }
 
@@ -703,7 +704,9 @@ async function pollVeoJob(
         })
         .eq("id", videoId);
 
-      console.log("Charging usage to Shopify...");
+      console.log("Video generation completed successfully!");
+
+      console.log("Attempting to create Shopify billing charge (optional)...");
       const { data: videoData } = await supabase
         .from("generated_videos")
         .select("duration_seconds, store_id")
@@ -714,7 +717,6 @@ async function pollVeoJob(
         await chargeUsage(supabase, videoData.store_id, videoId, videoData.duration_seconds, shop_domain, access_token);
       }
 
-      console.log("Video generation completed successfully!");
       return;
     }
   }

@@ -81,6 +81,16 @@ export function GenerationModal({
     setTemplateInputs(prev => ({ ...prev, duration }));
   }, [duration]);
 
+  // Update product_image_url when selected images change
+  useEffect(() => {
+    if (selectedImages.length > 0) {
+      setTemplateInputs(prev => ({
+        ...prev,
+        product_image_url: selectedImages[0].url
+      }));
+    }
+  }, [selectedImages]);
+
   const handleGenerate = () => {
     if (!selectedTemplate || !hasEnoughCredits) {
       return;
@@ -88,7 +98,7 @@ export function GenerationModal({
 
     const variables: Record<string, string> = {
       product_name: product.title,
-      product_image_url: imageUrl,
+      product_image_url: selectedImages[0]?.url || imageUrl,
       brand_name: templateInputs.brand_name || store.default_brand_name || '',
       platform: templateInputs.platform || '9:16',
       duration: `${duration}s`,
