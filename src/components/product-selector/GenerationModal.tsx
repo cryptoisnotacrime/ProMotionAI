@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play, Save, Lock, Maximize2 } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save, Lock, Maximize2, Instagram, Music } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
-import { Store } from '../../lib/supabase';
+import { Store, SocialMediaPhoto } from '../../lib/supabase';
 import { MultiImagePicker, ImageSlot } from './MultiImagePicker';
 import { CustomTemplateModal } from '../settings/CustomTemplateModal';
+import { SocialMediaService } from '../../services/social-media/social-media.service';
 
 interface GenerationModalProps {
   product: ShopifyProduct;
@@ -47,6 +48,8 @@ export function GenerationModal({
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
   const [enlargedImageUrl, setEnlargedImageUrl] = useState<string | null>(null);
+  const [socialPhotos, setSocialPhotos] = useState<SocialMediaPhoto[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
 
   const isProPlan = planName === 'pro' || planName === 'enterprise';
   const imageCount = selectedImages.length;
@@ -54,7 +57,8 @@ export function GenerationModal({
 
   useEffect(() => {
     loadTemplates();
-  }, [planName]);
+    loadSocialPhotos();
+  }, [planName, store.id]);
 
   const loadTemplates = async () => {
     try {
@@ -68,6 +72,19 @@ export function GenerationModal({
       console.error('Failed to load templates:', error);
     } finally {
       setIsLoadingTemplates(false);
+    }
+  };
+
+  const loadSocialPhotos = async () => {
+    try {
+      setLoadingSocial(true);
+      const photos = await SocialMediaService.getAllPhotos(store.id);
+      setSocialPhotos(photos.slice(0, 6)); // Only show last 6
+    } catch (error) {
+      console.error('Failed to load social photos:', error);
+      setSocialPhotos([]);
+    } finally {
+      setLoadingSocial(false);
     }
   };
 
@@ -187,38 +204,209 @@ export function GenerationModal({
 
           {/* Main Content - Scrollable */}
           <div className="overflow-y-auto flex-1 p-6 space-y-5">
-            {/* Product Gallery */}
+            {/* Reference Images - Compact Layout */}
             <div>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
                 <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
               </div>
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                {selectedImages.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
-                    onClick={() => setEnlargedImageUrl(image.url)}
-                  >
-                    <img
-                      src={image.url}
-                      alt={`Reference ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {index === 0 && (
-                      <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
+
+              {/* Compact 3-Slot Layout */}
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {/* Slot 1: Primary Image (Always Filled) */}
+                <div
+                  className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
+                  onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
+                >
+                  {selectedImages[0] && (
+                    <>
+                      <img
+                        src={selectedImages[0].url}
+                        alt="Primary reference"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
                         Primary
                       </div>
-                    )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Maximize2 className="w-4 h-4 text-white" />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Slot 2: Reference Image or Placeholder */}
+                {selectedImages[1] ? (
+                  <div
+                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
+                  >
+                    <img
+                      src={selectedImages[1].url}
+                      alt="Reference 2"
+                      className="w-full h-full object-cover"
+                    />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Maximize2 className="w-6 h-6 text-white" />
+                      <Maximize2 className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                ))}
+                ) : (
+                  <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                      <Lock className="w-5 h-5 mb-1" />
+                      <span className="text-[10px] font-medium">Reference 2</span>
+                    </div>
+                    {!isProPlan && (
+                      <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                        <div className="text-center">
+                          <div className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">
+                            PRO
+                          </div>
+                          <p className="text-[10px] text-purple-300 font-semibold">Multi-image</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Slot 3: Last Frame or Placeholder */}
+                {selectedImages[2] ? (
+                  <div
+                    className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
+                  >
+                    <img
+                      src={selectedImages[2].url}
+                      alt="Last frame"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Maximize2 className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                      <Lock className="w-5 h-5 mb-1" />
+                      <span className="text-[10px] font-medium">Last Frame</span>
+                    </div>
+                    {!isProPlan && (
+                      <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                        <div className="text-center">
+                          <div className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">
+                            PRO
+                          </div>
+                          <p className="text-[10px] text-purple-300 font-semibold">8s videos</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Product Photos Gallery */}
+              {product.images && product.images.length > 1 && (
+                <div className="mb-2">
+                  <h4 className="text-xs font-medium text-gray-300 mb-1.5">Product Photos</h4>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1">
+                    {product.images.slice(0, 8).map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          if (selectedImages.length >= 3 || (!isProPlan && selectedImages.length >= 1)) return;
+                          const newImage: ImageSlot = {
+                            url: img.src.trim(),
+                            isProductImage: true,
+                            source: 'product',
+                          };
+                          setSelectedImages([...selectedImages, newImage]);
+                        }}
+                        disabled={selectedImages.some(s => s.url === img.src) || (selectedImages.length >= 3) || (!isProPlan && selectedImages.length >= 1)}
+                        className={`flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
+                          selectedImages.some(s => s.url === img.src)
+                            ? 'border-purple-500 opacity-50'
+                            : 'border-gray-700 hover:border-purple-500 cursor-pointer'
+                        } ${(!isProPlan && selectedImages.length >= 1) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      >
+                        <img
+                          src={img.src}
+                          alt={img.alt || product.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Social Media Photos */}
+              <div className="mb-2">
+                <h4 className="text-xs font-medium text-gray-300 mb-1.5">Your Social Media</h4>
+                <div className="flex gap-1.5 overflow-x-auto pb-1 min-h-[68px]">
+                  {loadingSocial ? (
+                    <div className="flex-shrink-0 w-16 h-16 bg-gray-800/50 rounded border-2 border-gray-700 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
+                    </div>
+                  ) : socialPhotos.length > 0 ? (
+                    <>
+                      {socialPhotos.map((photo, idx) => (
+                        <button
+                          key={photo.id}
+                          onClick={() => {
+                            if (selectedImages.length >= 3 || (!isProPlan && selectedImages.length >= 1)) return;
+                            const newImage: ImageSlot = {
+                              url: photo.url.trim(),
+                              isProductImage: false,
+                              source: photo.platform,
+                            };
+                            setSelectedImages([...selectedImages, newImage]);
+                          }}
+                          disabled={selectedImages.some(s => s.url === photo.url) || (selectedImages.length >= 3) || (!isProPlan && selectedImages.length >= 1)}
+                          className={`relative flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
+                            selectedImages.some(s => s.url === photo.url)
+                              ? 'border-indigo-500 opacity-50'
+                              : 'border-indigo-700/50 hover:border-indigo-500 cursor-pointer'
+                          } ${(!isProPlan && selectedImages.length >= 1) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        >
+                          <img
+                            src={photo.thumbnail}
+                            alt={photo.caption || 'Social media photo'}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-0.5 right-0.5">
+                            {photo.platform === 'instagram' && (
+                              <Instagram className="w-3 h-3 text-white drop-shadow-lg" />
+                            )}
+                            {photo.platform === 'tiktok' && (
+                              <Music className="w-3 h-3 text-white drop-shadow-lg" />
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex-shrink-0 w-16 h-16 bg-gray-800/50 rounded border-2 border-dashed border-gray-700 flex items-center justify-center">
+                        <div className="text-center">
+                          <Lock className="w-4 h-4 text-gray-600 mx-auto mb-0.5" />
+                          <span className="text-[9px] text-gray-500">Connect</span>
+                        </div>
+                      </div>
+                      {[...Array(5)].map((_, idx) => (
+                        <div
+                          key={idx}
+                          className="flex-shrink-0 w-16 h-16 bg-gray-800/30 rounded border border-gray-700/50 flex items-center justify-center opacity-40"
+                        >
+                          <span className="text-[9px] text-gray-600">Photo {idx + 2}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Expandable Multi-Image Picker */}
-              <details className="mt-3">
+              <details className="mt-2">
                 <summary className="cursor-pointer text-xs text-purple-400 hover:text-purple-300 font-medium">
                   {isProPlan ? 'Add or change images' : 'Upgrade to Pro for multi-image'}
                 </summary>
