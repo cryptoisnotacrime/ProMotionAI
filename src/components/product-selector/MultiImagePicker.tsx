@@ -28,7 +28,7 @@ export function MultiImagePicker({
   storeId,
 }: MultiImagePickerProps) {
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
-    productImages[0] ? { url: productImages[0].src, isProductImage: true, source: 'product' } : null
+    productImages[0] ? { url: productImages[0].src.trim(), isProductImage: true, source: 'product' } : null
   ].filter(Boolean) as ImageSlot[]);
   const [activeTab, setActiveTab] = useState<SourceTab>('product');
   const [showUrlInput, setShowUrlInput] = useState(false);
@@ -81,7 +81,7 @@ export function MultiImagePicker({
     if (selectedImages.length >= maxImages) return;
 
     const newImage: ImageSlot = {
-      url: imageSrc,
+      url: imageSrc.trim(),
       isProductImage: true,
       source: 'product',
     };
@@ -92,7 +92,7 @@ export function MultiImagePicker({
     if (selectedImages.length >= maxImages) return;
 
     const newImage: ImageSlot = {
-      url: photo.url,
+      url: photo.url.trim(),
       isProductImage: false,
       source: photo.platform,
     };
@@ -145,7 +145,7 @@ export function MultiImagePicker({
     }
 
     const newImage: ImageSlot = {
-      url: urlInput,
+      url: urlInput.trim(),
       isProductImage: false,
       source: 'url',
     };

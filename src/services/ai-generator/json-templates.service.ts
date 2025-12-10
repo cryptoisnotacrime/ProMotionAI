@@ -137,7 +137,33 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   parts.push('Clean visuals without text overlays or subtitles');
 
   // Negative prompt - descriptive terms only (no instructive language per Google guidelines)
-  parts.push(`Negative elements to exclude: ${template.negative_prompt}, people talking or speaking, dialogue, voiceover, audio indicators, mouth movements indicating speech`);
+  // Comprehensive list of unwanted elements following Veo best practices
+  const negativeTerms = [
+    template.negative_prompt,
+    'talking people',
+    'open mouths speaking',
+    'dialogue scenes',
+    'voiceover visuals',
+    'audio waveforms',
+    'music notes',
+    'sound indicators',
+    'distorted faces',
+    'floating limbs',
+    'disconnected body parts',
+    'morphing objects',
+    'unrealistic physics',
+    'duplicate subjects',
+    'merged faces',
+    'warped hands',
+    'extra fingers',
+    'unnatural movements',
+    'low resolution',
+    'pixelated video',
+    'compression artifacts',
+    'stuttering motion',
+    'flickering lights'
+  ].join(', ');
+  parts.push(`Avoid: ${negativeTerms}`);
 
   return parts.join('. ');
 }

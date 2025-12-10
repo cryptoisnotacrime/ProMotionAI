@@ -62,7 +62,8 @@ Deno.serve(async (req: Request) => {
     const body: VideoGenerationRequest = await req.json();
     const { videoId, storeId, imageUrl, imageUrls, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
 
-    const images = imageUrls || (imageUrl ? [imageUrl] : []);
+    // Sanitize image URLs by trimming whitespace and newlines
+    const images = (imageUrls || (imageUrl ? [imageUrl] : [])).map((url: string) => url.trim());
 
     console.log("Request received:", { videoId, storeId, imageCount: images.length, durationSeconds, creditsRequired });
 

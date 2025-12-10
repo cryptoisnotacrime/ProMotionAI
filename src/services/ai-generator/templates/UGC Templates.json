@@ -11,7 +11,7 @@
     "hook": "hand enters frame instantly at beat 0",
     "finale": "freeze on product, subtle sparkle overlay",
     "keywords": ["UGC","handheld","reveal","natural"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -32,7 +32,7 @@
     "hook": "first rip motion synced visually to beat",
     "finale": "product displayed cleanly with subtle glow",
     "keywords": ["UGC","unboxing","fast","POV"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -53,7 +53,7 @@
     "hook": "fast 'before' shot then swipe transition",
     "finale": "after shot freeze with call-to-action text overlay",
     "keywords": ["beforeafter","transition","UGC"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -74,7 +74,7 @@
     "hook": "creator begins speaking or smiling instantly",
     "finale": "smile + product close-up freeze",
     "keywords": ["testimonial","selfie","UGC","vlog"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -95,7 +95,7 @@
     "hook": "impact timed exactly at second 1",
     "finale": "product glowing, logo fade in",
     "keywords": ["slowmo","impact","UGC","reveal"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -116,7 +116,7 @@
     "hook": "text caption appears instantly with visual cue",
     "finale": "call-to-action caption: 'Shop Now!'",
     "keywords": ["caption","social","UGC","trend"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -137,7 +137,7 @@
     "hook": "snap motion at frame 10 triggers transition",
     "finale": "slow pan around final product",
     "keywords": ["transition","trend","UGC","flash"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -158,7 +158,7 @@
     "hook": "mirror tap triggers outfit change",
     "finale": "pose + logo overlay bottom center",
     "keywords": ["fashion","mirror","UGC","tryon"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -179,7 +179,7 @@
     "hook": "hand reach at second 0",
     "finale": "focus on smile with product in hand",
     "keywords": ["POV","reach","UGC","creative"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",
@@ -200,7 +200,7 @@
     "hook": "rotation starts immediately on frame 0",
     "finale": "loop resets perfectly, seamless visual repeat",
     "keywords": ["loop","rotation","UGC","product"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": {
       "platform": "{{platform}}",
       "duration": "{{duration}}",

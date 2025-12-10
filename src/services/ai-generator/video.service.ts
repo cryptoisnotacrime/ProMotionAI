@@ -26,8 +26,8 @@ export class VideoGenerationService {
   ): Promise<VideoGenerationResponse> {
     const durationSeconds = request.durationSeconds || 5;
 
-    // Determine image URLs
-    const imageUrls = request.imageUrls || (request.imageUrl ? [request.imageUrl] : []);
+    // Determine image URLs and sanitize them (remove whitespace/newlines)
+    const imageUrls = (request.imageUrls || (request.imageUrl ? [request.imageUrl] : [])).map(url => url.trim());
     const imageCount = imageUrls.length;
 
     // Credit calculation: base cost is duration + image surcharge
@@ -101,14 +101,14 @@ export class VideoGenerationService {
   ): Promise<GeneratedVideo> {
     const durationSeconds = request.durationSeconds || 5;
 
-    // Determine primary image URL - use imageUrl if provided, otherwise first from imageUrls array
-    const primaryImageUrl = request.imageUrl || request.imageUrls?.[0];
+    // Determine primary image URL - use imageUrl if provided, otherwise first from imageUrls array (sanitize)
+    const primaryImageUrl = (request.imageUrl || request.imageUrls?.[0])?.trim();
     if (!primaryImageUrl) {
       throw new Error('At least one image URL is required for video generation');
     }
 
-    // Store all image URLs in metadata for multi-image generation
-    const imageUrls = request.imageUrls || (request.imageUrl ? [request.imageUrl] : []);
+    // Store all image URLs in metadata for multi-image generation (sanitize)
+    const imageUrls = (request.imageUrls || (request.imageUrl ? [request.imageUrl] : [])).map(url => url.trim());
 
     // Extract metadata from template inputs for easy querying
     const metadata: Record<string, any> = {

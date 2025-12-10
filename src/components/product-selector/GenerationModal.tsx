@@ -109,7 +109,7 @@ export function GenerationModal({
       '16:9': '16:9',
     };
     const aspectRatio = aspectRatioMap[templateInputs.platform || '9:16'] || '9:16';
-    const imageUrls = selectedImages.map(img => img.url);
+    const imageUrls = selectedImages.map(img => img.url.trim());
 
     onGenerate(
       promptText,

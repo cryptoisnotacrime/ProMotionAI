@@ -11,7 +11,7 @@
     "hook": "lens flare reveal on product silhouette at frame 0",
     "finale": "brand logo {{brand_name}} fades in beneath the product",
     "keywords": ["cinematic","luxury","reveal","light","elegant"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -26,7 +26,7 @@
     "hook": "glowing shape forms into product instantly",
     "finale": "fade to white with brand logo",
     "keywords": ["minimal","clean","studio","reveal"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Basic", "category": "Cinematic Reveal" }
   },
   {
@@ -41,7 +41,7 @@
     "hook": "light sweep begins instantly revealing shape contour",
     "finale": "glow fades leaving clean logo center screen",
     "keywords": ["tech","neon","cinematic","reveal"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -56,7 +56,7 @@
     "hook": "condensation wipe reveals form immediately",
     "finale": "full clarity with brand mark subtle below",
     "keywords": ["macro","glass","realism","atmospheric"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -71,7 +71,7 @@
     "hook": "fade-in from total black to product silhouette",
     "finale": "fade to brand logo on black background",
     "keywords": ["darkmode","luxury","reveal","orbit"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -86,7 +86,7 @@
     "hook": "liquid morph begins instantly on frame 0",
     "finale": "freeze on clean metallic reflection",
     "keywords": ["metal","liquid","cinematic","surreal"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -101,7 +101,7 @@
     "hook": "smoke appears instantly forming product outline",
     "finale": "smoke dissipates into clean background",
     "keywords": ["smoke","reveal","drama","cinematic"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   },
   {
@@ -116,7 +116,7 @@
     "hook": "shadow sweep begins immediately at frame 0",
     "finale": "product fully illuminated",
     "keywords": ["shadow","contrast","studio","reveal"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Basic", "category": "Cinematic Reveal" }
   },
   {
@@ -131,7 +131,7 @@
     "hook": "color burst on frame 0 reveals object silhouette",
     "finale": "clean centered logo and product",
     "keywords": ["color","motion","vibrant","cinematic"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Basic", "category": "Cinematic Reveal" }
   },
   {
@@ -146,7 +146,7 @@
     "hook": "light streaks enter frame forming prismatic effect",
     "finale": "fade out to clean logo overlay",
     "keywords": ["prism","light","luxury","glass"],
-    "negative_prompt": "watermarks, stock logos, subtitles, unwanted text",
+    "negative_prompt": "watermarks, stock footage watermarks, brand logos, text overlays, subtitle boxes, caption text, UI elements, speech bubbles, animated text",
     "meta": { "platform": "{{platform}}", "duration": "{{duration}}", "aspect_ratio": "{{aspect_ratio}}", "tier": "Pro", "category": "Cinematic Reveal" }
   }
 ]
