@@ -15,6 +15,7 @@ import { ProductsService, ShopifyProduct } from './services/shopify/products.ser
 import { VideoGenerationService } from './services/ai-generator/video.service';
 import { CreditsService } from './services/billing/credits.service';
 import { SubscriptionService } from './services/billing/subscription.service';
+import { SubscriptionValidatorService } from './services/billing/subscription-validator.service';
 import { AddVideoToShopifyService } from './services/shopify/add-video.service';
 import { BrandDNAService } from './services/onboarding/brand-dna.service';
 import { Store, GeneratedVideo, SubscriptionPlan } from './lib/supabase';
@@ -574,9 +575,9 @@ function App() {
           imageUrl={selectedProduct.imageUrl}
           creditsAvailable={store.credits_remaining}
           maxDuration={
-            plans.find(p => p.plan_name === store.plan_name)?.max_video_duration || 4
+            plans.find(p => p.plan_name === SubscriptionValidatorService.getEffectivePlanName(store))?.max_video_duration || 4
           }
-          planName={store.plan_name.charAt(0).toUpperCase() + store.plan_name.slice(1)}
+          planName={SubscriptionValidatorService.getEffectivePlanName(store).charAt(0).toUpperCase() + SubscriptionValidatorService.getEffectivePlanName(store).slice(1)}
           store={store}
           onGenerate={handleGenerateVideo}
           onClose={() => setSelectedProduct(null)}

@@ -16,6 +16,7 @@ import {
 import { Tooltip } from '../common/Tooltip';
 import { CustomTemplatesService } from '../../services/ai-generator/custom-templates.service';
 import { TemplateMappingService } from '../../services/ai-generator/template-mapper.service';
+import { hexToColorName } from '../../utils/color-converter';
 
 interface TemplateFormProps {
   templates: DetailedTemplate[];
@@ -61,7 +62,15 @@ export function TemplateForm({
     if (store.brand_colors && store.brand_colors.length > 0) {
       return store.brand_colors
         .slice(0, 3)
-        .map((c: any) => c.name || c.hex)
+        .map((c: any) => {
+          if (c.name && c.name.trim()) {
+            return c.name;
+          }
+          if (c.hex) {
+            return hexToColorName(c.hex);
+          }
+          return null;
+        })
         .filter(Boolean)
         .join(', ');
     }
@@ -491,7 +500,7 @@ export function TemplateForm({
                 type="text"
                 value={formData.color_palette}
                 onChange={(e) => updateField('color_palette', e.target.value)}
-                placeholder="e.g., Gold and Black"
+                placeholder="e.g., Gold, Navy Blue, Crimson"
                 className="w-full px-2 py-1.5 text-sm border border-gray-700 rounded focus:ring-1 focus:ring-purple-500 bg-gray-800 text-gray-100 placeholder-gray-500"
               />
             </div>

@@ -183,112 +183,106 @@ export function GenerationModal({
         </div>
 
         <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-260px)] pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <MultiImagePicker
-                productImages={product.images}
-                productTitle={product.title}
-                onImagesChange={setSelectedImages}
-                maxImages={3}
-                storeId={store.id}
-                planName={planName}
-              />
-            </div>
+          <MultiImagePicker
+            productImages={product.images}
+            productTitle={product.title}
+            onImagesChange={setSelectedImages}
+            maxImages={3}
+            storeId={store.id}
+            planName={planName}
+          />
 
-            <div className="lg:col-span-2 space-y-6">
-              {selectedTemplate && (
-                <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
-                    <span className="text-sm text-purple-200">
-                      Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
-                    </span>
-                  </div>
-                  {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
-                    <button
-                      onClick={() => setShowCustomTemplateModal(true)}
-                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      Save as Custom
-                    </button>
-                  ) : (
-                    <div className="group relative">
-                      <button
-                        disabled
-                        className="px-3 py-1.5 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1.5"
-                      >
-                        <Lock className="w-3.5 h-3.5" />
-                        PRO Feature
-                      </button>
-                      <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 border border-purple-500/30 rounded-lg text-xs text-gray-300 invisible group-hover:visible z-10 shadow-xl">
-                        Upgrade to PRO to save your custom template configurations
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock className="w-4 h-4 text-purple-400" />
-                  <label className="text-sm font-semibold text-gray-100">Video Duration</label>
-                </div>
-                <div className="flex gap-2">
-                  {durationOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => !option.disabled && setDuration(option.value)}
-                      disabled={option.disabled}
-                      className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all relative ${
-                        duration === option.value
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
-                          : option.disabled
-                          ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
-                      }`}
-                    >
-                      {option.value === 8 && !requiresEightSeconds && (
-                        <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
-                          PRO
-                        </span>
-                      )}
-                      <div>{option.label}</div>
-                      <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
-                    </button>
-                  ))}
-                </div>
-                {requiresEightSeconds && (
-                  <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
-                    <p className="text-xs text-purple-200">
-                      Multiple reference images require 8-second videos (Veo 3.1 API requirement)
-                    </p>
-                  </div>
-                )}
-                {!requiresEightSeconds && maxDuration < 8 && (
-                  <p className="text-xs text-gray-400 mt-2">
-                    {planName.toUpperCase()} plan • Max {maxDuration}s {maxDuration < 8 && '• Upgrade to Pro for 8s videos'}
-                  </p>
-                )}
+          {selectedTemplate && (
+            <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-purple-200">
+                  Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
+                </span>
               </div>
-
-              {isLoadingTemplates ? (
-                <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                </div>
+              {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
+                <button
+                  onClick={() => setShowCustomTemplateModal(true)}
+                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Save as Custom
+                </button>
               ) : (
-                <TemplateForm
-                  templates={templates}
-                  selectedTemplate={selectedTemplate}
-                  onTemplateSelect={setSelectedTemplate}
-                  product={product}
-                  productImageUrl={imageUrl}
-                  store={store}
-                  onInputChange={setTemplateInputs}
-                  userTier={planName}
-                />
+                <div className="group relative">
+                  <button
+                    disabled
+                    className="px-3 py-1.5 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1.5"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    PRO Feature
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 border border-purple-500/30 rounded-lg text-xs text-gray-300 invisible group-hover:visible z-10 shadow-xl">
+                    Upgrade to PRO to save your custom template configurations
+                  </div>
+                </div>
               )}
             </div>
+          )}
+
+          {isLoadingTemplates ? (
+            <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            </div>
+          ) : (
+            <TemplateForm
+              templates={templates}
+              selectedTemplate={selectedTemplate}
+              onTemplateSelect={setSelectedTemplate}
+              product={product}
+              productImageUrl={imageUrl}
+              store={store}
+              onInputChange={setTemplateInputs}
+              userTier={planName}
+            />
+          )}
+
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-4 h-4 text-purple-400" />
+              <label className="text-sm font-semibold text-gray-100">Video Duration</label>
+            </div>
+            <div className="flex gap-2">
+              {durationOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => !option.disabled && setDuration(option.value)}
+                  disabled={option.disabled}
+                  className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all relative ${
+                    duration === option.value
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      : option.disabled
+                      ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
+                  }`}
+                >
+                  {option.value === 8 && !requiresEightSeconds && (
+                    <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                      PRO
+                    </span>
+                  )}
+                  <div>{option.label}</div>
+                  <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
+                </button>
+              ))}
+            </div>
+            {requiresEightSeconds && (
+              <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
+                <p className="text-xs text-purple-200">
+                  Multiple reference images require 8-second videos (Veo 3.1 API requirement)
+                </p>
+              </div>
+            )}
+            {!requiresEightSeconds && maxDuration < 8 && (
+              <p className="text-xs text-gray-400 mt-2">
+                {planName.toUpperCase()} plan • Max {maxDuration}s {maxDuration < 8 && '• Upgrade to Pro for 8s videos'}
+              </p>
+            )}
           </div>
         </div>
 
