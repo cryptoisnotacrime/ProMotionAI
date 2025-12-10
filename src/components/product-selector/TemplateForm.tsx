@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Info, Film, Heart, Users, ChevronDown, ChevronUp, Lock, Crown, Youtube, Instagram, Zap, Palette, Camera, Sun, Eye, Aperture } from 'lucide-react';
+import { Sparkles, Info, Film, Heart, Users, ChevronDown, ChevronUp, Lock, Crown, Youtube, Instagram, Zap, Palette, Camera, Sun, Eye, Aperture, Star, Trash2 } from 'lucide-react';
 import { TemplateInput, getDefaultInputsForProductType } from '../../services/ai-generator/template.service';
 import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
 import { ShopifyProduct } from '../../services/shopify/products.service';
@@ -14,6 +14,7 @@ import {
   VISUAL_STYLES
 } from '../../constants/video-generation';
 import { Tooltip } from '../common/Tooltip';
+import { CustomTemplatesService } from '../../services/ai-generator/custom-templates.service';
 
 interface TemplateFormProps {
   templates: DetailedTemplate[];
@@ -30,12 +31,14 @@ const categoryIcons: Record<string, any> = {
   'Cinematic Reveal': Film,
   'Lifestyle Connection': Heart,
   'UGC': Users,
+  'Custom': Star,
 };
 
 const categoryDescriptions: Record<string, string> = {
   'Cinematic Reveal': 'Premium, high-end product reveals with dramatic lighting and camera movements',
   'Lifestyle Connection': 'Natural, authentic scenes showing your product in everyday use',
   'UGC': 'User-generated content style videos that feel personal and relatable',
+  'Custom': 'Your saved custom templates with personalized settings',
 };
 
 export function TemplateForm({
@@ -50,6 +53,7 @@ export function TemplateForm({
 }: TemplateFormProps) {
   const prefillData = prefillFromStoreSettings(store, product);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set([]));
+  const [customTemplates, setCustomTemplates] = useState<DetailedTemplate[]>([]);
 
   // Extract colors from product description
   const extractColors = () => {
@@ -110,8 +114,39 @@ export function TemplateForm({
   }, [product.title, productImageUrl, userTier, store]);
 
   useEffect(() => {
+    if (selectedTemplate) {
+      const templateToFormValue = (templateValue: string, constantArray: any[]): string => {
+        const normalized = templateValue.toLowerCase().replace(/\s+/g, '_');
+        const match = constantArray.find(item =>
+          item.value === normalized ||
+          item.label.toLowerCase() === templateValue.toLowerCase() ||
+          item.value.replace(/_/g, ' ') === templateValue.toLowerCase()
+        );
+        return match ? match.value : constantArray[0]?.value || normalized;
+      };
+
+      setFormData(prev => ({
+        ...prev,
+        visual_style: templateToFormValue(selectedTemplate.visual_style, VISUAL_STYLES),
+        camera_motion: templateToFormValue(selectedTemplate.camera, CAMERA_MOVEMENTS),
+        lighting_mood: templateToFormValue(selectedTemplate.lighting_mood, LIGHTING_MOODS),
+        background_style: templateToFormValue(selectedTemplate.background, BACKGROUNDS),
+        color_palette: prev.color_palette || selectedTemplate.color_palette || extractColors(),
+      }));
+    }
+  }, [selectedTemplate]);
+
+  useEffect(() => {
     onInputChange(formData);
   }, [formData, onInputChange]);
+
+  useEffect(() => {
+    const fetchCustomTemplates = async () => {
+      const custom = await CustomTemplatesService.getCustomTemplates(store.id);
+      setCustomTemplates(custom);
+    };
+    fetchCustomTemplates();
+  }, [store.id]);
 
   const handleProductTypeChange = (type: string) => {
     const defaults = getDefaultInputsForProductType(type);
@@ -140,7 +175,10 @@ export function TemplateForm({
     return tierOrder[a.meta.tier.toLowerCase()] - tierOrder[b.meta.tier.toLowerCase()];
   });
 
-  const groupedTemplates = allTemplatesSorted.reduce((acc, template) => {
+  // Combine regular templates and custom templates
+  const allTemplatesWithCustom = [...allTemplatesSorted, ...customTemplates];
+
+  const groupedTemplates = allTemplatesWithCustom.reduce((acc, template) => {
     const category = template.meta.category || 'Other';
     if (!acc[category]) {
       acc[category] = [];
@@ -222,6 +260,7 @@ export function TemplateForm({
                       const isLocked = !canAccessTemplate(template);
                       const isPro = template.meta.tier.toLowerCase() === 'pro';
                       const isBasic = template.meta.tier.toLowerCase() === 'basic';
+                      const isCustom = template.meta.category === 'Custom';
 
                       return (
                         <button
@@ -232,7 +271,11 @@ export function TemplateForm({
                             isLocked
                               ? 'border-gray-700 bg-gray-800/50 opacity-60 cursor-not-allowed'
                               : selectedTemplate?.template_name === template.template_name
-                              ? 'border-purple-500 bg-purple-900/30 shadow-lg shadow-purple-500/20'
+                              ? isCustom
+                                ? 'border-amber-500 bg-amber-900/30 shadow-lg shadow-amber-500/20'
+                                : 'border-purple-500 bg-purple-900/30 shadow-lg shadow-purple-500/20'
+                              : isCustom
+                              ? 'border-amber-700/50 hover:border-amber-600 bg-gray-800 hover:shadow-sm'
                               : 'border-gray-700 hover:border-purple-600 bg-gray-800 hover:shadow-sm'
                           }`}
                         >
@@ -250,14 +293,19 @@ export function TemplateForm({
                             </div>
                           )}
                           <div className="flex items-start justify-between mb-1.5">
-                            <h5 className="font-semibold text-gray-100 text-sm pr-2">{template.template_name}</h5>
+                            <h5 className="font-semibold text-gray-100 text-sm pr-2 flex items-center gap-1.5">
+                              {isCustom && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+                              {template.template_name}
+                            </h5>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ml-2 flex items-center gap-1 ${
+                              isCustom ? 'bg-amber-900 text-amber-300' :
                               template.meta.tier.toLowerCase() === 'free' ? 'bg-gray-700 text-gray-300' :
                               template.meta.tier.toLowerCase() === 'basic' ? 'bg-blue-900 text-blue-300' :
                               'bg-gradient-to-r from-purple-900 to-pink-900 text-purple-300'
                             }`}>
-                              {(isPro || isBasic) && <Crown className="w-3 h-3" />}
-                              {template.meta.tier.toUpperCase()}
+                              {isCustom && <Star className="w-3 h-3" />}
+                              {!isCustom && (isPro || isBasic) && <Crown className="w-3 h-3" />}
+                              {isCustom ? 'CUSTOM' : template.meta.tier.toUpperCase()}
                             </span>
                           </div>
                           <p className="text-xs text-gray-400 leading-relaxed mb-2">

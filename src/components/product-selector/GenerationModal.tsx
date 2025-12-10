@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play, Save } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save, Lock } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
@@ -107,6 +107,7 @@ export function GenerationModal({
     if (imageCount > 1) {
       promptText = promptText.replace(/\bthe image\b/gi, 'the provided images');
       promptText = promptText.replace(/\bthis image\b/gi, 'these images');
+      promptText = `Using ${imageCount} reference images: The first image shows the main product view, additional images show different angles and details. Feature all perspectives of the product throughout the video, showing it from multiple angles while maintaining accurate representation. ` + promptText;
     }
 
     const aspectRatioMap: Record<string, string> = {
@@ -173,13 +174,28 @@ export function GenerationModal({
                       Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
                     </span>
                   </div>
-                  <button
-                    onClick={() => setShowCustomTemplateModal(true)}
-                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    Save as Custom
-                  </button>
+                  {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
+                    <button
+                      onClick={() => setShowCustomTemplateModal(true)}
+                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      Save as Custom
+                    </button>
+                  ) : (
+                    <div className="group relative">
+                      <button
+                        disabled
+                        className="px-3 py-1.5 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1.5"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        PRO Feature
+                      </button>
+                      <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 border border-purple-500/30 rounded-lg text-xs text-gray-300 invisible group-hover:visible z-10 shadow-xl">
+                        Upgrade to PRO to save your custom template configurations
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -320,6 +336,7 @@ export function GenerationModal({
       {showCustomTemplateModal && selectedTemplate && (
         <CustomTemplateModal
           baseTemplate={selectedTemplate}
+          currentSettings={templateInputs}
           storeId={store.id}
           onClose={() => setShowCustomTemplateModal(false)}
           onSave={() => {

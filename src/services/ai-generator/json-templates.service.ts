@@ -85,6 +85,10 @@ export function fillTemplateVariables(template: DetailedTemplate, variables: Rec
   // Build comprehensive Veo 3 prompt from template structure
   const parts: string[] = [];
 
+  // CRITICAL: Add explicit image instructions first (Google recommends this)
+  parts.push('IMPORTANT: Using the provided product image(s) as the primary reference, accurately recreate and feature the exact product shown prominently throughout the video');
+  parts.push('The product must be clearly visible and recognizable, maintaining its exact appearance, colors, and details from the reference image(s)');
+
   // Main description with variables filled
   let description = template.description;
   Object.entries(variables).forEach(([key, value]) => {

@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { X, Save, Copy, Info } from 'lucide-react';
 import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
-import { supabase } from '../../lib/supabase';
+import { TemplateInput } from '../../services/ai-generator/template.service';
+import { CustomTemplatesService } from '../../services/ai-generator/custom-templates.service';
 
 interface CustomTemplateModalProps {
   baseTemplate: DetailedTemplate;
+  currentSettings: TemplateInput;
   storeId: string;
   onClose: () => void;
   onSave: () => void;
 }
 
-export function CustomTemplateModal({ baseTemplate, storeId, onClose, onSave }: CustomTemplateModalProps) {
+export function CustomTemplateModal({ baseTemplate, currentSettings, storeId, onClose, onSave }: CustomTemplateModalProps) {
   // Convert DetailedTemplate to a prompt template format
   const createPromptFromTemplate = (template: DetailedTemplate) => {
     return `${template.description}. Visual style: ${template.visual_style}. Camera: ${template.camera}. Main subject: ${template.main_subject}. Background: ${template.background}. Lighting: ${template.lighting_mood}. Color palette: ${template.color_palette}. Opening: ${template.hook}. Ending: ${template.finale}.`;
@@ -48,28 +50,30 @@ export function CustomTemplateModal({ baseTemplate, storeId, onClose, onSave }: 
     setError('');
 
     try {
-      const { error: saveError } = await supabase
-        .from('custom_templates')
-        .insert({
-          store_id: storeId,
-          name: name.trim(),
-          description: description.trim(),
-          category,
-          base_template_id: baseTemplate.template_name,
+      const result = await CustomTemplatesService.saveCustomTemplate(storeId, {
+        name: name.trim(),
+        description: description.trim(),
+        category,
+        base_template_id: baseTemplate.template_name,
+        settings: {
+          visual_style: currentSettings.visual_style,
+          camera_motion: currentSettings.camera_motion,
+          lens_effect: currentSettings.lens_effect,
+          lighting_mood: currentSettings.lighting_mood,
+          background_style: currentSettings.background_style,
+          tone: currentSettings.tone,
+          color_palette: currentSettings.color_palette,
+          platform: currentSettings.platform,
+          duration: currentSettings.duration,
+          tier: 'Pro',
           prompt_template: promptTemplate,
-          variables: variables,
-          settings: {
-            tier: baseTemplate.meta.tier,
-            default_aspect_ratio: '9:16',
-            default_duration: 6,
-          },
-          is_favorite: false,
-          is_enabled: true,
-          usage_count: 0,
-        });
+          keywords: baseTemplate.keywords,
+          negative_prompt: baseTemplate.negative_prompt,
+        },
+      });
 
-      if (saveError) {
-        throw saveError;
+      if (!result) {
+        throw new Error('Failed to save template');
       }
 
       onSave();
