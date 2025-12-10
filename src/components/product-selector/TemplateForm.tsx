@@ -63,7 +63,10 @@ export function TemplateForm({
       return store.brand_colors
         .slice(0, 3)
         .map((c: any) => {
-          if (c.name && c.name.trim()) {
+          // Skip generic "Color X" names and use hex conversion instead
+          const isGenericName = c.name && /^Color\s+\d+$/i.test(c.name.trim());
+
+          if (c.name && c.name.trim() && !isGenericName) {
             return c.name;
           }
           if (c.hex) {

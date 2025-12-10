@@ -169,7 +169,7 @@ export function MultiImagePicker({
     updateImages(newImages);
   };
 
-  const isProPlan = planName === 'pro' || planName === 'enterprise';
+  const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const canAddMore = selectedImages.length < maxImages;
   const canAddMultiImage = isProPlan || selectedImages.length < 1;
   const availableProductImages = productImages.filter(

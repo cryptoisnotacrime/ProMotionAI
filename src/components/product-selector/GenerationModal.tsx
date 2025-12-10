@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play, Save, Lock } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save, Lock, Maximize2 } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
@@ -46,6 +46,7 @@ export function GenerationModal({
   });
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
+  const [enlargedImageUrl, setEnlargedImageUrl] = useState<string | null>(null);
 
   const isProPlan = planName === 'pro' || planName === 'enterprise';
   const imageCount = selectedImages.length;
@@ -163,207 +164,272 @@ export function GenerationModal({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20">
-        <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-4 flex items-center justify-between backdrop-blur-sm z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Wand2 className="w-6 h-6 text-purple-400" />
-              Generate Video
-            </h2>
-            <p className="text-sm text-gray-400 mt-1">{product.title}</p>
-          </div>
-          <button
-            onClick={onClose}
-            disabled={isGenerating}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <X className="w-6 h-6 text-gray-400" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-260px)] pb-12">
-          <MultiImagePicker
-            productImages={product.images}
-            productTitle={product.title}
-            onImagesChange={setSelectedImages}
-            maxImages={3}
-            storeId={store.id}
-            planName={planName}
-          />
-
-          {selectedTemplate && (
-            <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-200">
-                  Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
-                </span>
-              </div>
-              {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
-                <button
-                  onClick={() => setShowCustomTemplateModal(true)}
-                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  Save as Custom
-                </button>
-              ) : (
-                <div className="group relative">
-                  <button
-                    disabled
-                    className="px-3 py-1.5 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1.5"
-                  >
-                    <Lock className="w-3.5 h-3.5" />
-                    PRO Feature
-                  </button>
-                  <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 border border-purple-500/30 rounded-lg text-xs text-gray-300 invisible group-hover:visible z-10 shadow-xl">
-                    Upgrade to PRO to save your custom template configurations
-                  </div>
-                </div>
-              )}
+    <>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20 flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-3 flex items-center justify-between backdrop-blur-sm flex-shrink-0">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Wand2 className="w-5 h-5 text-purple-400" />
+                Generate Video
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">{product.title}</p>
             </div>
-          )}
-
-          {isLoadingTemplates ? (
-            <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-            </div>
-          ) : (
-            <TemplateForm
-              templates={templates}
-              selectedTemplate={selectedTemplate}
-              onTemplateSelect={setSelectedTemplate}
-              product={product}
-              productImageUrl={imageUrl}
-              store={store}
-              onInputChange={setTemplateInputs}
-              userTier={planName}
-            />
-          )}
-
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-purple-400" />
-              <label className="text-sm font-semibold text-gray-100">Video Duration</label>
-            </div>
-            <div className="flex gap-2">
-              {durationOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => !option.disabled && setDuration(option.value)}
-                  disabled={option.disabled}
-                  className={`flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all relative ${
-                    duration === option.value
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
-                      : option.disabled
-                      ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
-                  }`}
-                >
-                  {option.value === 8 && !requiresEightSeconds && (
-                    <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
-                      PRO
-                    </span>
-                  )}
-                  <div>{option.label}</div>
-                  <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
-                </button>
-              ))}
-            </div>
-            {requiresEightSeconds && (
-              <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
-                <p className="text-xs text-purple-200">
-                  Multiple reference images require 8-second videos (Veo 3.1 API requirement)
-                </p>
-              </div>
-            )}
-            {!requiresEightSeconds && maxDuration < 8 && (
-              <p className="text-xs text-gray-400 mt-2">
-                {planName.toUpperCase()} plan • Max {maxDuration}s {maxDuration < 8 && '• Upgrade to Pro for 8s videos'}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="sticky bottom-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-5 backdrop-blur-sm z-10">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1.5 font-medium">Template</p>
-              <p className="text-sm font-semibold text-white truncate" title={selectedTemplate?.template_name || 'None'}>
-                {selectedTemplate?.template_name || 'None'}
-              </p>
-            </div>
-            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1.5 font-medium">Duration</p>
-              <p className="text-sm font-semibold text-white">{duration}s</p>
-            </div>
-            <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
-              <p className="text-xs text-gray-400 mb-1.5 font-medium">Images</p>
-              <p className="text-sm font-semibold text-white">{imageCount} ref{imageCount !== 1 ? 's' : ''}</p>
-            </div>
-            <div className={`rounded-lg p-3 border ${
-              hasEnoughCredits
-                ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30'
-                : 'bg-red-900/30 border-red-500/30'
-            }`}>
-              <p className="text-xs text-gray-400 mb-1.5 font-medium">Total Cost</p>
-              <div className="flex items-baseline gap-1.5">
-                <p className={`text-lg font-bold ${hasEnoughCredits ? 'text-purple-300' : 'text-red-300'}`}>
-                  {creditCost}
-                </p>
-                {imageSurcharge > 0 && (
-                  <p className="text-xs text-gray-400 whitespace-nowrap">
-                    ({duration} + {imageSurcharge})
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <div className="flex-1 bg-gray-800/30 rounded-lg p-3 border border-gray-700/30">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">Available Credits</span>
-                <span className={`text-lg font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}>
-                  {creditsAvailable}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">After generation</span>
-                <span className="text-sm font-semibold text-gray-300">
-                  {Math.max(0, creditsAvailable - creditCost)} credits
-                </span>
-              </div>
-            </div>
-
             <button
-              onClick={handleGenerate}
-              disabled={!selectedTemplate || !hasEnoughCredits || isGenerating}
-              className="sm:min-w-[200px] px-8 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 whitespace-nowrap"
+              onClick={onClose}
+              disabled={isGenerating}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
             >
-              {isGenerating ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4 fill-current" />
-                  Generate Video
-                </>
-              )}
+              <X className="w-5 h-5 text-gray-400" />
             </button>
           </div>
 
-          {!hasEnoughCredits && (
-            <div className="mt-4 bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300 text-center">
-              Insufficient credits. You need {creditCost - creditsAvailable} more credit{creditCost - creditsAvailable !== 1 ? 's' : ''} to generate this video.
+          {/* Main Content - Scrollable */}
+          <div className="overflow-y-auto flex-1 p-6 space-y-5">
+            {/* Compact Image Gallery */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
+                <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {selectedImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group flex-shrink-0"
+                  >
+                    <img
+                      src={image.url}
+                      alt={`Reference ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {index === 0 && (
+                      <div className="absolute top-1 left-1 bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-semibold">
+                        Primary
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setEnlargedImageUrl(image.url)}
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                      <Maximize2 className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Expandable Multi-Image Picker */}
+              <details className="mt-3">
+                <summary className="cursor-pointer text-xs text-purple-400 hover:text-purple-300 font-medium">
+                  {isProPlan ? 'Add more images' : 'Upgrade to Pro for multi-image'}
+                </summary>
+                <div className="mt-3">
+                  <MultiImagePicker
+                    productImages={product.images}
+                    productTitle={product.title}
+                    onImagesChange={setSelectedImages}
+                    maxImages={3}
+                    storeId={store.id}
+                    planName={planName}
+                  />
+                </div>
+              </details>
             </div>
-          )}
+
+            {/* Current Template Badge */}
+            {selectedTemplate && (
+              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs text-purple-200">
+                    Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
+                  </span>
+                </div>
+                {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
+                  <button
+                    onClick={() => setShowCustomTemplateModal(true)}
+                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save as Custom
+                  </button>
+                ) : (
+                  <div className="group relative">
+                    <button
+                      disabled
+                      className="px-2.5 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
+                    >
+                      <Lock className="w-3 h-3" />
+                      PRO Feature
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Template Selection & Customization - All in One View */}
+            {isLoadingTemplates ? (
+              <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              </div>
+            ) : (
+              <TemplateForm
+                templates={templates}
+                selectedTemplate={selectedTemplate}
+                onTemplateSelect={setSelectedTemplate}
+                product={product}
+                productImageUrl={imageUrl}
+                store={store}
+                onInputChange={setTemplateInputs}
+                userTier={planName}
+              />
+            )}
+
+            {/* Duration Selection */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-purple-400" />
+                <label className="text-sm font-semibold text-gray-100">Video Duration</label>
+              </div>
+              <div className="flex gap-2">
+                {durationOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => !option.disabled && setDuration(option.value)}
+                    disabled={option.disabled}
+                    className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                      duration === option.value
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                        : option.disabled
+                        ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
+                    }`}
+                  >
+                    {option.value === 8 && !requiresEightSeconds && (
+                      <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold rounded-full shadow-lg">
+                        PRO
+                      </span>
+                    )}
+                    <div>{option.label}</div>
+                    <div className="text-xs mt-0.5 opacity-80">{option.value} credits</div>
+                  </button>
+                ))}
+              </div>
+              {requiresEightSeconds && (
+                <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-purple-200">
+                    Multiple reference images require 8-second videos (Veo 3.1 API requirement)
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer - Fixed */}
+          <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm flex-shrink-0">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+              <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
+                <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Template</p>
+                <p className="text-xs font-semibold text-white truncate" title={selectedTemplate?.template_name || 'None'}>
+                  {selectedTemplate?.template_name || 'None'}
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
+                <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Duration</p>
+                <p className="text-xs font-semibold text-white">{duration}s</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
+                <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Images</p>
+                <p className="text-xs font-semibold text-white">{imageCount} ref{imageCount !== 1 ? 's' : ''}</p>
+              </div>
+              <div className={`rounded-lg p-2 border ${
+                hasEnoughCredits
+                  ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30'
+                  : 'bg-red-900/30 border-red-500/30'
+              }`}>
+                <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Total Cost</p>
+                <div className="flex items-baseline gap-1">
+                  <p className={`text-base font-bold ${hasEnoughCredits ? 'text-purple-300' : 'text-red-300'}`}>
+                    {creditCost}
+                  </p>
+                  {imageSurcharge > 0 && (
+                    <p className="text-[10px] text-gray-400 whitespace-nowrap">
+                      ({duration} + {imageSurcharge})
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="flex-1 bg-gray-800/30 rounded-lg p-2.5 border border-gray-700/30">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-gray-300">Available Credits</span>
+                  <span className={`text-base font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}>
+                    {creditsAvailable}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-gray-400">After generation</span>
+                  <span className="text-xs font-semibold text-gray-300">
+                    {Math.max(0, creditsAvailable - creditCost)} credits
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleGenerate}
+                disabled={!selectedTemplate || !hasEnoughCredits || isGenerating}
+                className="sm:min-w-[180px] px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 fill-current" />
+                    Generate Video
+                  </>
+                )}
+              </button>
+            </div>
+
+            {!hasEnoughCredits && (
+              <div className="mt-3 bg-red-900/20 border border-red-500/30 rounded-lg p-2 text-xs text-red-300 text-center">
+                Insufficient credits. You need {creditCost - creditsAvailable} more credit{creditCost - creditsAvailable !== 1 ? 's' : ''} to generate this video.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      {/* Image Enlargement Modal */}
+      {enlargedImageUrl && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60]"
+          onClick={() => setEnlargedImageUrl(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <button
+              onClick={() => setEnlargedImageUrl(null)}
+              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            <img
+              src={enlargedImageUrl}
+              alt="Enlarged view"
+              className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Custom Template Modal */}
       {showCustomTemplateModal && selectedTemplate && (
         <CustomTemplateModal
           baseTemplate={selectedTemplate}
@@ -376,6 +442,6 @@ export function GenerationModal({
           }}
         />
       )}
-    </div>
+    </>
   );
 }
