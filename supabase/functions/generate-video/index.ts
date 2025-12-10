@@ -81,7 +81,7 @@ Deno.serve(async (req: Request) => {
     console.log("Fetching store from database...");
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("credits_remaining")
+      .select("credits_remaining, plan_name")
       .eq("id", storeId)
       .single();
 
@@ -96,7 +96,39 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("Store found, credits:", store.credits_remaining);
+    console.log("Store found, credits:", store.credits_remaining, "plan:", store.plan_name);
+
+    const isProPlan = store.plan_name === 'pro' || store.plan_name === 'enterprise';
+
+    if (images.length > 1 && !isProPlan) {
+      console.error("Multi-image requires Pro plan:", { planName: store.plan_name, imageCount: images.length });
+      return new Response(
+        JSON.stringify({
+          error: "Multiple reference images require Pro plan. Upgrade to unlock this feature.",
+          planName: store.plan_name,
+          imageCount: images.length
+        }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (images.length > 1 && durationSeconds !== 8) {
+      console.error("Multi-image requires 8s duration:", { duration: durationSeconds, imageCount: images.length });
+      return new Response(
+        JSON.stringify({
+          error: "Multiple reference images require 8-second videos (Veo 3.1 API requirement).",
+          duration: durationSeconds,
+          imageCount: images.length
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     if (store.credits_remaining < creditsRequired) {
       console.error("Insufficient credits:", { available: store.credits_remaining, required: creditsRequired });

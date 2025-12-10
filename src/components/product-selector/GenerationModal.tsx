@@ -47,6 +47,10 @@ export function GenerationModal({
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
 
+  const isProPlan = planName === 'pro' || planName === 'enterprise';
+  const imageCount = selectedImages.length;
+  const requiresEightSeconds = imageCount > 1;
+
   useEffect(() => {
     loadTemplates();
   }, [planName]);
@@ -69,13 +73,18 @@ export function GenerationModal({
   const getImageCostSurcharge = (imageCount: number): number => {
     if (imageCount <= 1) return 0;
     if (imageCount === 2) return 1;
-    return 1; // 3 images also costs +1
+    return 1;
   };
 
-  const imageCount = selectedImages.length;
   const imageSurcharge = getImageCostSurcharge(imageCount);
   const creditCost = duration + imageSurcharge;
   const hasEnoughCredits = creditsAvailable >= creditCost;
+
+  useEffect(() => {
+    if (requiresEightSeconds && duration !== 8) {
+      setDuration(8);
+    }
+  }, [requiresEightSeconds]);
 
   useEffect(() => {
     setTemplateInputs(prev => ({ ...prev, duration }));
@@ -93,6 +102,16 @@ export function GenerationModal({
 
   const handleGenerate = () => {
     if (!selectedTemplate || !hasEnoughCredits) {
+      return;
+    }
+
+    if (imageCount > 1 && !isProPlan) {
+      alert('Multiple reference images require Pro plan. Upgrade to unlock this feature.');
+      return;
+    }
+
+    if (imageCount > 1 && duration !== 8) {
+      alert('Multiple reference images require 8-second videos (Veo 3.1 API requirement).');
       return;
     }
 
@@ -138,8 +157,8 @@ export function GenerationModal({
   };
 
   const durationOptions = [
-    { value: 4, label: '4s', disabled: false },
-    { value: 6, label: '6s', disabled: maxDuration < 6 },
+    { value: 4, label: '4s', disabled: requiresEightSeconds || maxDuration < 4 },
+    { value: 6, label: '6s', disabled: requiresEightSeconds || maxDuration < 6 },
     { value: 8, label: '8s', disabled: maxDuration < 8 },
   ];
 
@@ -172,6 +191,7 @@ export function GenerationModal({
                 onImagesChange={setSelectedImages}
                 maxImages={3}
                 storeId={store.id}
+                planName={planName}
               />
             </div>
 
@@ -228,7 +248,7 @@ export function GenerationModal({
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
                       }`}
                     >
-                      {option.value === 8 && (
+                      {option.value === 8 && !requiresEightSeconds && (
                         <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
                           PRO
                         </span>
@@ -238,9 +258,16 @@ export function GenerationModal({
                     </button>
                   ))}
                 </div>
-                {maxDuration < 8 && (
+                {requiresEightSeconds && (
+                  <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
+                    <p className="text-xs text-purple-200">
+                      Multiple reference images require 8-second videos (Veo 3.1 API requirement)
+                    </p>
+                  </div>
+                )}
+                {!requiresEightSeconds && maxDuration < 8 && (
                   <p className="text-xs text-gray-400 mt-2">
-                    {planName.toUpperCase()} plan • Max {maxDuration}s
+                    {planName.toUpperCase()} plan • Max {maxDuration}s {maxDuration < 8 && '• Upgrade to Pro for 8s videos'}
                   </p>
                 )}
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info, Instagram, Music } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info, Instagram, Music, Lock } from 'lucide-react';
 import { SocialMediaService } from '../../services/social-media/social-media.service';
 import type { SocialMediaPhoto, SocialMediaConnection } from '../../lib/supabase';
 
@@ -16,6 +16,7 @@ interface MultiImagePickerProps {
   onImagesChange: (images: ImageSlot[]) => void;
   maxImages?: number;
   storeId?: string;
+  planName?: string;
 }
 
 type SourceTab = 'product' | 'upload' | 'social';
@@ -26,6 +27,7 @@ export function MultiImagePicker({
   onImagesChange,
   maxImages = 3,
   storeId,
+  planName = 'free',
 }: MultiImagePickerProps) {
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     productImages[0] ? { url: productImages[0].src.trim(), isProductImage: true, source: 'product' } : null
@@ -79,6 +81,7 @@ export function MultiImagePicker({
 
   const handleProductImageSelect = (imageSrc: string) => {
     if (selectedImages.length >= maxImages) return;
+    if (!canAddMultiImage && selectedImages.length >= 1) return;
 
     const newImage: ImageSlot = {
       url: imageSrc.trim(),
@@ -90,6 +93,7 @@ export function MultiImagePicker({
 
   const handleSocialPhotoSelect = (photo: SocialMediaPhoto) => {
     if (selectedImages.length >= maxImages) return;
+    if (!canAddMultiImage && selectedImages.length >= 1) return;
 
     const newImage: ImageSlot = {
       url: photo.url.trim(),
@@ -102,6 +106,12 @@ export function MultiImagePicker({
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!canAddMultiImage && selectedImages.length >= 1) {
+      setUploadError('Multiple reference images require Pro plan. Upgrade to unlock this feature.');
+      event.target.value = '';
+      return;
+    }
 
     setUploadError(null);
 
@@ -159,7 +169,9 @@ export function MultiImagePicker({
     updateImages(newImages);
   };
 
+  const isProPlan = planName === 'pro' || planName === 'enterprise';
   const canAddMore = selectedImages.length < maxImages;
+  const canAddMultiImage = isProPlan || selectedImages.length < 1;
   const availableProductImages = productImages.filter(
     img => !selectedImages.some(sel => sel.url === img.src)
   );
@@ -184,12 +196,17 @@ export function MultiImagePicker({
 
       {showTips && (
         <div className="bg-purple-900/30 border border-purple-700/30 rounded-lg p-3 text-xs space-y-2">
-          <p className="font-semibold text-purple-200">Multi-image improves consistency:</p>
+          <p className="font-semibold text-purple-200">Multi-image improves consistency {!isProPlan && '(Pro feature)'}:</p>
           <ul className="list-disc list-inside text-purple-300 space-y-1 ml-2">
             <li>Product from different angles for 360° reveals</li>
             <li>Lifestyle settings for contextual videos</li>
             <li>Brand aesthetic references for style consistency</li>
           </ul>
+          {!isProPlan && (
+            <p className="text-purple-400 font-semibold mt-2">
+              Upgrade to Pro to unlock multiple reference images for 8-second videos!
+            </p>
+          )}
         </div>
       )}
 
@@ -227,29 +244,56 @@ export function MultiImagePicker({
 
         {canAddMore && (
           <>
-            <label className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all cursor-pointer group">
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/jpg"
-                onChange={handleFileSelect}
-                className="sr-only"
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
-                <Upload className="w-6 h-6 mb-1.5" />
-                <span className="text-[10px] font-medium">Upload</span>
-              </div>
-            </label>
+            {canAddMultiImage ? (
+              <>
+                <label className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all cursor-pointer group">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    onChange={handleFileSelect}
+                    className="sr-only"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
+                    <Upload className="w-6 h-6 mb-1.5" />
+                    <span className="text-[10px] font-medium">Upload</span>
+                  </div>
+                </label>
 
-            {!showUrlInput && (
-              <button
-                onClick={() => setShowUrlInput(true)}
-                className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all group"
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
-                  <LinkIcon className="w-6 h-6 mb-1.5" />
-                  <span className="text-[10px] font-medium">From URL</span>
+                {!showUrlInput && (
+                  <button
+                    onClick={() => setShowUrlInput(true)}
+                    className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all group"
+                  >
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
+                      <LinkIcon className="w-6 h-6 mb-1.5" />
+                      <span className="text-[10px] font-medium">From URL</span>
+                    </div>
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700/50 rounded-lg group">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                    <Lock className="w-6 h-6 mb-1.5" />
+                    <span className="text-[10px] font-medium">Pro Plan</span>
+                  </div>
+                  <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                    <p className="text-[10px] text-center text-purple-300 font-semibold">Upgrade to Pro for multi-image</p>
+                  </div>
                 </div>
-              </button>
+                {selectedImages.length < maxImages - 1 && (
+                  <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700/50 rounded-lg group">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
+                      <Lock className="w-6 h-6 mb-1.5" />
+                      <span className="text-[10px] font-medium">Pro Plan</span>
+                    </div>
+                    <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                      <p className="text-[10px] text-center text-purple-300 font-semibold">Upgrade to Pro for multi-image</p>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
