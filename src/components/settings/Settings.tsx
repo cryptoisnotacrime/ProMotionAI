@@ -1262,10 +1262,21 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
                   <div key={index} className="relative rounded-lg overflow-hidden border border-gray-700 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group bg-gray-900">
                     <div className="relative w-full" style={{ paddingBottom: '133%' }}>
                       <img
-                        src={photo.media_url}
+                        src={photo.thumbnail || photo.url}
                         alt={photo.caption || 'Instagram post'}
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-500 text-xs';
+                            placeholder.textContent = 'Image unavailable';
+                            parent.appendChild(placeholder);
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Instagram className="w-6 h-6 text-white" />
@@ -1320,10 +1331,21 @@ function VideoSettings({ settings, onSettingsChange, store }: VideoSettingsProps
                   <div key={index} className="relative rounded-lg overflow-hidden border border-gray-700 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group bg-gray-900">
                     <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
                       <img
-                        src={photo.cover_image_url}
-                        alt={photo.title || 'TikTok video'}
+                        src={photo.thumbnail || photo.url}
+                        alt={photo.caption || 'TikTok video'}
                         className="absolute inset-0 w-full h-full object-cover"
                         loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-500 text-xs';
+                            placeholder.textContent = 'Image unavailable';
+                            parent.appendChild(placeholder);
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Music className="w-6 h-6 text-white" />

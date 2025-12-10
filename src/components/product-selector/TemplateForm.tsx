@@ -15,6 +15,7 @@ import {
 } from '../../constants/video-generation';
 import { Tooltip } from '../common/Tooltip';
 import { CustomTemplatesService } from '../../services/ai-generator/custom-templates.service';
+import { TemplateMappingService } from '../../services/ai-generator/template-mapper.service';
 
 interface TemplateFormProps {
   templates: DetailedTemplate[];
@@ -115,23 +116,27 @@ export function TemplateForm({
 
   useEffect(() => {
     if (selectedTemplate) {
-      const templateToFormValue = (templateValue: string, constantArray: any[]): string => {
-        const normalized = templateValue.toLowerCase().replace(/\s+/g, '_');
-        const match = constantArray.find(item =>
-          item.value === normalized ||
-          item.label.toLowerCase() === templateValue.toLowerCase() ||
-          item.value.replace(/_/g, ' ') === templateValue.toLowerCase()
-        );
-        return match ? match.value : constantArray[0]?.value || normalized;
+      const mappedValues = {
+        visual_style: TemplateMappingService.mapVisualStyle(selectedTemplate.visual_style),
+        camera_motion: TemplateMappingService.mapCameraMovement(selectedTemplate.camera),
+        lighting_mood: TemplateMappingService.mapLighting(selectedTemplate.lighting_mood),
+        background_style: TemplateMappingService.mapBackground(selectedTemplate.background),
+        tone: TemplateMappingService.mapTone(selectedTemplate.hook || selectedTemplate.meta.category),
+        lens_effect: TemplateMappingService.mapLensEffect(selectedTemplate.visual_style),
+        color_palette: selectedTemplate.color_palette || extractColors(),
       };
+
+      const categoryDefaults = TemplateMappingService.getCategoryDefaults(selectedTemplate.meta.category);
 
       setFormData(prev => ({
         ...prev,
-        visual_style: templateToFormValue(selectedTemplate.visual_style, VISUAL_STYLES),
-        camera_motion: templateToFormValue(selectedTemplate.camera, CAMERA_MOVEMENTS),
-        lighting_mood: templateToFormValue(selectedTemplate.lighting_mood, LIGHTING_MOODS),
-        background_style: templateToFormValue(selectedTemplate.background, BACKGROUNDS),
-        color_palette: prev.color_palette || selectedTemplate.color_palette || extractColors(),
+        visual_style: mappedValues.visual_style || categoryDefaults.visualStyle,
+        camera_motion: mappedValues.camera_motion || categoryDefaults.camera,
+        lighting_mood: mappedValues.lighting_mood || categoryDefaults.lighting,
+        background_style: mappedValues.background_style || categoryDefaults.background,
+        tone: mappedValues.tone || categoryDefaults.tone,
+        lens_effect: mappedValues.lens_effect || categoryDefaults.lensEffect,
+        color_palette: prev.color_palette || mappedValues.color_palette,
       }));
     }
   }, [selectedTemplate]);
