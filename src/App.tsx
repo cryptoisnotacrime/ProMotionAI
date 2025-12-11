@@ -316,7 +316,8 @@ function App() {
     aspectRatio: string,
     templateId?: string,
     templateInputs?: Record<string, any>,
-    imageUrls?: string[]
+    imageUrls?: string[],
+    imageMode?: 'first-last-frame' | 'multiple-angles'
   ) => {
     if (!store || !selectedProduct) return;
 
@@ -328,6 +329,7 @@ function App() {
         productId: selectedProduct.product.id,
         productTitle: selectedProduct.product.title,
         imageUrls: imageUrls || [selectedProduct.imageUrl],
+        imageMode,
         prompt,
         durationSeconds: duration,
         aspectRatio,

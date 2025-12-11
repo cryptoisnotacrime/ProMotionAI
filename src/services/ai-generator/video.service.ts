@@ -8,6 +8,7 @@ export interface VideoGenerationRequest {
   productTitle: string;
   imageUrl?: string;
   imageUrls?: string[];
+  imageMode?: 'first-last-frame' | 'multiple-angles';
   prompt?: string;
   durationSeconds?: number;
   aspectRatio?: string;
@@ -70,6 +71,7 @@ export class VideoGenerationService {
           videoId: videoRecord.id,
           storeId: request.storeId,
           imageUrls: imageUrls,
+          imageMode: request.imageMode || (imageUrls.length === 2 ? 'first-last-frame' : 'multiple-angles'),
           prompt: request.prompt || `Create an engaging e-commerce product video showcasing ${request.productTitle} for an online store`,
           durationSeconds: durationSeconds,
           aspectRatio: request.aspectRatio || '9:16',

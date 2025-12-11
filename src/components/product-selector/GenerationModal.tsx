@@ -16,7 +16,7 @@ interface GenerationModalProps {
   maxDuration: number;
   planName: string;
   store: Store;
-  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>, imageUrls?: string[]) => void;
+  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>, imageUrls?: string[], imageMode?: 'first-last-frame' | 'multiple-angles') => void;
   onClose: () => void;
   isGenerating?: boolean;
 }
@@ -51,7 +51,7 @@ export function GenerationModal({
 
   const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const imageCount = selectedImages.length;
-  const requiresEightSeconds = imageCount > 1;
+  const requiresEightSeconds = imageMode === 'multiple-angles' && imageCount > 1;
 
   useEffect(() => {
     loadTemplates();
@@ -108,8 +108,8 @@ export function GenerationModal({
       return;
     }
 
-    if (imageCount > 1 && duration !== 8) {
-      alert('Multiple reference images require 8-second videos (Veo 3.1 API requirement).');
+    if (imageMode === 'multiple-angles' && imageCount > 1 && duration !== 8) {
+      alert('Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.');
       return;
     }
 
@@ -155,7 +155,8 @@ export function GenerationModal({
       aspectRatio,
       undefined,
       { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category, image_count: imageCount },
-      imageUrls
+      imageUrls,
+      imageMode
     );
   };
 
@@ -239,7 +240,7 @@ export function GenerationModal({
               {requiresEightSeconds && (
                 <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
                   <p className="text-xs text-purple-200">
-                    Multiple reference images require 8-second videos (Veo 3.1 API requirement)
+                    Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.
                   </p>
                 </div>
               )}

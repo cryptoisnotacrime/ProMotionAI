@@ -12,6 +12,7 @@ interface VideoGenerationRequest {
   storeId: string;
   imageUrl?: string;
   imageUrls?: string[];
+  imageMode?: 'first-last-frame' | 'multiple-angles';
   prompt: string;
   durationSeconds: number;
   aspectRatio?: string;
@@ -60,12 +61,15 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body: VideoGenerationRequest = await req.json();
-    const { videoId, storeId, imageUrl, imageUrls, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
+    const { videoId, storeId, imageUrl, imageUrls, imageMode, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
 
     // Sanitize image URLs by trimming whitespace and newlines
     const images = (imageUrls || (imageUrl ? [imageUrl] : [])).map((url: string) => url.trim());
 
-    console.log("Request received:", { videoId, storeId, imageCount: images.length, durationSeconds, creditsRequired });
+    // Determine mode if not provided
+    const mode = imageMode || (images.length === 2 ? 'first-last-frame' : 'multiple-angles');
+
+    console.log("Request received:", { videoId, storeId, imageCount: images.length, imageMode: mode, durationSeconds, creditsRequired });
 
     if (!videoId || images.length === 0 || !storeId || !creditsRequired) {
       console.error("Missing required fields:", { videoId, hasImages: images.length > 0, storeId, creditsRequired });
@@ -115,13 +119,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (images.length > 1 && durationSeconds !== 8) {
-      console.error("Multi-image requires 8s duration:", { duration: durationSeconds, imageCount: images.length });
+    if (mode === 'multiple-angles' && durationSeconds !== 8) {
+      console.error("Multiple-angles mode requires 8s duration:", { duration: durationSeconds, imageCount: images.length, mode });
       return new Response(
         JSON.stringify({
-          error: "Multiple reference images require 8-second videos (Veo 3.1 API requirement).",
+          error: "Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.",
           duration: durationSeconds,
-          imageCount: images.length
+          imageCount: images.length,
+          mode
         }),
         {
           status: 400,
@@ -257,23 +262,44 @@ Deno.serve(async (req: Request) => {
       console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
     }
 
-    const veoRequestBody = {
-      instances: [
-        {
-          prompt: prompt || "Create an engaging product video",
-          referenceImages: processedImages,
+    let veoRequestBody;
+
+    if (mode === 'first-last-frame' && processedImages.length === 2) {
+      veoRequestBody = {
+        instances: [
+          {
+            prompt: prompt || "Create an engaging product video",
+            firstFrame: processedImages[0].image,
+            lastFrame: processedImages[1].image,
+          },
+        ],
+        parameters: {
+          durationSeconds: durationSeconds,
+          aspectRatio: veoAspectRatio,
+          personGeneration: "allow_adult",
+          generateAudio: false,
         },
-      ],
-      parameters: {
-        durationSeconds: durationSeconds,
-        aspectRatio: veoAspectRatio,
-        personGeneration: "allow_adult",
-        generateAudio: false,
-      },
-    };
+      };
+    } else {
+      veoRequestBody = {
+        instances: [
+          {
+            prompt: prompt || "Create an engaging product video",
+            referenceImages: processedImages,
+          },
+        ],
+        parameters: {
+          durationSeconds: durationSeconds,
+          aspectRatio: veoAspectRatio,
+          personGeneration: "allow_adult",
+          generateAudio: false,
+        },
+      };
+    }
 
     console.log("Calling Veo 3.1 API with prompt:", prompt);
-    console.log(`Using ${processedImages.length} reference image(s) with structure:`, JSON.stringify({
+    console.log(`Using mode: ${mode} with ${processedImages.length} image(s):`, JSON.stringify({
+      mode,
       imageCount: processedImages.length,
       mimeTypes: processedImages.map((img: any) => img.image?.mimeType),
       base64Lengths: processedImages.map((img: any) => img.image?.bytesBase64Encoded?.length),
