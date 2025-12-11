@@ -75,6 +75,8 @@ export function GenerationModal({
   const creditCost = calculateCreditsRequired(duration, imageCount);
   const hasEnoughCredits = creditsAvailable >= creditCost;
 
+  const imageSurcharge = imageCount > 1 ? 1 : 0;
+
   useEffect(() => {
     if (requiresEightSeconds && duration !== 8) {
       setDuration(8);
