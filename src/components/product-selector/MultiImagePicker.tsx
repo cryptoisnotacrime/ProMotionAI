@@ -267,7 +267,7 @@ export function MultiImagePicker({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {selectedImages.map((image, index) => {
           let slotLabel = '';
           if (imageMode === 'first-last-frame') {
@@ -310,27 +310,31 @@ export function MultiImagePicker({
           <>
             {canAddMultiImage ? (
               <>
-                <label className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all cursor-pointer group">
+                <label className="relative aspect-square bg-gradient-to-br from-purple-900/20 to-gray-800/50 border-2 border-purple-600/30 rounded-lg hover:border-purple-500 hover:from-purple-900/30 hover:to-gray-800/70 transition-all cursor-pointer group">
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/jpg"
                     onChange={handleFileSelect}
                     className="sr-only"
                   />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
-                    <Upload className="w-6 h-6 mb-1.5" />
-                    <span className="text-[10px] font-medium">Upload</span>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-purple-400 group-hover:text-purple-300">
+                    <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mb-1.5 group-hover:bg-purple-600/30 transition-colors">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-semibold">Upload</span>
                   </div>
                 </label>
 
                 {!showUrlInput && (
                   <button
                     onClick={() => setShowUrlInput(true)}
-                    className="relative aspect-square bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-lg hover:border-purple-500 hover:bg-gray-800 transition-all group"
+                    className="relative aspect-square bg-gradient-to-br from-blue-900/20 to-gray-800/50 border-2 border-blue-600/30 rounded-lg hover:border-blue-500 hover:from-blue-900/30 hover:to-gray-800/70 transition-all group"
                   >
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-purple-400">
-                      <LinkIcon className="w-6 h-6 mb-1.5" />
-                      <span className="text-[10px] font-medium">From URL</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-blue-400 group-hover:text-blue-300">
+                      <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center mb-1.5 group-hover:bg-blue-600/30 transition-colors">
+                        <LinkIcon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-semibold">From URL</span>
                     </div>
                   </button>
                 )}

@@ -240,7 +240,7 @@ Deno.serve(async (req: Request) => {
     const accessToken = await getAccessToken(gcpServiceAccountJson);
     console.log("Access token generated, length:", accessToken.length);
 
-    const veoModel = "veo-3.1-fast-generate-preview";
+    const veoModel = "veo-3.1-generate-preview";
     const location = "us-central1";
     const veoEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${gcpProjectId}/locations/${location}/publishers/google/models/${veoModel}:predictLongRunning`;
 
