@@ -51,7 +51,7 @@ export function GenerationModal({
 
   const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const imageCount = selectedImages.length;
-  const requiresEightSeconds = imageCount > 1 && imageMode === 'multiple-angles';
+  const requiresEightSeconds = imageCount > 1;
 
   useEffect(() => {
     loadTemplates();
@@ -108,8 +108,8 @@ export function GenerationModal({
       return;
     }
 
-    if (imageCount > 1 && imageMode === 'multiple-angles' && duration !== 8) {
-      alert('Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement).');
+    if (imageCount > 1 && duration !== 8) {
+      alert('Multiple reference images require 8-second videos (Veo 3.1 API requirement).');
       return;
     }
 
@@ -239,7 +239,7 @@ export function GenerationModal({
               {requiresEightSeconds && (
                 <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
                   <p className="text-xs text-purple-200">
-                    Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement)
+                    Multiple reference images require 8-second videos (Veo 3.1 API requirement)
                   </p>
                 </div>
               )}
