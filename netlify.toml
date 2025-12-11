@@ -1,17 +1,18 @@
 [build]
-  publish = "dist"
-  command = "npm run build"
+publish = "dist"
+command = "npx vite build"
 
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "VITE_Bolt_Database_ANON_KEY"
+SECRETS_SCAN_OMIT_KEYS = "VITE_Bolt_Database_ANON_KEY"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200
 
 [[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Security-Policy = "frame-ancestors 'self' https://*.myshopify.com https://admin.shopify.com"
-    X-Content-Type-Options = "nosniff"
+for = "/*"
+
+[headers.values]
+Content-Security-Policy = "frame-ancestors 'self' https://*.myshopify.com https://admin.shopify.com"
+X-Content-Type-Options = "nosniff"
