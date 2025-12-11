@@ -215,20 +215,34 @@ export function GenerationModal({
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {/* Slot 1: Primary Image (Always Filled) */}
                 <div
-                  className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
-                  onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
+                  className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-purple-500 group"
                 >
                   {selectedImages[0] && (
                     <>
-                      <img
-                        src={selectedImages[0].url}
-                        alt="Primary reference"
-                        className="w-full h-full object-cover"
-                      />
+                      <div
+                        className="w-full h-full cursor-pointer"
+                        onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
+                      >
+                        <img
+                          src={selectedImages[0].url}
+                          alt="Primary reference"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
                         Primary
                       </div>
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newImages = selectedImages.slice(1);
+                          setSelectedImages(newImages.length > 0 ? newImages : [{ url: imageUrl, isProductImage: true, source: 'product' }]);
+                        }}
+                        className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                         <Maximize2 className="w-4 h-4 text-white" />
                       </div>
                     </>
@@ -238,15 +252,30 @@ export function GenerationModal({
                 {/* Slot 2: Reference Image or Placeholder */}
                 {selectedImages[1] ? (
                   <div
-                    className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
-                    onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
+                    className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 group hover:border-purple-500/50 transition-all"
                   >
-                    <img
-                      src={selectedImages[1].url}
-                      alt="Reference 2"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div
+                      className="w-full h-full cursor-pointer"
+                      onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
+                    >
+                      <img
+                        src={selectedImages[1].url}
+                        alt="Reference 2"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newImages = [...selectedImages];
+                        newImages.splice(1, 1);
+                        setSelectedImages(newImages);
+                      }}
+                      className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                       <Maximize2 className="w-4 h-4 text-white" />
                     </div>
                   </div>
@@ -272,15 +301,29 @@ export function GenerationModal({
                 {/* Slot 3: Last Frame or Placeholder */}
                 {selectedImages[2] ? (
                   <div
-                    className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
-                    onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
+                    className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 group hover:border-purple-500/50 transition-all"
                   >
-                    <img
-                      src={selectedImages[2].url}
-                      alt="Last frame"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div
+                      className="w-full h-full cursor-pointer"
+                      onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
+                    >
+                      <img
+                        src={selectedImages[2].url}
+                        alt="Last frame"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newImages = selectedImages.slice(0, 2);
+                        setSelectedImages(newImages);
+                      }}
+                      className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                       <Maximize2 className="w-4 h-4 text-white" />
                     </div>
                   </div>
