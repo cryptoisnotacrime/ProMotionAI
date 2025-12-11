@@ -379,3 +379,33 @@ export const TONES: VideoOption[] = [
     example: 'Playful vibrant energy'
   },
 ];
+
+export const VEO_PRICING = {
+  MODELS: {
+    FAST: 'veo-3.1-fast-generate-preview',
+    STANDARD: 'veo-3.1-generate-preview',
+  },
+  API_COSTS: {
+    FAST_PER_SECOND: 0.10,
+    STANDARD_PER_SECOND: 0.20,
+  },
+  CREDIT_MARGIN_MULTIPLIER: 1.5,
+  MULTI_IMAGE_SURCHARGE: 1,
+} as const;
+
+export function calculateCreditsRequired(durationSeconds: number, imageCount: number): number {
+  const hasImages = imageCount > 0;
+  const modelCost = hasImages ? VEO_PRICING.API_COSTS.FAST_PER_SECOND : VEO_PRICING.API_COSTS.STANDARD_PER_SECOND;
+  const baseCredits = Math.ceil(durationSeconds * modelCost * VEO_PRICING.CREDIT_MARGIN_MULTIPLIER);
+  const imageSurcharge = imageCount > 1 ? VEO_PRICING.MULTI_IMAGE_SURCHARGE : 0;
+  return baseCredits + imageSurcharge;
+}
+
+export function calculateApiCost(durationSeconds: number, hasImages: boolean): number {
+  const modelCost = hasImages ? VEO_PRICING.API_COSTS.FAST_PER_SECOND : VEO_PRICING.API_COSTS.STANDARD_PER_SECOND;
+  return durationSeconds * modelCost;
+}
+
+export function getVeoModel(hasImages: boolean): string {
+  return hasImages ? VEO_PRICING.MODELS.FAST : VEO_PRICING.MODELS.STANDARD;
+}

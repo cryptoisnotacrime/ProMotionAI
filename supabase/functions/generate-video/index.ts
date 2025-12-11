@@ -240,7 +240,14 @@ Deno.serve(async (req: Request) => {
     const accessToken = await getAccessToken(gcpServiceAccountJson);
     console.log("Access token generated, length:", accessToken.length);
 
-    const veoModel = "veo-3.1-generate-preview";
+    const hasReferenceImages = processedImages.length > 0;
+    const veoModel = hasReferenceImages ? "veo-3.1-fast-generate-preview" : "veo-3.1-generate-preview";
+    const apiCostPerSecond = hasReferenceImages ? 0.10 : 0.20;
+    const actualApiCost = durationSeconds * apiCostPerSecond;
+
+    console.log(`Model selection: ${veoModel} (${hasReferenceImages ? 'with' : 'without'} reference images)`);
+    console.log(`API cost: $${actualApiCost.toFixed(2)} (${durationSeconds}s × $${apiCostPerSecond}/s)`);
+
     const location = "us-central1";
     const veoEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${gcpProjectId}/locations/${location}/publishers/google/models/${veoModel}:predictLongRunning`;
 
@@ -248,11 +255,6 @@ Deno.serve(async (req: Request) => {
     if (veoAspectRatio === "1:1") {
       veoAspectRatio = "9:16";
       console.log("Mapping 1:1 aspect ratio to 9:16 (Veo doesn't support square videos)");
-    }
-
-    // Veo 3.1 with reference images only supports 8-second videos
-    if (processedImages.length > 0 && durationSeconds > 8) {
-      console.log(`Warning: Veo 3.1 with reference images only supports 8s videos. Requested ${durationSeconds}s will be clamped to 8s.`);
     }
 
     const veoRequestBody = {
@@ -336,12 +338,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("Updating video record with job ID:", operationName);
+    console.log("Updating video record with job ID and accurate API cost:", operationName);
     await supabase
       .from("generated_videos")
       .update({
         veo_job_id: operationName,
         veo_model: veoModel,
+        api_cost_usd: actualApiCost,
         updated_at: new Date().toISOString(),
       })
       .eq("id", videoId);

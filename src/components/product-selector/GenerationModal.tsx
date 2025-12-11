@@ -7,6 +7,7 @@ import { TemplateForm } from './TemplateForm';
 import { Store } from '../../lib/supabase';
 import { ImageSlot, ImageMode, MultiImagePicker } from './MultiImagePicker';
 import { CustomTemplateModal } from '../settings/CustomTemplateModal';
+import { calculateCreditsRequired } from '../../constants/video-generation';
 
 interface GenerationModalProps {
   product: ShopifyProduct;
@@ -71,14 +72,7 @@ export function GenerationModal({
     }
   };
 
-  const getImageCostSurcharge = (imageCount: number): number => {
-    if (imageCount <= 1) return 0;
-    if (imageCount === 2) return 1;
-    return 1;
-  };
-
-  const imageSurcharge = getImageCostSurcharge(imageCount);
-  const creditCost = duration + imageSurcharge;
+  const creditCost = calculateCreditsRequired(duration, imageCount);
   const hasEnoughCredits = creditsAvailable >= creditCost;
 
   useEffect(() => {

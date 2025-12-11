@@ -1,5 +1,6 @@
 import { supabase, GeneratedVideo } from '../../lib/supabase';
 import { CreditsService } from '../billing/credits.service';
+import { calculateCreditsRequired, calculateApiCost, getVeoModel } from '../../constants/video-generation';
 
 export interface VideoGenerationRequest {
   storeId: string;
@@ -30,10 +31,11 @@ export class VideoGenerationService {
     const imageUrls = (request.imageUrls || (request.imageUrl ? [request.imageUrl] : [])).map(url => url.trim());
     const imageCount = imageUrls.length;
 
-    // Credit calculation: base cost is duration + image surcharge
-    // 1 image: +0, 2+ images: +1 (flat fee for multi-image mode)
-    const imageSurcharge = imageCount <= 1 ? 0 : 1;
-    const creditsRequired = durationSeconds + imageSurcharge;
+    // Credit calculation with margin: uses dynamic pricing based on model selection
+    // Fast model (with images): $0.10/sec * 1.5 margin = 1 credit per ~6.67 seconds
+    // Standard model (no images): $0.20/sec * 1.5 margin = 1 credit per ~3.33 seconds
+    // Plus multi-image surcharge: 2+ images = +1 credit flat fee
+    const creditsRequired = calculateCreditsRequired(durationSeconds, imageCount);
 
     const store = await CreditsService.getStoreInfo(request.storeId);
     if (!store) {
@@ -109,6 +111,13 @@ export class VideoGenerationService {
 
     // Store all image URLs in metadata for multi-image generation (sanitize)
     const imageUrls = (request.imageUrls || (request.imageUrl ? [request.imageUrl] : [])).map(url => url.trim());
+    const imageCount = imageUrls.length;
+    const hasImages = imageCount > 0;
+
+    // Determine which model will be used and calculate costs
+    const veoModel = getVeoModel(hasImages);
+    const apiCostUsd = calculateApiCost(durationSeconds, hasImages);
+    const creditsUsed = calculateCreditsRequired(durationSeconds, imageCount);
 
     // Extract metadata from template inputs for easy querying
     const metadata: Record<string, any> = {
@@ -118,7 +127,9 @@ export class VideoGenerationService {
       tone: request.templateInputs?.tone,
       background_style: request.templateInputs?.background_style,
       image_urls: imageUrls, // Store all image URLs for reference
-      image_count: imageUrls.length,
+      image_count: imageCount,
+      model_selected: veoModel,
+      has_reference_images: hasImages,
       ...request.templateInputs,
     };
 
@@ -133,9 +144,9 @@ export class VideoGenerationService {
         duration_seconds: durationSeconds,
         generation_status: 'pending',
         generation_started_at: new Date().toISOString(),
-        credits_used: durationSeconds,
-        veo_model: 'veo-3.1-fast-generate-preview',
-        api_cost_usd: durationSeconds * 0.15, // Veo 3.1 preview pricing
+        credits_used: creditsUsed,
+        veo_model: veoModel,
+        api_cost_usd: apiCostUsd,
         template_id: request.templateId,
         template_inputs: request.templateInputs,
         metadata,
