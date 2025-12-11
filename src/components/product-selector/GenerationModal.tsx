@@ -76,6 +76,7 @@ export function GenerationModal({
   const hasEnoughCredits = creditsAvailable >= creditCost;
 
   const imageSurcharge = imageCount > 1 ? 1 : 0;
+  const baseCreditCost = creditCost - imageSurcharge;
 
   useEffect(() => {
     if (requiresEightSeconds && duration !== 8) {
@@ -323,7 +324,7 @@ export function GenerationModal({
                   </p>
                   {imageSurcharge > 0 && (
                     <p className="text-[10px] text-gray-400 whitespace-nowrap">
-                      ({duration} + {imageSurcharge})
+                      ({baseCreditCost} + {imageSurcharge})
                     </p>
                   )}
                 </div>
