@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play, Save, Lock, Maximize2, Instagram, Music } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateForm } from './TemplateForm';
-import { Store, SocialMediaPhoto } from '../../lib/supabase';
-import { ImageSlot } from './MultiImagePicker';
+import { Store } from '../../lib/supabase';
+import { ImageSlot, ImageMode, MultiImagePicker } from './MultiImagePicker';
 import { CustomTemplateModal } from '../settings/CustomTemplateModal';
-import { SocialMediaService } from '../../services/social-media/social-media.service';
 
 interface GenerationModalProps {
   product: ShopifyProduct;
@@ -38,6 +37,7 @@ export function GenerationModal({
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     { url: imageUrl, isProductImage: true, source: 'product' }
   ]);
+  const [imageMode, setImageMode] = useState<ImageMode>('multiple-angles');
   const [templateInputs, setTemplateInputs] = useState<TemplateInput>({
     product_name: product.title,
     product_image_url: imageUrl,
@@ -47,9 +47,6 @@ export function GenerationModal({
   });
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
-  const [enlargedImageUrl, setEnlargedImageUrl] = useState<string | null>(null);
-  const [socialPhotos, setSocialPhotos] = useState<SocialMediaPhoto[]>([]);
-  const [loadingSocial, setLoadingSocial] = useState(false);
 
   const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const imageCount = selectedImages.length;
@@ -57,8 +54,7 @@ export function GenerationModal({
 
   useEffect(() => {
     loadTemplates();
-    loadSocialPhotos();
-  }, [planName, store.id]);
+  }, [planName]);
 
   const loadTemplates = async () => {
     try {
@@ -72,19 +68,6 @@ export function GenerationModal({
       console.error('Failed to load templates:', error);
     } finally {
       setIsLoadingTemplates(false);
-    }
-  };
-
-  const loadSocialPhotos = async () => {
-    try {
-      setLoadingSocial(true);
-      const photos = await SocialMediaService.getAllPhotos(store.id);
-      setSocialPhotos(photos.slice(0, 6)); // Only show last 6
-    } catch (error) {
-      console.error('Failed to load social photos:', error);
-      setSocialPhotos([]);
-    } finally {
-      setLoadingSocial(false);
     }
   };
 
@@ -154,7 +137,12 @@ export function GenerationModal({
     if (imageCount > 1) {
       promptText = promptText.replace(/\bthe image\b/gi, 'the provided images');
       promptText = promptText.replace(/\bthis image\b/gi, 'these images');
-      promptText = `Using ${imageCount} reference images: The first image shows the main product view, additional images show different angles and details. Feature all perspectives of the product throughout the video, showing it from multiple angles while maintaining accurate representation. ` + promptText;
+
+      if (imageMode === 'first-last-frame') {
+        promptText = `Using 2 reference images for first and last frame: Start with the composition shown in the first image and smoothly transition to end with the composition shown in the last image. Create a seamless narrative arc between these two frames. ` + promptText;
+      } else {
+        promptText = `Using ${imageCount} reference images: The first image shows the main product view, additional images show different angles and details. Feature all perspectives of the product throughout the video, showing it from multiple angles while maintaining accurate representation. ` + promptText;
+      }
     }
 
     const aspectRatioMap: Record<string, string> = {
@@ -204,252 +192,22 @@ export function GenerationModal({
 
           {/* Main Content - Scrollable */}
           <div className="overflow-y-auto flex-1 p-6 space-y-5">
-            {/* Reference Images - Compact Layout */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
-                <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
-              </div>
-
-              {/* Compact 3-Slot Layout */}
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                {/* Slot 1: Primary Image (Always Filled) */}
-                <div
-                  className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-purple-500 group"
-                >
-                  {selectedImages[0] && (
-                    <>
-                      <div
-                        className="w-full h-full cursor-pointer"
-                        onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
-                      >
-                        <img
-                          src={selectedImages[0].url}
-                          alt="Primary reference"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
-                        Primary
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newImages = selectedImages.slice(1);
-                          setSelectedImages(newImages.length > 0 ? newImages : [{ url: imageUrl, isProductImage: true, source: 'product' }]);
-                        }}
-                        className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3 text-white" />
-                      </button>
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                        <Maximize2 className="w-4 h-4 text-white" />
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Slot 2: Reference Image or Placeholder */}
-                {selectedImages[1] ? (
-                  <div
-                    className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 group hover:border-purple-500/50 transition-all"
-                  >
-                    <div
-                      className="w-full h-full cursor-pointer"
-                      onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
-                    >
-                      <img
-                        src={selectedImages[1].url}
-                        alt="Reference 2"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newImages = [...selectedImages];
-                        newImages.splice(1, 1);
-                        setSelectedImages(newImages);
-                      }}
-                      className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    >
-                      <X className="w-3 h-3 text-white" />
-                    </button>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                      <Maximize2 className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative h-32 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                      <Lock className="w-5 h-5 mb-1" />
-                      <span className="text-[10px] font-medium">Reference 2</span>
-                    </div>
-                    {!isProPlan && (
-                      <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                        <div className="text-center">
-                          <div className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">
-                            PRO
-                          </div>
-                          <p className="text-[10px] text-purple-300 font-semibold">Multi-image</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Slot 3: Last Frame or Placeholder */}
-                {selectedImages[2] ? (
-                  <div
-                    className="relative h-32 bg-gray-900 rounded-lg overflow-hidden border-2 border-gray-700 group hover:border-purple-500/50 transition-all"
-                  >
-                    <div
-                      className="w-full h-full cursor-pointer"
-                      onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
-                    >
-                      <img
-                        src={selectedImages[2].url}
-                        alt="Last frame"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newImages = selectedImages.slice(0, 2);
-                        setSelectedImages(newImages);
-                      }}
-                      className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    >
-                      <X className="w-3 h-3 text-white" />
-                    </button>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                      <Maximize2 className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative h-32 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                      <Lock className="w-5 h-5 mb-1" />
-                      <span className="text-[10px] font-medium">Last Frame</span>
-                    </div>
-                    {!isProPlan && (
-                      <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                        <div className="text-center">
-                          <div className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full mb-1">
-                            PRO
-                          </div>
-                          <p className="text-[10px] text-purple-300 font-semibold">8s videos</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Product Photos Gallery */}
-              {product.images && product.images.length > 1 && (
-                <div className="mb-2">
-                  <h4 className="text-xs font-medium text-gray-300 mb-1.5">Product Photos</h4>
-                  <div className="flex gap-1.5 overflow-x-auto pb-1">
-                    {product.images.slice(0, 8).map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          if (selectedImages.length >= 3) return;
-                          if (!isProPlan && selectedImages.length >= 1) return;
-                          const newImage: ImageSlot = {
-                            url: img.src.trim(),
-                            isProductImage: true,
-                            source: 'product',
-                          };
-                          setSelectedImages([...selectedImages, newImage]);
-                        }}
-                        disabled={selectedImages.some(s => s.url === img.src) || (selectedImages.length >= 3) || (!isProPlan && selectedImages.length >= 1)}
-                        className={`flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
-                          selectedImages.some(s => s.url === img.src)
-                            ? 'border-purple-500 opacity-50'
-                            : ((!isProPlan && selectedImages.length >= 1) ? 'border-gray-700 opacity-40 cursor-not-allowed' : 'border-gray-700 hover:border-purple-500 cursor-pointer')
-                        }`}
-                      >
-                        <img
-                          src={img.src}
-                          alt={img.alt || product.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Social Media Photos */}
-              <div className="mb-2">
-                <h4 className="text-xs font-medium text-gray-300 mb-1.5">Your Social Media</h4>
-                <div className="flex gap-1.5 overflow-x-auto pb-1 min-h-[68px]">
-                  {loadingSocial ? (
-                    <div className="flex-shrink-0 w-16 h-16 bg-gray-800/50 rounded border-2 border-gray-700 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
-                    </div>
-                  ) : socialPhotos.length > 0 ? (
-                    <>
-                      {socialPhotos.map((photo, idx) => (
-                        <button
-                          key={photo.id}
-                          onClick={() => {
-                            if (selectedImages.length >= 3) return;
-                            if (!isProPlan && selectedImages.length >= 1) return;
-                            const newImage: ImageSlot = {
-                              url: photo.url.trim(),
-                              isProductImage: false,
-                              source: photo.platform,
-                            };
-                            setSelectedImages([...selectedImages, newImage]);
-                          }}
-                          disabled={selectedImages.some(s => s.url === photo.url) || (selectedImages.length >= 3) || (!isProPlan && selectedImages.length >= 1)}
-                          className={`relative flex-shrink-0 w-16 h-16 bg-gray-800 rounded border-2 overflow-hidden transition-all ${
-                            selectedImages.some(s => s.url === photo.url)
-                              ? 'border-indigo-500 opacity-50'
-                              : ((!isProPlan && selectedImages.length >= 1) ? 'border-indigo-700/50 opacity-40 cursor-not-allowed' : 'border-indigo-700/50 hover:border-indigo-500 cursor-pointer')
-                          }`}
-                        >
-                          <img
-                            src={photo.thumbnail}
-                            alt={photo.caption || 'Social media photo'}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-0.5 right-0.5">
-                            {photo.platform === 'instagram' && (
-                              <Instagram className="w-3 h-3 text-white drop-shadow-lg" />
-                            )}
-                            {photo.platform === 'tiktok' && (
-                              <Music className="w-3 h-3 text-white drop-shadow-lg" />
-                            )}
-                          </div>
-                        </button>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex-shrink-0 w-16 h-16 bg-gray-800/50 rounded border-2 border-dashed border-gray-700 flex items-center justify-center">
-                        <div className="text-center">
-                          <Lock className="w-4 h-4 text-gray-600 mx-auto mb-0.5" />
-                          <span className="text-[9px] text-gray-500">Connect</span>
-                        </div>
-                      </div>
-                      {[...Array(5)].map((_, idx) => (
-                        <div
-                          key={idx}
-                          className="flex-shrink-0 w-16 h-16 bg-gray-800/30 rounded border border-gray-700/50 flex items-center justify-center opacity-40"
-                        >
-                          <span className="text-[9px] text-gray-600">Photo {idx + 2}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* Reference Images Picker */}
+            <MultiImagePicker
+              productImages={product.images?.map((img, idx) => ({
+                id: `${product.id}-${idx}`,
+                src: img.src,
+                alt: img.alt || product.title,
+              })) || []}
+              productTitle={product.title}
+              onImagesChange={(images, mode) => {
+                setSelectedImages(images);
+                setImageMode(mode);
+              }}
+              maxImages={3}
+              storeId={store.id}
+              planName={planName}
+            />
 
             {/* Duration Selection */}
             <div>
@@ -619,29 +377,6 @@ export function GenerationModal({
           </div>
         </div>
       </div>
-
-      {/* Image Enlargement Modal */}
-      {enlargedImageUrl && (
-        <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60]"
-          onClick={() => setEnlargedImageUrl(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh]">
-            <button
-              onClick={() => setEnlargedImageUrl(null)}
-              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
-            <img
-              src={enlargedImageUrl}
-              alt="Enlarged view"
-              className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Custom Template Modal */}
       {showCustomTemplateModal && selectedTemplate && (

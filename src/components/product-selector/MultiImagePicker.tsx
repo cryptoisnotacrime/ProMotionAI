@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info, Instagram, Music, Lock } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Link as LinkIcon, Info, Instagram, Music, Lock, Grid3x3, MoveRight } from 'lucide-react';
 import { SocialMediaService } from '../../services/social-media/social-media.service';
 import type { SocialMediaPhoto, SocialMediaConnection } from '../../lib/supabase';
 
@@ -10,10 +10,12 @@ export interface ImageSlot {
   source: 'product' | 'upload' | 'url' | 'instagram' | 'tiktok';
 }
 
+export type ImageMode = 'multiple-angles' | 'first-last-frame';
+
 interface MultiImagePickerProps {
   productImages: { id: string; src: string; alt?: string }[];
   productTitle: string;
-  onImagesChange: (images: ImageSlot[]) => void;
+  onImagesChange: (images: ImageSlot[], mode: ImageMode) => void;
   maxImages?: number;
   storeId?: string;
   planName?: string;
@@ -29,6 +31,7 @@ export function MultiImagePicker({
   storeId,
   planName = 'free',
 }: MultiImagePickerProps) {
+  const [imageMode, setImageMode] = useState<ImageMode>('multiple-angles');
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     productImages[0] ? { url: productImages[0].src.trim(), isProductImage: true, source: 'product' } : null
   ].filter(Boolean) as ImageSlot[]);
@@ -76,11 +79,24 @@ export function MultiImagePicker({
 
   const updateImages = (newImages: ImageSlot[]) => {
     setSelectedImages(newImages);
-    onImagesChange(newImages);
+    onImagesChange(newImages, imageMode);
   };
 
+  const handleModeChange = (mode: ImageMode) => {
+    setImageMode(mode);
+    // When switching to first-last-frame mode, keep only first and last image
+    if (mode === 'first-last-frame' && selectedImages.length > 2) {
+      const newImages = [selectedImages[0], selectedImages[selectedImages.length - 1]];
+      updateImages(newImages);
+    }
+    // Notify parent of mode change
+    onImagesChange(selectedImages, mode);
+  };
+
+  const maxImagesForMode = imageMode === 'first-last-frame' ? 2 : maxImages;
+
   const handleProductImageSelect = (imageSrc: string) => {
-    if (selectedImages.length >= maxImages) return;
+    if (selectedImages.length >= maxImagesForMode) return;
     if (!canAddMultiImage && selectedImages.length >= 1) return;
 
     const newImage: ImageSlot = {
@@ -92,7 +108,7 @@ export function MultiImagePicker({
   };
 
   const handleSocialPhotoSelect = (photo: SocialMediaPhoto) => {
-    if (selectedImages.length >= maxImages) return;
+    if (selectedImages.length >= maxImagesForMode) return;
     if (!canAddMultiImage && selectedImages.length >= 1) return;
 
     const newImage: ImageSlot = {
@@ -170,7 +186,7 @@ export function MultiImagePicker({
   };
 
   const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
-  const canAddMore = selectedImages.length < maxImages;
+  const canAddMore = selectedImages.length < maxImagesForMode;
   const canAddMultiImage = isProPlan || selectedImages.length < 1;
   const availableProductImages = productImages.filter(
     img => !selectedImages.some(sel => sel.url === img.src)
@@ -182,7 +198,7 @@ export function MultiImagePicker({
         <div>
           <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
           <p className="text-xs text-gray-400 mt-0.5">
-            {selectedImages.length} of {maxImages} selected
+            {selectedImages.length} of {maxImagesForMode} selected
           </p>
         </div>
         <button
@@ -192,6 +208,47 @@ export function MultiImagePicker({
           <Info className="w-3.5 h-3.5" />
           {showTips ? 'Hide' : 'Tips'}
         </button>
+      </div>
+
+      {/* Mode Selection Toggle */}
+      <div className="bg-gray-800/50 rounded-lg p-1 flex gap-1">
+        <button
+          onClick={() => handleModeChange('multiple-angles')}
+          className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+            imageMode === 'multiple-angles'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+          }`}
+        >
+          <Grid3x3 className="w-3.5 h-3.5" />
+          Multiple Angles
+        </button>
+        <button
+          onClick={() => handleModeChange('first-last-frame')}
+          className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+            imageMode === 'first-last-frame'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+          }`}
+        >
+          <MoveRight className="w-3.5 h-3.5" />
+          First & Last Frame
+        </button>
+      </div>
+
+      {/* Mode Description */}
+      <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-2.5 text-xs">
+        {imageMode === 'multiple-angles' ? (
+          <>
+            <p className="font-semibold text-blue-200 mb-1">Multiple Angles Mode</p>
+            <p className="text-blue-300">Best for: Product showcases showing different angles and perspectives (up to 3 images)</p>
+          </>
+        ) : (
+          <>
+            <p className="font-semibold text-blue-200 mb-1">First & Last Frame Mode</p>
+            <p className="text-blue-300">Best for: Storytelling with precise control over opening and closing shots (2 images)</p>
+          </>
+        )}
       </div>
 
       {showTips && (
@@ -211,36 +268,43 @@ export function MultiImagePicker({
       )}
 
       <div className="grid grid-cols-3 gap-2">
-        {selectedImages.map((image, index) => (
-          <div
-            key={index}
-            className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group"
-          >
-            <img
-              src={image.url}
-              alt={`Reference ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-            {index === 0 && (
-              <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                Primary
-              </div>
-            )}
-            <button
-              onClick={() => removeImage(index)}
-              className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+        {selectedImages.map((image, index) => {
+          let slotLabel = '';
+          if (imageMode === 'first-last-frame') {
+            slotLabel = index === 0 ? 'First Frame' : 'Last Frame';
+          } else {
+            slotLabel = index === 0 ? 'Primary' : `Angle ${index + 1}`;
+          }
+
+          return (
+            <div
+              key={index}
+              className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group"
             >
-              <X className="w-4 h-4" />
-            </button>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] px-2 py-1.5 flex items-center gap-1">
-              {image.source === 'product' && 'Product'}
-              {image.source === 'upload' && 'Uploaded'}
-              {image.source === 'url' && 'URL'}
-              {image.source === 'instagram' && <><Instagram className="w-3 h-3" /> Instagram</>}
-              {image.source === 'tiktok' && <><Music className="w-3 h-3" /> TikTok</>}
+              <img
+                src={image.url}
+                alt={`Reference ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                {slotLabel}
+              </div>
+              <button
+                onClick={() => removeImage(index)}
+                className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] px-2 py-1.5 flex items-center gap-1">
+                {image.source === 'product' && 'Product'}
+                {image.source === 'upload' && 'Uploaded'}
+                {image.source === 'url' && 'URL'}
+                {image.source === 'instagram' && <><Instagram className="w-3 h-3" /> Instagram</>}
+                {image.source === 'tiktok' && <><Music className="w-3 h-3" /> TikTok</>}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {canAddMore && (
           <>
@@ -282,7 +346,7 @@ export function MultiImagePicker({
                     <p className="text-[10px] text-center text-purple-300 font-semibold">Upgrade to Pro for multi-image</p>
                   </div>
                 </div>
-                {selectedImages.length < maxImages - 1 && (
+                {selectedImages.length < maxImagesForMode - 1 && (
                   <div className="relative aspect-square bg-gray-800/30 border-2 border-dashed border-gray-700/50 rounded-lg group">
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600">
                       <Lock className="w-6 h-6 mb-1.5" />
@@ -480,10 +544,23 @@ export function MultiImagePicker({
 
       {selectedImages.length > 1 && (
         <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-700/30 rounded-lg p-3 flex items-start gap-2">
-          <ImageIcon className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+          {imageMode === 'first-last-frame' ? (
+            <MoveRight className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+          ) : (
+            <ImageIcon className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+          )}
           <div className="text-xs text-purple-200">
-            <p className="font-semibold mb-1">Multi-Image Mode Active</p>
-            <p className="text-purple-300">Veo 3.1 will use all {selectedImages.length} images to maintain visual consistency</p>
+            {imageMode === 'first-last-frame' ? (
+              <>
+                <p className="font-semibold mb-1">First & Last Frame Mode Active</p>
+                <p className="text-purple-300">Veo 3.1 will create a smooth transition from your first frame to your last frame</p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold mb-1">Multi-Image Mode Active</p>
+                <p className="text-purple-300">Veo 3.1 will use all {selectedImages.length} images to maintain visual consistency</p>
+              </>
+            )}
           </div>
         </div>
       )}
