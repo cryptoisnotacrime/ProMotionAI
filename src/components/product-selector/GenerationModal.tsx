@@ -51,7 +51,7 @@ export function GenerationModal({
   const [socialPhotos, setSocialPhotos] = useState<SocialMediaPhoto[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
 
-  const isProPlan = planName === 'pro' || planName === 'enterprise';
+  const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const imageCount = selectedImages.length;
   const requiresEightSeconds = imageCount > 1;
 
@@ -211,11 +211,11 @@ export function GenerationModal({
                 <p className="text-xs text-gray-400">{selectedImages.length} of 3 selected</p>
               </div>
 
-              {/* Compact 3-Slot Layout - Reduced by 40% */}
+              {/* Compact 3-Slot Layout */}
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {/* Slot 1: Primary Image (Always Filled) */}
                 <div
-                  className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
+                  className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-purple-500 group cursor-pointer"
                   onClick={() => setEnlargedImageUrl(selectedImages[0]?.url)}
                 >
                   {selectedImages[0] && (
@@ -238,7 +238,7 @@ export function GenerationModal({
                 {/* Slot 2: Reference Image or Placeholder */}
                 {selectedImages[1] ? (
                   <div
-                    className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
                     onClick={() => setEnlargedImageUrl(selectedImages[1].url)}
                   >
                     <img
@@ -251,7 +251,7 @@ export function GenerationModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="relative h-24 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                  <div className="relative h-32 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
                       <Lock className="w-5 h-5 mb-1" />
                       <span className="text-[10px] font-medium">Reference 2</span>
@@ -272,7 +272,7 @@ export function GenerationModal({
                 {/* Slot 3: Last Frame or Placeholder */}
                 {selectedImages[2] ? (
                   <div
-                    className="relative h-24 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
+                    className="relative h-32 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 group cursor-pointer hover:border-purple-500/50 transition-all"
                     onClick={() => setEnlargedImageUrl(selectedImages[2].url)}
                   >
                     <img
@@ -285,7 +285,7 @@ export function GenerationModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="relative h-24 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
+                  <div className="relative h-32 bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-lg group">
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
                       <Lock className="w-5 h-5 mb-1" />
                       <span className="text-[10px] font-medium">Last Frame</span>
