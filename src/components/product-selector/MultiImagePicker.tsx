@@ -557,12 +557,12 @@ export function MultiImagePicker({
             {imageMode === 'first-last-frame' ? (
               <>
                 <p className="font-semibold mb-1">First & Last Frame Mode Active</p>
-                <p className="text-purple-300">Veo 3.1 will create a smooth transition from your first frame to your last frame</p>
+                <p className="text-purple-300">Create a smooth transition from your first frame to your last frame</p>
               </>
             ) : (
               <>
                 <p className="font-semibold mb-1">Multi-Image Mode Active</p>
-                <p className="text-purple-300">Veo 3.1 will use all {selectedImages.length} images to maintain visual consistency</p>
+                <p className="text-purple-300">All {selectedImages.length} images will be used to maintain visual consistency</p>
               </>
             )}
           </div>

@@ -61,13 +61,12 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
       return false;
     }
 
-    // Search filter (searches in product title and prompt)
+    // Search filter (searches in product title and template name)
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       const matchesTitle = video.product_title?.toLowerCase().includes(searchLower);
-      const matchesPrompt = video.prompt?.toLowerCase().includes(searchLower);
       const matchesTemplate = video.metadata?.template_name?.toLowerCase().includes(searchLower);
-      return matchesTitle || matchesPrompt || matchesTemplate;
+      return matchesTitle || matchesTemplate;
     }
 
     return true;
@@ -140,7 +139,7 @@ export function VideoLibrary({ videos, onDelete, onRefresh, onAddToShopify, plan
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by product, template, or prompt details..."
+              placeholder="Search by product or template..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -576,11 +575,6 @@ function VideoModal({ video, onClose }: VideoModalProps) {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <h3 className="font-medium text-gray-100 mb-1">Prompt</h3>
-              <p className="text-gray-400 text-sm">{video.prompt}</p>
-            </div>
-
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-400">Duration:</span>

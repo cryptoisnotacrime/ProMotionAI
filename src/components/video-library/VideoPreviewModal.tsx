@@ -146,12 +146,6 @@ export function VideoPreviewModal({
                 <div className="text-sm text-gray-400 mb-1">Product:</div>
                 <div className="font-medium text-gray-100">{video.product_title}</div>
               </div>
-              <div className="mt-3">
-                <div className="text-sm text-gray-400 mb-1">Prompt Used:</div>
-                <div className="text-sm text-gray-300 bg-gray-800 p-3 rounded-lg border border-gray-700">
-                  {video.prompt || 'No prompt specified'}
-                </div>
-              </div>
             </div>
           </div>
 

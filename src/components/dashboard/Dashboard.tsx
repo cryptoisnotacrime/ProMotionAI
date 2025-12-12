@@ -265,7 +265,6 @@ interface VideoPreviewModalProps {
 }
 
 function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
-  const [showPrompt, setShowPrompt] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
   const statusConfig = {
@@ -312,19 +311,6 @@ function RecentActivityItem({ video, isPro }: RecentActivityItemProps) {
             <span>{duration}s • {aspectRatio}</span>
             <span>{new Date(video.created_at).toLocaleDateString()}</span>
           </div>
-          {video.prompt && (
-            <button
-              onClick={() => setShowPrompt(!showPrompt)}
-              className="text-xs text-blue-400 hover:text-blue-300 font-medium"
-            >
-              {showPrompt ? 'Hide' : 'View'} prompt details
-            </button>
-          )}
-          {showPrompt && video.prompt && (
-            <div className="mt-2 p-2 bg-gray-800 rounded text-xs text-gray-300 max-h-20 overflow-y-auto border border-gray-700">
-              {video.prompt}
-            </div>
-          )}
         </div>
       </div>
       {video.generation_status === 'completed' && (
@@ -393,7 +379,7 @@ function VideoPreviewModal({ video, onClose }: VideoPreviewModalProps) {
           </button>
         </div>
         <div className="p-5">
-          <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden">
             <video
               src={video.video_url}
               controls
@@ -402,12 +388,6 @@ function VideoPreviewModal({ video, onClose }: VideoPreviewModalProps) {
               className="w-full h-full"
             />
           </div>
-          {video.prompt && (
-            <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
-              <p className="text-xs font-medium text-gray-300 mb-1">Generation Prompt:</p>
-              <p className="text-sm text-gray-400">{video.prompt}</p>
-            </div>
-          )}
         </div>
       </div>
     </div>

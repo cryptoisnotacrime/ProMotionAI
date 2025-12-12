@@ -109,7 +109,7 @@ export function GenerationModal({
     }
 
     if (imageMode === 'multiple-angles' && imageCount > 1 && duration !== 8) {
-      alert('Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.');
+      alert('Multiple Angles mode requires 8-second videos. First & Last Frame mode supports 4s, 6s, or 8s.');
       return;
     }
 
@@ -240,7 +240,7 @@ export function GenerationModal({
               {requiresEightSeconds && (
                 <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
                   <p className="text-xs text-purple-200">
-                    Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.
+                    Multiple Angles mode requires 8-second videos. First & Last Frame mode supports 4s, 6s, or 8s.
                   </p>
                 </div>
               )}

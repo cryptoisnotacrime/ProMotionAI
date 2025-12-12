@@ -123,7 +123,7 @@ Deno.serve(async (req: Request) => {
       console.error("Multiple-angles mode requires 8s duration:", { duration: durationSeconds, imageCount: images.length, mode });
       return new Response(
         JSON.stringify({
-          error: "Multiple Angles mode requires 8-second videos (Veo 3.1 API requirement). First & Last Frame mode supports 4s, 6s, or 8s.",
+          error: "Multiple Angles mode requires 8-second videos. First & Last Frame mode supports 4s, 6s, or 8s.",
           duration: durationSeconds,
           imageCount: images.length,
           mode
@@ -269,7 +269,7 @@ Deno.serve(async (req: Request) => {
         instances: [
           {
             prompt: prompt || "Create an engaging product video",
-            firstFrame: processedImages[0].image,
+            image: processedImages[0].image,
             lastFrame: processedImages[1].image,
           },
         ],
@@ -297,14 +297,8 @@ Deno.serve(async (req: Request) => {
       };
     }
 
-    console.log("Calling Veo 3.1 API with prompt:", prompt);
-    console.log(`Using mode: ${mode} with ${processedImages.length} image(s):`, JSON.stringify({
-      mode,
-      imageCount: processedImages.length,
-      mimeTypes: processedImages.map((img: any) => img.image?.mimeType),
-      base64Lengths: processedImages.map((img: any) => img.image?.bytesBase64Encoded?.length),
-    }));
-    console.log("Vertex AI endpoint:", veoEndpoint.replace(gcpProjectId, 'PROJECT_ID'));
+    console.log(`Starting video generation with ${processedImages.length} image(s)...`);
+    console.log(`Using mode: ${mode}, duration: ${durationSeconds}s, aspect ratio: ${veoAspectRatio}`);
 
     const veoResponse = await fetch(veoEndpoint, {
       method: "POST",
