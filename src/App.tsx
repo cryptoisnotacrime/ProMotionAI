@@ -317,7 +317,8 @@ function App() {
     templateId?: string,
     templateInputs?: Record<string, any>,
     imageUrls?: string[],
-    imageMode?: 'first-last-frame' | 'multiple-angles'
+    imageMode?: 'first-last-frame' | 'multiple-angles',
+    resolution?: '720p' | '1080p'
   ) => {
     if (!store || !selectedProduct) return;
 
@@ -335,6 +336,7 @@ function App() {
         aspectRatio,
         templateId,
         templateInputs,
+        resolution: resolution || '720p',
       });
 
       const updatedStore = await CreditsService.getStoreInfo(store.id);

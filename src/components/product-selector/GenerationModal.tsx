@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wand2, Sparkles, Clock, Play, Save } from 'lucide-react';
+import { X, Wand2, Sparkles, Clock, Play, Save, Lock, MonitorPlay } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
@@ -16,7 +16,7 @@ interface GenerationModalProps {
   maxDuration: number;
   planName: string;
   store: Store;
-  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>, imageUrls?: string[], imageMode?: 'first-last-frame' | 'multiple-angles') => void;
+  onGenerate: (prompt: string, duration: number, aspectRatio: string, templateId?: string, templateInputs?: Record<string, any>, imageUrls?: string[], imageMode?: 'first-last-frame' | 'multiple-angles', resolution?: '720p' | '1080p') => void;
   onClose: () => void;
   isGenerating?: boolean;
 }
@@ -35,6 +35,7 @@ export function GenerationModal({
   const [templates, setTemplates] = useState<DetailedTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<DetailedTemplate | null>(null);
   const [duration, setDuration] = useState(maxDuration >= 6 ? 6 : 4);
+  const [resolution, setResolution] = useState<'720p' | '1080p'>('720p');
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     { url: imageUrl, isProductImage: true, source: 'product' }
   ]);
@@ -113,6 +114,11 @@ export function GenerationModal({
       return;
     }
 
+    if (resolution === '1080p' && !isProPlan) {
+      alert('1080p resolution requires Pro plan. Upgrade to unlock this feature.');
+      return;
+    }
+
     const variables: Record<string, string> = {
       product_name: product.title,
       product_image_url: selectedImages[0]?.url || imageUrl,
@@ -156,7 +162,8 @@ export function GenerationModal({
       undefined,
       { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category, image_count: imageCount },
       imageUrls,
-      imageMode
+      imageMode,
+      resolution
     );
   };
 
@@ -246,6 +253,59 @@ export function GenerationModal({
               )}
             </div>
 
+            {/* Resolution Selection */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <MonitorPlay className="w-4 h-4 text-purple-400" />
+                <label className="text-sm font-semibold text-gray-100">Video Resolution</label>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setResolution('720p')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                    resolution === '720p'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
+                  }`}
+                >
+                  <div>720p</div>
+                  <div className="text-xs mt-0.5 opacity-80">Standard HD</div>
+                </button>
+                <button
+                  onClick={() => {
+                    if (isProPlan) {
+                      setResolution('1080p');
+                    } else {
+                      alert('1080p resolution requires Pro plan. Upgrade to unlock this feature.');
+                    }
+                  }}
+                  className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                    resolution === '1080p'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      : !isProPlan
+                      ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed border border-gray-700'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
+                  }`}
+                >
+                  {!isProPlan && (
+                    <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold rounded-full shadow-lg flex items-center gap-0.5">
+                      <Lock className="w-2 h-2" />
+                      PRO
+                    </span>
+                  )}
+                  <div>1080p</div>
+                  <div className="text-xs mt-0.5 opacity-80">Full HD</div>
+                </button>
+              </div>
+              {!isProPlan && (
+                <div className="bg-gray-800/30 border border-gray-700/30 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-gray-300">
+                    Upgrade to <span className="font-semibold text-purple-400">Pro</span> to unlock 1080p Full HD resolution for higher quality videos.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Template Selection & Customization - All in One View */}
             {isLoadingTemplates ? (
               <div className="bg-gray-800/50 rounded-lg p-8 flex items-center justify-center">
@@ -298,7 +358,7 @@ export function GenerationModal({
 
           {/* Footer - Fixed */}
           <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm flex-shrink-0">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
               <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
                 <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Template</p>
                 <p className="text-xs font-semibold text-white truncate" title={selectedTemplate?.template_name || 'None'}>
@@ -308,6 +368,10 @@ export function GenerationModal({
               <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
                 <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Duration</p>
                 <p className="text-xs font-semibold text-white">{duration}s</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
+                <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Resolution</p>
+                <p className="text-xs font-semibold text-white">{resolution}</p>
               </div>
               <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
                 <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Images</p>

@@ -17,6 +17,7 @@ interface VideoGenerationRequest {
   durationSeconds: number;
   aspectRatio?: string;
   creditsRequired: number;
+  resolution?: '720p' | '1080p';
 }
 
 Deno.serve(async (req: Request) => {
@@ -61,7 +62,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body: VideoGenerationRequest = await req.json();
-    const { videoId, storeId, imageUrl, imageUrls, imageMode, prompt, durationSeconds, aspectRatio, creditsRequired } = body;
+    const { videoId, storeId, imageUrl, imageUrls, imageMode, prompt, durationSeconds, aspectRatio, creditsRequired, resolution } = body;
 
     // Sanitize image URLs by trimming whitespace and newlines
     const images = (imageUrls || (imageUrl ? [imageUrl] : [])).map((url: string) => url.trim());
@@ -69,7 +70,7 @@ Deno.serve(async (req: Request) => {
     // Determine mode if not provided
     const mode = imageMode || (images.length === 2 ? 'first-last-frame' : 'multiple-angles');
 
-    console.log("Request received:", { videoId, storeId, imageCount: images.length, imageMode: mode, durationSeconds, creditsRequired });
+    console.log("Request received:", { videoId, storeId, imageCount: images.length, imageMode: mode, durationSeconds, creditsRequired, resolution: resolution || '720p' });
 
     if (!videoId || images.length === 0 || !storeId || !creditsRequired) {
       console.error("Missing required fields:", { videoId, hasImages: images.length > 0, storeId, creditsRequired });
@@ -111,6 +112,21 @@ Deno.serve(async (req: Request) => {
           error: "Multiple reference images require Pro plan. Upgrade to unlock this feature.",
           planName: store.plan_name,
           imageCount: images.length
+        }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (resolution === '1080p' && !isProPlan) {
+      console.error("1080p resolution requires Pro plan:", { planName: store.plan_name, resolution });
+      return new Response(
+        JSON.stringify({
+          error: "1080p resolution requires Pro plan. Upgrade to unlock this feature.",
+          planName: store.plan_name,
+          resolution
         }),
         {
           status: 403,

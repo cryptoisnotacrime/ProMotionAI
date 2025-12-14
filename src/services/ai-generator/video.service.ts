@@ -14,6 +14,7 @@ export interface VideoGenerationRequest {
   aspectRatio?: string;
   templateId?: string;
   templateInputs?: Record<string, any>;
+  resolution?: '720p' | '1080p';
 }
 
 export interface VideoGenerationResponse {
@@ -76,6 +77,7 @@ export class VideoGenerationService {
           durationSeconds: durationSeconds,
           aspectRatio: request.aspectRatio || '9:16',
           creditsRequired: creditsRequired,
+          resolution: request.resolution || '720p',
         }),
       });
 
@@ -152,6 +154,7 @@ export class VideoGenerationService {
         template_id: request.templateId,
         template_inputs: request.templateInputs,
         metadata,
+        resolution: request.resolution || '720p',
       })
       .select()
       .single();
