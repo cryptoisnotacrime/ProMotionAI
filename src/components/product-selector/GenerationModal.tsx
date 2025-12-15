@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Modal, Scrollable } from '@shopify/polaris';
 import { X, Wand2, Sparkles, Clock, Play, Save, Lock, MonitorPlay } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { VideoTemplate, TemplateInput, generateVeoPrompt } from '../../services/ai-generator/template.service';
@@ -175,28 +176,24 @@ export function GenerationModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20 flex flex-col">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-3 flex items-center justify-between backdrop-blur-sm flex-shrink-0">
+      <Modal
+        open={true}
+        onClose={isGenerating ? () => {} : onClose}
+        title={
+          <div className="flex items-center gap-2">
+            <Wand2 className="w-5 h-5 text-blue-500" />
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-purple-400" />
-                Generate Video
-              </h2>
-              <p className="text-xs text-gray-400 mt-0.5">{product.title}</p>
+              <div className="font-bold">Generate Video</div>
+              <div className="text-xs text-gray-500 font-normal">{product.title}</div>
             </div>
-            <button
-              onClick={onClose}
-              disabled={isGenerating}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
           </div>
-
-          {/* Main Content - Scrollable */}
-          <div className="overflow-y-auto flex-1 p-6 space-y-5">
+        }
+        large
+      >
+        <Modal.Section>
+          <div className="bg-gradient-to-br from-gray-950 via-gray-900 to-blue-950/20 rounded-lg p-6">
+            <Scrollable shadow style={{ maxHeight: '60vh' }}>
+              <div className="space-y-5 pr-4">
             {/* Reference Images Picker */}
             <MultiImagePicker
               productImages={product.images?.map((img, idx) => ({
@@ -217,7 +214,7 @@ export function GenerationModal({
             {/* Duration Selection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-purple-400" />
+                <Clock className="w-4 h-4 text-blue-400" />
                 <label className="text-sm font-semibold text-gray-100">Video Duration</label>
               </div>
               <div className="flex gap-2">
@@ -226,16 +223,16 @@ export function GenerationModal({
                     key={option.value}
                     onClick={() => !option.disabled && setDuration(option.value)}
                     disabled={option.disabled}
-                    className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                    className={`min-h-[44px] flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
                       duration === option.value
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30'
                         : option.disabled
                         ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
                         : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
                     }`}
                   >
                     {option.value === 8 && !requiresEightSeconds && (
-                      <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold rounded-full shadow-lg">
+                      <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold rounded-full shadow-lg">
                         PRO
                       </span>
                     )}
@@ -245,8 +242,8 @@ export function GenerationModal({
                 ))}
               </div>
               {requiresEightSeconds && (
-                <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-2 mt-2">
-                  <p className="text-xs text-purple-200">
+                <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-blue-200">
                     Multiple Angles mode requires 8-second videos. First & Last Frame mode supports 4s, 6s, or 8s.
                   </p>
                 </div>
@@ -256,15 +253,15 @@ export function GenerationModal({
             {/* Resolution Selection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <MonitorPlay className="w-4 h-4 text-purple-400" />
+                <MonitorPlay className="w-4 h-4 text-blue-400" />
                 <label className="text-sm font-semibold text-gray-100">Video Resolution</label>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setResolution('720p')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                  className={`min-h-[44px] flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
                     resolution === '720p'
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
                   }`}
                 >
@@ -279,16 +276,16 @@ export function GenerationModal({
                       alert('1080p resolution requires Pro plan. Upgrade to unlock this feature.');
                     }
                   }}
-                  className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
+                  className={`min-h-[44px] flex-1 px-3 py-2 rounded-lg font-semibold text-sm transition-all relative ${
                     resolution === '1080p'
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30'
                       : !isProPlan
                       ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed border border-gray-700'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-750 border border-gray-700'
                   }`}
                 >
                   {!isProPlan && (
-                    <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[9px] font-bold rounded-full shadow-lg flex items-center gap-0.5">
+                    <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[9px] font-bold rounded-full shadow-lg flex items-center gap-0.5">
                       <Lock className="w-2 h-2" />
                       PRO
                     </span>
@@ -300,7 +297,7 @@ export function GenerationModal({
               {!isProPlan && (
                 <div className="bg-gray-800/30 border border-gray-700/30 rounded-lg p-2 mt-2">
                   <p className="text-xs text-gray-300">
-                    Upgrade to <span className="font-semibold text-purple-400">Pro</span> to unlock 1080p Full HD resolution for higher quality videos.
+                    Upgrade to <span className="font-semibold text-blue-400">Pro</span> to unlock 1080p Full HD resolution for higher quality videos.
                   </p>
                 </div>
               )}
@@ -326,17 +323,17 @@ export function GenerationModal({
 
             {/* Current Template Badge */}
             {selectedTemplate && (
-              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-2.5 flex items-center justify-between">
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span className="text-xs text-purple-200">
+                  <Sparkles className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs text-blue-200">
                     Using: <span className="font-semibold">{selectedTemplate.template_name}</span>
                   </span>
                 </div>
                 {planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise' ? (
                   <button
                     onClick={() => setShowCustomTemplateModal(true)}
-                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                    className="min-h-[44px] min-w-[44px] px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
                   >
                     <Save className="w-3 h-3" />
                     Save as Custom
@@ -345,7 +342,7 @@ export function GenerationModal({
                   <div className="group relative">
                     <button
                       disabled
-                      className="px-2.5 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
+                      className="min-h-[44px] min-w-[44px] px-2.5 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
                     >
                       <Lock className="w-3 h-3" />
                       PRO Feature
@@ -354,10 +351,13 @@ export function GenerationModal({
                 )}
               </div>
             )}
+              </div>
+            </Scrollable>
           </div>
+        </Modal.Section>
 
-          {/* Footer - Fixed */}
-          <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm flex-shrink-0">
+        <Modal.Section>
+          <div className="bg-gradient-to-r from-gray-900 to-blue-900/30 border-t border-blue-500/20 px-6 py-4 backdrop-blur-sm">
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
               <div className="bg-gray-800/50 rounded-lg p-2 border border-gray-700/50">
                 <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Template</p>
@@ -379,12 +379,12 @@ export function GenerationModal({
               </div>
               <div className={`rounded-lg p-2 border ${
                 hasEnoughCredits
-                  ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30'
+                  ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50 border-blue-500/30'
                   : 'bg-red-900/30 border-red-500/30'
               }`}>
                 <p className="text-[10px] text-gray-400 mb-0.5 font-medium">Total Cost</p>
                 <div className="flex items-baseline gap-1">
-                  <p className={`text-base font-bold ${hasEnoughCredits ? 'text-purple-300' : 'text-red-300'}`}>
+                  <p className={`text-base font-bold ${hasEnoughCredits ? 'text-blue-300' : 'text-red-300'}`}>
                     {creditCost}
                   </p>
                   {imageSurcharge > 0 && (
@@ -415,7 +415,7 @@ export function GenerationModal({
               <button
                 onClick={handleGenerate}
                 disabled={!selectedTemplate || !hasEnoughCredits || isGenerating}
-                className="sm:min-w-[180px] px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 whitespace-nowrap"
+                className="min-h-[44px] sm:min-w-[180px] px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {isGenerating ? (
                   <>
@@ -437,8 +437,8 @@ export function GenerationModal({
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </Modal.Section>
+      </Modal>
 
       {/* Custom Template Modal */}
       {showCustomTemplateModal && selectedTemplate && (

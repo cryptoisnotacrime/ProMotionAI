@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Modal, TextField, Select, Scrollable } from '@shopify/polaris';
 import { X, Save, Copy, Info } from 'lucide-react';
 import { DetailedTemplate } from '../../services/ai-generator/json-templates.service';
 import { TemplateInput } from '../../services/ai-generator/template.service';
@@ -102,69 +103,73 @@ export function CustomTemplateModal({ baseTemplate, currentSettings, storeId, on
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-purple-500/20">
-        <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-b border-purple-500/20 px-6 py-4 flex items-center justify-between backdrop-blur-sm z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Copy className="w-6 h-6 text-purple-400" />
-              Create Custom Template
-            </h2>
-            <p className="text-sm text-gray-400 mt-1">Based on: {baseTemplate.template_name}</p>
+    <Modal
+      open={true}
+      onClose={isSaving ? () => {} : onClose}
+      title={
+        <div>
+          <div className="flex items-center gap-2 font-bold">
+            <Copy className="w-5 h-5 text-blue-500" />
+            Create Custom Template
           </div>
-          <button
-            onClick={onClose}
-            disabled={isSaving}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <X className="w-6 h-6 text-gray-400" />
-          </button>
+          <div className="text-sm text-gray-500 font-normal">Based on: {baseTemplate.template_name}</div>
         </div>
-
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-160px)]">
+      }
+      large
+      primaryAction={{
+        content: isSaving ? 'Saving...' : 'Save Template',
+        onAction: handleSave,
+        loading: isSaving,
+        disabled: isSaving || !name.trim() || !promptTemplate.trim(),
+      }}
+      secondaryActions={[
+        {
+          content: 'Cancel',
+          onAction: onClose,
+          disabled: isSaving,
+        },
+      ]}
+    >
+      <Modal.Section>
+        <div className="bg-gradient-to-br from-gray-950 via-gray-900 to-blue-950/20 rounded-lg p-6">
+          <Scrollable shadow style={{ maxHeight: '60vh' }}>
+            <div className="space-y-6 pr-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-100 mb-2">
-                Template Name
-              </label>
-              <input
-                type="text"
+              <TextField
+                label="Template Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={setName}
                 placeholder="My Custom Template"
                 maxLength={50}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                autoComplete="off"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-100 mb-2">
-                Category
-              </label>
-              <select
+              <Select
+                label="Category"
+                options={[
+                  { label: 'Product Focus', value: 'Product Focus' },
+                  { label: 'Lifestyle', value: 'Lifestyle' },
+                  { label: 'UGC', value: 'UGC' },
+                  { label: 'Custom', value: 'Custom' },
+                ]}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                <option value="Product Focus">Product Focus</option>
-                <option value="Lifestyle">Lifestyle</option>
-                <option value="UGC">UGC</option>
-                <option value="Custom">Custom</option>
-              </select>
+                onChange={setCategory}
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-100 mb-2">
-              Description
-            </label>
-            <textarea
+            <TextField
+              label="Description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
               placeholder="Describe what this template does..."
               maxLength={200}
-              rows={2}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              multiline={2}
+              autoComplete="off"
             />
           </div>
 
@@ -183,14 +188,17 @@ export function CustomTemplateModal({ baseTemplate, currentSettings, storeId, on
                 {promptTemplate.length} / 2000
               </span>
             </div>
-            <textarea
+            <TextField
               id="prompt-template"
+              label=""
+              labelHidden
               value={promptTemplate}
-              onChange={(e) => setPromptTemplate(e.target.value)}
+              onChange={setPromptTemplate}
               placeholder="Enter your custom prompt template..."
               maxLength={2000}
-              rows={8}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-mono text-sm"
+              multiline={8}
+              autoComplete="off"
+              monospaced
             />
           </div>
 
@@ -203,7 +211,7 @@ export function CustomTemplateModal({ baseTemplate, currentSettings, storeId, on
                 <button
                   key={variable}
                   onClick={() => insertVariable(variable)}
-                  className="px-3 py-1.5 bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-700/50 rounded-lg text-xs font-mono transition-colors flex items-center gap-1"
+                  className="min-h-[44px] px-3 py-1.5 bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 border border-blue-700/50 rounded-lg text-xs font-mono transition-colors flex items-center gap-1"
                 >
                   <Copy className="w-3 h-3" />
                   {variable}
@@ -220,35 +228,10 @@ export function CustomTemplateModal({ baseTemplate, currentSettings, storeId, on
               {error}
             </div>
           )}
+            </div>
+          </Scrollable>
         </div>
-
-        <div className="sticky bottom-0 bg-gradient-to-r from-gray-900 to-purple-900/30 border-t border-purple-500/20 px-6 py-4 backdrop-blur-sm flex gap-3">
-          <button
-            onClick={onClose}
-            disabled={isSaving}
-            className="px-6 py-3 border-2 border-gray-700 text-gray-300 rounded-xl hover:bg-gray-800 font-medium transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !name.trim() || !promptTemplate.trim()}
-            className="flex-1 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                Save Template
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+      </Modal.Section>
+    </Modal>
   );
 }

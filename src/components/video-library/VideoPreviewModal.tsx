@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Modal, Button, ButtonGroup } from '@shopify/polaris';
 import { X, CheckCircle, RotateCw, Save, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 import { GeneratedVideo } from '../../lib/supabase';
 import { ShopifyProduct } from '../../services/shopify/products.service';
@@ -73,42 +74,45 @@ export function VideoPreviewModal({
 
   if (actionCompleted) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div className="bg-gray-900 rounded-xl max-w-md w-full p-8 text-center border border-gray-800">
-          <div className="w-16 h-16 bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-400" />
+      <Modal
+        open={true}
+        onClose={onClose}
+        title="Success!"
+        small
+      >
+        <Modal.Section>
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">
+              {actionCompleted === 'added' ? 'Video Added to Product!' : 'Video Saved to Library!'}
+            </h3>
+            <p className="text-gray-600">
+              {actionCompleted === 'added'
+                ? 'The video is now live on your product page in Shopify.'
+                : 'You can add this video to your product later from the Video Library.'}
+            </p>
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">
-            {actionCompleted === 'added' ? 'Video Added to Product!' : 'Video Saved to Library!'}
-          </h3>
-          <p className="text-gray-300">
-            {actionCompleted === 'added'
-              ? 'The video is now live on your product page in Shopify.'
-              : 'You can add this video to your product later from the Video Library.'}
-          </p>
-        </div>
-      </div>
+        </Modal.Section>
+      </Modal>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
-        <div className="sticky top-0 bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between z-10">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Review Your Video</h2>
-            <p className="text-sm text-gray-400 mt-0.5">Preview before adding to product</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-300 hover:text-white"
-            disabled={isAdding || isSaving || isDiscarding}
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <Modal
+      open={true}
+      onClose={isAdding || isSaving || isDiscarding ? () => {} : onClose}
+      title={
+        <div>
+          <div className="font-bold">Review Your Video</div>
+          <div className="text-sm text-gray-500 font-normal">Preview before adding to product</div>
         </div>
-
-        <div className="p-6">
+      }
+      large
+    >
+      <Modal.Section>
+        <div className="bg-gray-950 rounded-lg p-6">
           <div className="grid lg:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 className="text-sm font-medium text-gray-200 mb-3">Generated Video</h3>
@@ -149,9 +153,9 @@ export function VideoPreviewModal({
             </div>
           </div>
 
-          <div className="bg-purple-900/30 border border-purple-700/30 rounded-lg p-4 mb-6">
+          <div className="bg-blue-900/30 border border-blue-700/30 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
-              <ExternalLink className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+              <ExternalLink className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-medium text-gray-100 mb-1">What happens when you add to product?</h4>
                 <p className="text-sm text-gray-400">
@@ -166,7 +170,7 @@ export function VideoPreviewModal({
             <button
               onClick={handleAddToProduct}
               disabled={isAdding || isSaving || isDiscarding}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {isAdding ? (
                 <>
@@ -184,7 +188,7 @@ export function VideoPreviewModal({
             <button
               onClick={handleRegenerate}
               disabled={isAdding || isSaving || isDiscarding}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               <RotateCw className="w-5 h-5" />
               Regenerate
@@ -193,7 +197,7 @@ export function VideoPreviewModal({
             <button
               onClick={handleSaveToLibrary}
               disabled={isAdding || isSaving || isDiscarding}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
@@ -211,7 +215,7 @@ export function VideoPreviewModal({
             <button
               onClick={handleDiscard}
               disabled={isAdding || isSaving || isDiscarding}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {isDiscarding ? (
                 <>
@@ -233,7 +237,7 @@ export function VideoPreviewModal({
             </p>
           </div>
         </div>
-      </div>
-    </div>
+      </Modal.Section>
+    </Modal>
   );
 }

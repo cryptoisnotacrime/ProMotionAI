@@ -267,7 +267,7 @@ export function MultiImagePicker({
         </div>
       )}
 
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         {selectedImages.map((image, index) => {
           let slotLabel = '';
           if (imageMode === 'first-last-frame') {
@@ -456,12 +456,12 @@ export function MultiImagePicker({
           {activeTab === 'product' && availableProductImages.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-xs font-semibold text-gray-300">Product Gallery</h4>
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                 {availableProductImages.slice(0, 12).map((img) => (
                   <button
                     key={img.id}
                     onClick={() => handleProductImageSelect(img.src)}
-                    className="aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-purple-500 overflow-hidden transition-all group"
+                    className="min-h-[44px] aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-blue-500 overflow-hidden transition-all group"
                   >
                     <img
                       src={img.src}
@@ -515,12 +515,12 @@ export function MultiImagePicker({
                       Refresh
                     </button>
                   </div>
-                  <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
                     {socialPhotos.map((photo) => (
                       <button
                         key={photo.id}
                         onClick={() => handleSocialPhotoSelect(photo)}
-                        className="relative aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-purple-500 overflow-hidden transition-all group"
+                        className="relative min-h-[44px] aspect-square bg-gray-800 rounded border-2 border-gray-700 hover:border-blue-500 overflow-hidden transition-all group"
                         title={photo.caption}
                       >
                         <img
