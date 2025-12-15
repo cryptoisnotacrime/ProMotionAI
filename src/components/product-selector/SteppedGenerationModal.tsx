@@ -80,6 +80,13 @@ export function SteppedGenerationModal({
   const imageCount = selectedImages.length;
   const requiresEightSeconds = imageMode === 'multiple-angles' && imageCount > 1;
 
+  // Auto-adjust imageMode when image count changes
+  useEffect(() => {
+    if (imageCount === 1) {
+      setImageMode('first-last-frame');
+    }
+  }, [imageCount]);
+
   const getBrandColors = (): string => {
     if (store.brand_colors && store.brand_colors.length > 0) {
       const colorNames = store.brand_colors
@@ -352,6 +359,9 @@ export function SteppedGenerationModal({
     const aspectRatio = aspectRatioMap[templateInputs.platform || '9:16'] || '9:16';
     const imageUrls = selectedImages.map(img => img.url.trim());
 
+    // Only pass imageMode if there are multiple images
+    const effectiveImageMode = imageCount > 1 ? imageMode : undefined;
+
     onGenerate(
       promptText,
       duration,
@@ -359,7 +369,7 @@ export function SteppedGenerationModal({
       undefined,
       { ...templateInputs, template_name: selectedTemplate.template_name, category: selectedTemplate.meta.category, image_count: imageCount },
       imageUrls,
-      imageMode,
+      effectiveImageMode,
       resolution
     );
   };
