@@ -22,30 +22,21 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
       {/* Desktop Navigation - Hidden on Mobile */}
       <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-100">ProMotionAI</span>
-            </div>
-
-            <div className="flex gap-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    currentView === item.id
-                      ? 'bg-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/10'
-                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-300'
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  currentView === item.id
+                    ? 'bg-blue-600/20 text-blue-400 shadow-lg shadow-blue-500/10'
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-300'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label}
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center gap-4">

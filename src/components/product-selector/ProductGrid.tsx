@@ -267,7 +267,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* Thumbnail */}
         <div
-          className="w-20 h-20 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+          className="w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
           onClick={() => mainImage && onSelectImage(mainImage.src)}
         >
           {mainImage ? (

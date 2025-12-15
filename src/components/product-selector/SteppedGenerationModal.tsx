@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal } from '@shopify/polaris';
-import { X, Image as ImageIcon, Clock, MonitorPlay, Film, Settings as SettingsIcon, Play, ChevronDown, ChevronUp, CheckCircle2, Circle } from 'lucide-react';
+import { X, Image as ImageIcon, Clock, MonitorPlay, Film, Settings as SettingsIcon, Play, ChevronDown, ChevronUp, CheckCircle2, Circle, Bookmark, Sparkles } from 'lucide-react';
 import { ShopifyProduct } from '../../services/shopify/products.service';
 import { DetailedTemplate, getTemplatesByTier, fillTemplateVariables } from '../../services/ai-generator/json-templates.service';
 import { TemplateInput } from '../../services/ai-generator/template.service';
@@ -12,6 +12,7 @@ import { calculateCreditsRequired } from '../../constants/video-generation';
 import { prefillFromStoreSettings } from '../../services/ai-generator/prefill.service';
 import { TemplateMappingService } from '../../services/ai-generator/template-mapper.service';
 import { hexToColorName } from '../../utils/color-converter';
+import { CustomTemplatesService } from '../../services/ai-generator/custom-templates.service';
 
 interface SteppedGenerationModalProps {
   product: ShopifyProduct;
@@ -64,6 +65,8 @@ export function SteppedGenerationModal({
   ]);
   const [imageMode, setImageMode] = useState<ImageMode>('multiple-angles');
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
   const stepRefs = useRef<Record<Step, HTMLDivElement | null>>({
     images: null,
@@ -220,6 +223,46 @@ export function SteppedGenerationModal({
     const element = stepRefs.current[step];
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleSaveTemplate = async (templateName: string, templateDescription: string, category: string) => {
+    if (!selectedTemplate) return;
+
+    setIsSavingTemplate(true);
+    try {
+      const settings = {
+        visual_style: templateInputs.visual_style,
+        camera_motion: templateInputs.camera_motion,
+        lighting_mood: templateInputs.lighting_mood,
+        background_style: templateInputs.background_style,
+        tone: templateInputs.tone,
+        lens_effect: templateInputs.lens_effect,
+        color_palette: templateInputs.color_palette,
+        platform: resolution === '1080p' ? '16:9' : '9:16',
+        aspect_ratio: resolution === '1080p' ? '16:9' : '9:16',
+        duration: duration,
+        tier: 'Pro',
+        keywords: selectedTemplate.keywords || [],
+        negative_prompt: selectedTemplate.negative_prompt,
+      };
+
+      await CustomTemplatesService.saveCustomTemplate(store.id, {
+        name: templateName,
+        description: templateDescription,
+        category: category,
+        base_template_id: selectedTemplate.template_name,
+        settings,
+      });
+
+      alert('Template saved successfully! You can now find it in your custom templates.');
+      setShowSaveTemplateModal(false);
+      await loadTemplates();
+    } catch (error) {
+      console.error('Failed to save template:', error);
+      alert('Failed to save template. Please try again.');
+    } finally {
+      setIsSavingTemplate(false);
     }
   };
 
@@ -567,6 +610,29 @@ export function SteppedGenerationModal({
             )}
           </button>
 
+          {isProPlan ? (
+            <button
+              onClick={() => setShowSaveTemplateModal(true)}
+              disabled={!canComplete}
+              className="w-full min-h-[48px] px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-gray-700 flex items-center justify-center gap-2"
+            >
+              <Bookmark className="w-4 h-4" />
+              Save as Template
+            </button>
+          ) : (
+            <button
+              onClick={() => alert('Upgrade to Pro to save custom templates and reuse your favorite video configurations!')}
+              className="w-full min-h-[48px] px-6 py-3 bg-gradient-to-r from-purple-900/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-800/70 text-purple-300 font-bold rounded-lg transition-all border border-purple-700 flex items-center justify-center gap-2 relative"
+            >
+              <Bookmark className="w-4 h-4" />
+              Save as Template
+              <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                PRO
+              </span>
+            </button>
+          )}
+
           {!hasEnoughCredits && (
             <div className="mt-2 bg-red-900/20 border border-red-500/30 rounded-lg p-2 text-xs text-red-300 text-center">
               Insufficient credits. You need {creditCost - creditsAvailable} more credit{creditCost - creditsAvailable !== 1 ? 's' : ''}.
@@ -575,6 +641,14 @@ export function SteppedGenerationModal({
           </div>
         </div>
       </div>
+
+      {showSaveTemplateModal && (
+        <SaveTemplateModal
+          onSave={handleSaveTemplate}
+          onClose={() => setShowSaveTemplateModal(false)}
+          isSaving={isSavingTemplate}
+        />
+      )}
     </>
   );
 }
@@ -643,3 +717,116 @@ const StepCard = React.forwardRef<HTMLDivElement, StepCardProps>(
 );
 
 StepCard.displayName = 'StepCard';
+
+interface SaveTemplateModalProps {
+  onSave: (name: string, description: string, category: string) => void;
+  onClose: () => void;
+  isSaving: boolean;
+}
+
+function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps) {
+  const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
+  const [category, setCategory] = useState('Product');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (templateName.trim()) {
+      onSave(templateName.trim(), templateDescription.trim(), category);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[100]" onClick={onClose}>
+      <div className="bg-gray-900 rounded-xl max-w-md w-full border border-gray-700" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-100 flex items-center gap-2">
+            <Bookmark className="w-5 h-5 text-blue-400" />
+            Save as Template
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Template Name
+            </label>
+            <input
+              type="text"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="e.g., My Product Video Style"
+              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              value={templateDescription}
+              onChange={(e) => setTemplateDescription(e.target.value)}
+              placeholder="Describe what makes this template special..."
+              rows={3}
+              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="Product">Product</option>
+              <option value="Lifestyle">Lifestyle</option>
+              <option value="Promotional">Promotional</option>
+              <option value="Social Media">Social Media</option>
+              <option value="Story">Story</option>
+              <option value="UGC">UGC</option>
+            </select>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-colors border border-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving || !templateName.trim()}
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-4 h-4" />
+                  Save Template
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
