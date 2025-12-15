@@ -4,7 +4,7 @@ import { ShopifyAppBridge } from './components/auth/ShopifyAppBridge';
 import { Navbar } from './components/layout/Navbar';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { ProductGrid } from './components/product-selector/ProductGrid';
-import { GenerationModal } from './components/product-selector/GenerationModal';
+import { SteppedGenerationModal } from './components/product-selector/SteppedGenerationModal';
 import { VideoLibrary } from './components/video-library/VideoLibrary';
 import { PricingPlans } from './components/billing/PricingPlans';
 import { LowCreditBanner } from './components/billing/LowCreditBanner';
@@ -574,7 +574,7 @@ function App() {
       </main>
 
       {selectedProduct && (
-        <GenerationModal
+        <SteppedGenerationModal
           product={selectedProduct.product}
           imageUrl={selectedProduct.imageUrl}
           creditsAvailable={store.credits_remaining}
