@@ -355,6 +355,12 @@ export function SteppedGenerationModal({
     // Only pass imageMode if there are multiple images
     const effectiveImageMode = imageCount > 1 ? imageMode : undefined;
 
+    // Defensive check: Ensure no invalid mode combinations
+    if (imageCount === 1 && imageMode === 'multiple-angles') {
+      console.warn('Auto-correcting: single image cannot use multiple-angles mode');
+      // Don't show error to user, just auto-correct by not passing mode
+    }
+
     onGenerate(
       promptText,
       duration,

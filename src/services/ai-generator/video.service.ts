@@ -62,23 +62,37 @@ export class VideoGenerationService {
 
     try {
       const apiUrl = `${import.meta.env.VITE_Bolt_Database_URL}/functions/v1/generate-video`;
+
+      // Only set imageMode when there are multiple images
+      let effectiveImageMode: 'first-last-frame' | 'multiple-angles' | undefined;
+      if (imageUrls.length > 1) {
+        effectiveImageMode = request.imageMode || (imageUrls.length === 2 ? 'first-last-frame' : 'multiple-angles');
+      }
+      // For single image: leave undefined (no mode needed)
+
+      const requestBody: any = {
+        videoId: videoRecord.id,
+        storeId: request.storeId,
+        imageUrls: imageUrls,
+        prompt: request.prompt || `Create an engaging e-commerce product video showcasing ${request.productTitle} for an online store`,
+        durationSeconds: durationSeconds,
+        aspectRatio: request.aspectRatio || '9:16',
+        creditsRequired: creditsRequired,
+        resolution: request.resolution || '720p',
+      };
+
+      // Only include imageMode if it's defined
+      if (effectiveImageMode) {
+        requestBody.imageMode = effectiveImageMode;
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_Bolt_Database_ANON_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          videoId: videoRecord.id,
-          storeId: request.storeId,
-          imageUrls: imageUrls,
-          imageMode: request.imageMode || (imageUrls.length === 2 ? 'first-last-frame' : 'multiple-angles'),
-          prompt: request.prompt || `Create an engaging e-commerce product video showcasing ${request.productTitle} for an online store`,
-          durationSeconds: durationSeconds,
-          aspectRatio: request.aspectRatio || '9:16',
-          creditsRequired: creditsRequired,
-          resolution: request.resolution || '720p',
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {

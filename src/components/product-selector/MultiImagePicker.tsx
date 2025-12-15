@@ -31,7 +31,7 @@ export function MultiImagePicker({
   storeId,
   planName = 'free',
 }: MultiImagePickerProps) {
-  const [imageMode, setImageMode] = useState<ImageMode>('multiple-angles');
+  const [imageMode, setImageMode] = useState<ImageMode>('first-last-frame');
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     productImages[0] ? { url: productImages[0].src.trim(), isProductImage: true, source: 'product' } : null
   ].filter(Boolean) as ImageSlot[]);
@@ -45,6 +45,14 @@ export function MultiImagePicker({
   const [socialConnections, setSocialConnections] = useState<SocialMediaConnection[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
   const [socialError, setSocialError] = useState<string | null>(null);
+
+  // Auto-correct mode based on image count
+  useEffect(() => {
+    if (selectedImages.length === 1 && imageMode === 'multiple-angles') {
+      setImageMode('first-last-frame');
+      onImagesChange(selectedImages, 'first-last-frame');
+    }
+  }, [selectedImages.length]);
 
   // Load social media connections and photos
   useEffect(() => {
@@ -198,7 +206,9 @@ export function MultiImagePicker({
         <div>
           <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
           <p className="text-xs text-gray-400 mt-0.5">
-            {selectedImages.length} of {maxImagesForMode} selected
+            {selectedImages.length === 1
+              ? '1 image selected'
+              : `${selectedImages.length} images selected (max ${maxImagesForMode})`}
           </p>
         </div>
         <button
@@ -210,46 +220,50 @@ export function MultiImagePicker({
         </button>
       </div>
 
-      {/* Mode Selection Toggle */}
-      <div className="bg-gray-800/50 rounded-lg p-1 flex gap-1">
-        <button
-          onClick={() => handleModeChange('multiple-angles')}
-          className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
-            imageMode === 'multiple-angles'
-              ? 'bg-purple-600 text-white shadow-lg'
-              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-          }`}
-        >
-          <Grid3x3 className="w-3.5 h-3.5" />
-          Multiple Angles
-        </button>
-        <button
-          onClick={() => handleModeChange('first-last-frame')}
-          className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
-            imageMode === 'first-last-frame'
-              ? 'bg-purple-600 text-white shadow-lg'
-              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-          }`}
-        >
-          <MoveRight className="w-3.5 h-3.5" />
-          First & Last Frame
-        </button>
-      </div>
+      {/* Mode Selection Toggle - Only show when multiple images */}
+      {selectedImages.length >= 2 && (
+        <>
+          <div className="bg-gray-800/50 rounded-lg p-1 flex gap-1">
+            <button
+              onClick={() => handleModeChange('multiple-angles')}
+              className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                imageMode === 'multiple-angles'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+              }`}
+            >
+              <Grid3x3 className="w-3.5 h-3.5" />
+              Multiple Angles
+            </button>
+            <button
+              onClick={() => handleModeChange('first-last-frame')}
+              className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                imageMode === 'first-last-frame'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+              }`}
+            >
+              <MoveRight className="w-3.5 h-3.5" />
+              First & Last Frame
+            </button>
+          </div>
 
-      {/* Mode Description */}
-      <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-2.5 text-xs">
-        {imageMode === 'multiple-angles' ? (
-          <>
-            <p className="font-semibold text-blue-200 mb-1">Multiple Angles Mode</p>
-            <p className="text-blue-300">Best for: Product showcases showing different angles and perspectives (up to 3 images)</p>
-          </>
-        ) : (
-          <>
-            <p className="font-semibold text-blue-200 mb-1">First & Last Frame Mode</p>
-            <p className="text-blue-300">Best for: Storytelling with precise control over opening and closing shots (2 images)</p>
-          </>
-        )}
-      </div>
+          {/* Mode Description */}
+          <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-2.5 text-xs">
+            {imageMode === 'multiple-angles' ? (
+              <>
+                <p className="font-semibold text-blue-200 mb-1">Multiple Angles Mode</p>
+                <p className="text-blue-300">Best for: Product showcases showing different angles and perspectives (up to 3 images)</p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-blue-200 mb-1">First & Last Frame Mode</p>
+                <p className="text-blue-300">Best for: Storytelling with precise control over opening and closing shots (2 images)</p>
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       {showTips && (
         <div className="bg-purple-900/30 border border-purple-700/30 rounded-lg p-3 text-xs space-y-2">
