@@ -63,7 +63,7 @@ export function SteppedGenerationModal({
   const [selectedImages, setSelectedImages] = useState<ImageSlot[]>([
     { url: imageUrl, isProductImage: true, source: 'product' }
   ]);
-  const [imageMode, setImageMode] = useState<ImageMode>('multiple-angles');
+  const [imageMode, setImageMode] = useState<ImageMode>('first-last-frame');
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
@@ -79,13 +79,6 @@ export function SteppedGenerationModal({
   const isProPlan = planName.toLowerCase() === 'pro' || planName.toLowerCase() === 'enterprise';
   const imageCount = selectedImages.length;
   const requiresEightSeconds = imageMode === 'multiple-angles' && imageCount > 1;
-
-  // Auto-adjust imageMode when image count changes
-  useEffect(() => {
-    if (imageCount === 1) {
-      setImageMode('first-last-frame');
-    }
-  }, [imageCount]);
 
   const getBrandColors = (): string => {
     if (store.brand_colors && store.brand_colors.length > 0) {
@@ -382,6 +375,7 @@ export function SteppedGenerationModal({
 
   const isStepComplete = (step: Step) => completedSteps.has(step);
   const canComplete = selectedTemplate && hasEnoughCredits;
+  const allStepsComplete = isStepComplete('settings');
 
   return (
     <>
@@ -605,7 +599,7 @@ export function SteppedGenerationModal({
           <button
             onClick={handleGenerate}
             disabled={!canComplete || isGenerating}
-            className="w-full min-h-[48px] px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+            className="w-full min-h-[44px] px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
           >
             {isGenerating ? (
               <>
@@ -620,27 +614,31 @@ export function SteppedGenerationModal({
             )}
           </button>
 
-          {isProPlan ? (
-            <button
-              onClick={() => setShowSaveTemplateModal(true)}
-              disabled={!canComplete}
-              className="w-full min-h-[48px] px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-gray-700 flex items-center justify-center gap-2"
-            >
-              <Bookmark className="w-4 h-4" />
-              Save as Template
-            </button>
-          ) : (
-            <button
-              onClick={() => alert('Upgrade to Pro to save custom templates and reuse your favorite video configurations!')}
-              className="w-full min-h-[48px] px-6 py-3 bg-gradient-to-r from-purple-900/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-800/70 text-purple-300 font-bold rounded-lg transition-all border border-purple-700 flex items-center justify-center gap-2 relative"
-            >
-              <Bookmark className="w-4 h-4" />
-              Save as Template
-              <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                PRO
-              </span>
-            </button>
+          {allStepsComplete && (
+            <>
+              {isProPlan ? (
+                <button
+                  onClick={() => setShowSaveTemplateModal(true)}
+                  disabled={!canComplete}
+                  className="w-full min-h-[44px] px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-gray-700 flex items-center justify-center gap-2 mt-2"
+                >
+                  <Bookmark className="w-4 h-4" />
+                  Save as Template
+                </button>
+              ) : (
+                <button
+                  onClick={() => alert('Upgrade to Pro to save custom templates and reuse your favorite video configurations!')}
+                  className="w-full min-h-[44px] px-6 py-2.5 bg-gradient-to-r from-purple-900/50 to-purple-800/50 hover:from-purple-900/70 hover:to-purple-800/70 text-purple-300 font-bold rounded-lg transition-all border border-purple-700 flex items-center justify-center gap-2 relative mt-2"
+                >
+                  <Bookmark className="w-4 h-4" />
+                  Save as Template
+                  <span className="ml-2 px-2 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    PRO
+                  </span>
+                </button>
+              )}
+            </>
           )}
 
           {!hasEnoughCredits && (
@@ -747,10 +745,10 @@ function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[100]" onClick={onClose}>
-      <div className="bg-gray-900 rounded-xl max-w-md w-full border border-gray-700" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-100 flex items-center gap-2">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[1100] overflow-hidden" onClick={onClose}>
+      <div className="bg-gray-900 rounded-xl max-w-lg w-full max-h-[90vh] border border-gray-700 flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-100 flex items-center gap-2">
             <Bookmark className="w-5 h-5 text-blue-400" />
             Save as Template
           </h2>
@@ -762,9 +760,9 @@ function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
               Template Name
             </label>
             <input
@@ -772,14 +770,14 @@ function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
               placeholder="e.g., My Product Video Style"
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2.5 bg-gray-800 border border-gray-700 text-sm sm:text-base text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
               Description (Optional)
             </label>
             <textarea
@@ -787,18 +785,18 @@ function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps
               onChange={(e) => setTemplateDescription(e.target.value)}
               placeholder="Describe what makes this template special..."
               rows={3}
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 sm:px-4 py-2.5 bg-gray-800 border border-gray-700 text-sm sm:text-base text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2.5 bg-gray-800 border border-gray-700 text-sm sm:text-base text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="Product">Product</option>
               <option value="Lifestyle">Lifestyle</option>
@@ -809,28 +807,30 @@ function SaveTemplateModal({ onSave, onClose, isSaving }: SaveTemplateModalProps
             </select>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-2 sm:pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-colors border border-gray-700"
+              className="flex-1 min-h-[44px] px-3 sm:px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm sm:text-base font-medium rounded-lg transition-colors border border-gray-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving || !templateName.trim()}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+              className="flex-1 min-h-[44px] px-3 sm:px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
             >
               {isSaving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
+                  <span className="hidden sm:inline">Saving...</span>
+                  <span className="sm:hidden">Save...</span>
                 </>
               ) : (
                 <>
                   <Bookmark className="w-4 h-4" />
-                  Save Template
+                  <span className="hidden sm:inline">Save Template</span>
+                  <span className="sm:hidden">Save</span>
                 </>
               )}
             </button>
