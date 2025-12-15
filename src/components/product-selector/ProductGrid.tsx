@@ -264,7 +264,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-3 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* Thumbnail */}
         <div
           className="w-20 h-20 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
@@ -288,7 +288,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
           <h3 className="font-medium text-gray-100 text-sm line-clamp-1 mb-1">
             {product.title}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-gray-400">
+          <div className="flex items-center flex-wrap gap-2 sm:gap-3 text-xs text-gray-400">
             <div className="flex items-center gap-1">
               <Image className="w-3.5 h-3.5" />
               <span>{imageCount} photo{imageCount !== 1 ? 's' : ''}</span>
@@ -309,11 +309,11 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           {videoCount > 0 && onViewVideos ? (
             <button
               onClick={() => onViewVideos(product.id.toString())}
-              className="px-3 py-1.5 bg-green-900/30 text-green-400 rounded-lg text-xs font-medium hover:bg-green-900/50 transition-colors flex items-center gap-1"
+              className="px-3 py-2 bg-green-900/30 text-green-400 rounded-lg text-xs font-medium hover:bg-green-900/50 transition-colors flex items-center justify-center gap-1.5 min-h-[36px]"
             >
               <CheckCircle className="w-3.5 h-3.5" />
               View Videos
@@ -321,7 +321,7 @@ function ProductListItem({ product, onSelectImage, videoCount, completedVideoCou
           ) : null}
           <button
             onClick={() => mainImage && onSelectImage(mainImage.src)}
-            className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-500 transition-colors"
+            className="px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-500 transition-colors min-h-[36px]"
           >
             Generate
           </button>

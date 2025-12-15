@@ -32,7 +32,7 @@ export function TemplateSelector({
   userTier,
   storeId,
 }: TemplateSelectorProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Cinematic Reveal']));
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [customTemplates, setCustomTemplates] = useState<DetailedTemplate[]>([]);
 
   useEffect(() => {

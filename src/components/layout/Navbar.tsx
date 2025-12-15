@@ -19,7 +19,8 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
 
   return (
     <nav className="bg-gray-950 border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Desktop Navigation - Hidden on Mobile */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
@@ -29,7 +30,7 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
               <span className="text-xl font-bold text-gray-100">ProMotionAI</span>
             </div>
 
-            <div className="hidden md:flex gap-1">
+            <div className="flex gap-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -88,6 +89,7 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
         </div>
       </div>
 
+      {/* Mobile Navigation - Only visible on small screens */}
       <div className="md:hidden border-t border-gray-800">
         <div className="flex overflow-x-auto">
           {navItems.map((item) => (
@@ -104,13 +106,24 @@ export function Navbar({ currentView, onNavigate, creditsRemaining, creditsTotal
           ))}
           <button
             onClick={() => onNavigate('billing')}
-            className="min-h-[44px] flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-800 bg-blue-600/20 min-w-[100px]"
+            className={`min-h-[44px] flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-800 min-w-[80px] ${
+              currentView === 'billing' ? 'bg-blue-600/20 text-blue-400' : 'text-gray-400'
+            }`}
           >
             <div className="flex items-center gap-1">
               {isLowCredits && <AlertTriangle className="w-4 h-4 text-orange-400" />}
               <CreditCard className="w-4 h-4 text-blue-400" />
             </div>
             <span className="text-xs font-bold text-blue-300">{creditsRemaining}</span>
+          </button>
+          <button
+            onClick={() => onNavigate('settings')}
+            className={`min-h-[44px] flex flex-col items-center justify-center gap-1 py-3 px-4 border-l border-gray-800 min-w-[80px] ${
+              currentView === 'settings' ? 'bg-blue-600/20 text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            <Settings className="w-5 h-5" />
+            <span className="text-xs font-medium">Settings</span>
           </button>
         </div>
       </div>

@@ -267,7 +267,7 @@ export function MultiImagePicker({
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {selectedImages.map((image, index) => {
           let slotLabel = '';
           if (imageMode === 'first-last-frame') {
@@ -286,21 +286,21 @@ export function MultiImagePicker({
                 alt={`Reference ${index + 1}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-1.5 left-1.5 bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
+              <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-lg">
                 {slotLabel}
               </div>
               <button
                 onClick={() => removeImage(index)}
-                className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                className="absolute top-2 right-2 min-h-[32px] min-w-[32px] bg-red-500 text-white rounded-full opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600 shadow-lg"
               >
                 <X className="w-4 h-4" />
               </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-[10px] px-2 py-1.5 flex items-center gap-1">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent text-white text-xs px-2.5 py-2 flex items-center gap-1.5">
                 {image.source === 'product' && 'Product'}
                 {image.source === 'upload' && 'Uploaded'}
                 {image.source === 'url' && 'URL'}
-                {image.source === 'instagram' && <><Instagram className="w-3 h-3" /> Instagram</>}
-                {image.source === 'tiktok' && <><Music className="w-3 h-3" /> TikTok</>}
+                {image.source === 'instagram' && <><Instagram className="w-3.5 h-3.5" /> Instagram</>}
+                {image.source === 'tiktok' && <><Music className="w-3.5 h-3.5" /> TikTok</>}
               </div>
             </div>
           );

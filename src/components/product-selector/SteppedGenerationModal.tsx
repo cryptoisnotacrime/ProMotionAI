@@ -331,34 +331,40 @@ export function SteppedGenerationModal({
   const canComplete = selectedTemplate && hasEnoughCredits;
 
   return (
-    <Modal
-      open={true}
-      onClose={isGenerating ? () => {} : onClose}
-      large
-    >
-      <div className="bg-gray-950 min-h-[80vh] max-h-[90vh] overflow-y-auto">
-        {/* Progress Bar */}
-        <div className="sticky top-0 z-10 bg-gray-950 border-b border-gray-800 px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-gray-100">{product.title}</h2>
-            <button onClick={onClose} className="min-h-[44px] min-w-[44px] p-2 hover:bg-gray-800 rounded-lg transition-colors">
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
-          </div>
-          <div className="flex gap-1">
-            {STEPS.map((step, index) => (
-              <div key={step.id} className="flex-1">
-                <div className={`h-1 rounded-full transition-all ${
-                  isStepComplete(step.id) ? 'bg-blue-500' :
-                  activeStep === step.id ? 'bg-blue-600 animate-pulse' :
-                  'bg-gray-800'
-                }`} />
-              </div>
-            ))}
-          </div>
-        </div>
+    <>
+      {/* Dark Backdrop */}
+      <div className="fixed inset-0 bg-black/80 z-[999]" onClick={isGenerating ? undefined : onClose} />
 
-        <div className="p-4 space-y-3">
+      {/* Modal Container */}
+      <div className="fixed inset-0 md:inset-8 z-[1000] flex items-center justify-center p-0 md:p-4">
+        <div className="bg-gray-950 w-full h-full md:h-auto md:max-h-[90vh] md:rounded-xl md:shadow-2xl overflow-hidden flex flex-col">
+          {/* Progress Bar */}
+          <div className="sticky top-0 z-10 bg-gray-950 border-b border-gray-800 px-3 sm:px-4 py-2.5 sm:py-3 flex-shrink-0">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-gray-100 truncate pr-2 max-w-[calc(100%-48px)]">{product.title}</h2>
+              <button
+                onClick={onClose}
+                className="min-h-[44px] min-w-[44px] p-2 hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
+                disabled={isGenerating}
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="flex gap-1">
+              {STEPS.map((step, index) => (
+                <div key={step.id} className="flex-1">
+                  <div className={`h-1 rounded-full transition-all ${
+                    isStepComplete(step.id) ? 'bg-blue-500' :
+                    activeStep === step.id ? 'bg-blue-600 animate-pulse' :
+                    'bg-gray-800'
+                  }`} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
           {/* Images Step */}
           <StepCard
             step={STEPS[0]}
@@ -566,9 +572,10 @@ export function SteppedGenerationModal({
               Insufficient credits. You need {creditCost - creditsAvailable} more credit{creditCost - creditsAvailable !== 1 ? 's' : ''}.
             </div>
           )}
+          </div>
         </div>
       </div>
-    </Modal>
+    </>
   );
 }
 
