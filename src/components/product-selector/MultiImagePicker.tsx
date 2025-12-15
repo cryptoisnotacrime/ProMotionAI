@@ -203,14 +203,11 @@ export function MultiImagePicker({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-100">Reference Images</h3>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {selectedImages.length === 1
-              ? '1 image selected'
-              : `${selectedImages.length} images selected (max ${maxImagesForMode})`}
-          </p>
-        </div>
+        <p className="text-sm text-gray-300 font-medium">
+          {selectedImages.length === 1
+            ? '1 image selected'
+            : `${selectedImages.length} images selected (max ${maxImagesForMode})`}
+        </p>
         <button
           onClick={() => setShowTips(!showTips)}
           className="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1"
